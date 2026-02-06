@@ -57,7 +57,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMe
                  {msg.role === 'user' ? <User className="w-3 h-3" /> : <Bot className="w-3 h-3" />}
                  <span>{msg.role === 'user' ? 'You' : 'ZenSpace'}</span>
               </div>
-              <ReactMarkdown className="prose prose-sm prose-invert max-w-none">
+              <ReactMarkdown className={`prose prose-sm max-w-none ${msg.role === 'user' ? 'prose-invert' : ''}`}>
                 {msg.text}
               </ReactMarkdown>
             </div>

@@ -4,8 +4,9 @@ import { AnalysisResult } from '../types';
 const apiKey = process.env.API_KEY || '';
 const ai = new GoogleGenAI({ apiKey });
 
-const ANALYSIS_MODEL = 'gemini-3-pro-preview';
-const VISUALIZATION_MODEL = 'gemini-2.5-flash-image';
+// Using latest Gemini models - update if needed
+const ANALYSIS_MODEL = 'gemini-2.0-flash';
+const VISUALIZATION_MODEL = 'gemini-2.0-flash-exp'; // Flash exp supports image generation
 
 export const analyzeImage = async (base64Image: string, mimeType: string): Promise<AnalysisResult> => {
   try {
@@ -80,10 +81,17 @@ export const analyzeImage = async (base64Image: string, mimeType: string): Promi
 
     const parsed = JSON.parse(response.text);
 
+    // Convert snake_case API response to camelCase for TypeScript
+    const products = (parsed.products || []).map((p: { name: string; search_term: string; reason: string }) => ({
+      name: p.name,
+      searchTerm: p.search_term,
+      reason: p.reason
+    }));
+
     return {
       rawText: parsed.analysis_markdown,
       visualizationPrompt: parsed.visualization_prompt,
-      products: parsed.products || []
+      products
     };
   } catch (error) {
     console.error("Analysis failed:", error);
