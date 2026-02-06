@@ -5,6 +5,9 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
+      // Use /zenspace base path for deployment under dustyork.com/zenspace
+      // Set to '/' in development or if deploying to root domain
+      base: process.env.VERCEL ? '/' : '/',
       server: {
         port: 3000,
         host: '0.0.0.0',
