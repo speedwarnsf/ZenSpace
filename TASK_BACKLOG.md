@@ -1,6 +1,6 @@
 # ZenSpace Task Backlog
 
-Last updated: 2026-02-06 18:15 PST
+Last updated: 2026-02-06 18:34 PST
 
 ## ✅ Completed
 
@@ -14,8 +14,8 @@ Last updated: 2026-02-06 18:15 PST
 - [x] Image compression before upload
 
 ### Testing
-- [x] 130+ unit tests passing
-- [x] Component tests (App, UploadZone, ChatInterface, ShareButton, SessionManager)
+- [x] 176+ unit tests passing
+- [x] Component tests (App, UploadZone, ChatInterface, ShareButton, SessionManager, ComparisonSlider)
 - [x] Session storage tests (CRUD, search, export/import)
 - [x] Error handling tests
 - [x] Network failure simulation
@@ -60,12 +60,30 @@ Last updated: 2026-02-06 18:15 PST
 - [x] Service worker with caching
 - [x] Offline fallback
 
+### Dark Mode (v1.3.0)
+- [x] ThemeContext with light/dark/system toggle
+- [x] Theme persistence in localStorage
+- [x] Respects system preference
+- [x] Smooth theme transitions
+- [x] Dark mode scrollbar styling
+
+### Visualization Comparison (v1.3.0)
+- [x] Before/after comparison slider component
+- [x] Keyboard navigation (arrow keys)
+- [x] Touch/drag support
+- [x] Responsive design
+- [x] Loading state handling
+- [x] Accessibility (ARIA slider role)
+- [x] Unit tests for ComparisonSlider (17 tests)
+- [x] Fade-out animation for instructions
+- [x] Integrated into AnalysisDisplay
+
 ## 📋 Backlog
 
 ### Medium Priority
-- [x] Before/after comparison slider - ComparisonSlider component integrated into AnalysisDisplay
+- [ ] Before/after comparison slider (DONE - integrated)
 - [ ] Multiple room support
-- [x] Dark mode - ThemeContext with light/dark/system toggle
+- [ ] Room history gallery
 
 ### Low Priority
 - [ ] Custom themes
@@ -95,11 +113,12 @@ Last updated: 2026-02-06 18:15 PST
 | First Paint | < 1.5s |
 | TTI | < 3s |
 | Dark Mode | Full support (light/dark/system) |
-| Comparison | Before/after slider integrated |
+| Comparison View | Slider with keyboard nav |
 
-## 🎯 Next Milestone: v1.3.0
+## 🎯 Next Milestone: v1.4.0
 
-Focus: Enhanced UX
-- [x] Before/after comparison slider - DONE!
+Focus: Multi-room & polish
 - [ ] Multiple room support
-- [x] Dark mode toggle - DONE!
+- [ ] Room history gallery
+- [ ] Performance optimization
+- [ ] Accessibility audit
