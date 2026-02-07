@@ -1,14 +1,95 @@
 import { GoogleGenAI, Chat, Type, Modality } from "@google/genai";
-import { AnalysisResult } from '../types';
+import { AnalysisResult, ProductSuggestion } from '../types';
 
-const apiKey = process.env.API_KEY || '';
+// Environment variable validation with helpful error messages
+const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
+
+/**
+ * Check if the API is configured and ready to use
+ */
+export const isApiConfigured = (): boolean => {
+  return apiKey.length > 0;
+};
+
+/**
+ * Get a user-friendly error message for API configuration issues
+ */
+export const getApiConfigError = (): string => {
+  if (!apiKey) {
+    return 'The Gemini API key is not configured. Please add GEMINI_API_KEY to your environment variables.';
+  }
+  return '';
+};
+
+// Initialize the Gemini AI client
 const ai = new GoogleGenAI({ apiKey });
 
-// Using latest Gemini models - update if needed
+// Model configuration - using latest stable models
 const ANALYSIS_MODEL = 'gemini-2.0-flash';
 const VISUALIZATION_MODEL = 'gemini-2.0-flash-exp'; // Flash exp supports image generation
 
+/**
+ * Custom error class for API-related errors
+ */
+export class GeminiApiError extends Error {
+  public readonly code: string;
+  public readonly isRetryable: boolean;
+
+  constructor(message: string, code: string = 'UNKNOWN', isRetryable: boolean = false) {
+    super(message);
+    this.name = 'GeminiApiError';
+    this.code = code;
+    this.isRetryable = isRetryable;
+  }
+}
+
+/**
+ * Interface for raw API response from analysis
+ */
+interface AnalysisApiResponse {
+  analysis_markdown: string;
+  visualization_prompt: string;
+  products: Array<{
+    name: string;
+    search_term: string;
+    reason: string;
+  }>;
+}
+
+/**
+ * Validates the analysis API response structure
+ */
+const validateAnalysisResponse = (data: unknown): data is AnalysisApiResponse => {
+  if (!data || typeof data !== 'object') return false;
+  const obj = data as Record<string, unknown>;
+  return (
+    typeof obj.analysis_markdown === 'string' &&
+    typeof obj.visualization_prompt === 'string' &&
+    Array.isArray(obj.products)
+  );
+};
+
+/**
+ * Analyze a room image and return organization recommendations
+ * @param base64Image - Base64 encoded image data (without data URL prefix)
+ * @param mimeType - MIME type of the image (e.g., 'image/jpeg')
+ * @returns Analysis results including markdown analysis, visualization prompt, and product suggestions
+ * @throws GeminiApiError if the API call fails
+ */
 export const analyzeImage = async (base64Image: string, mimeType: string): Promise<AnalysisResult> => {
+  // Pre-flight checks
+  if (!isApiConfigured()) {
+    throw new GeminiApiError(
+      'API key not configured. Please add GEMINI_API_KEY to environment variables.',
+      'API_KEY_MISSING',
+      false
+    );
+  }
+
+  if (!base64Image || base64Image.length === 0) {
+    throw new GeminiApiError('No image data provided', 'INVALID_INPUT', false);
+  }
+
   try {
     const response = await ai.models.generateContent({
       model: ANALYSIS_MODEL,
@@ -76,13 +157,34 @@ export const analyzeImage = async (base64Image: string, mimeType: string): Promi
     });
 
     if (!response.text) {
-        throw new Error("No response text received");
+      throw new GeminiApiError(
+        'The AI returned an empty response. Please try again with a different image.',
+        'EMPTY_RESPONSE',
+        true
+      );
     }
 
-    const parsed = JSON.parse(response.text);
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(response.text);
+    } catch (parseError) {
+      throw new GeminiApiError(
+        'Failed to parse AI response. The service may be temporarily unavailable.',
+        'PARSE_ERROR',
+        true
+      );
+    }
 
-    // Convert snake_case API response to camelCase for TypeScript
-    const products = (parsed.products || []).map((p: { name: string; search_term: string; reason: string }) => ({
+    if (!validateAnalysisResponse(parsed)) {
+      throw new GeminiApiError(
+        'Invalid response structure from AI. Please try again.',
+        'INVALID_RESPONSE',
+        true
+      );
+    }
+
+    // Transform snake_case API response to camelCase for TypeScript
+    const products: ProductSuggestion[] = parsed.products.map((p) => ({
       name: p.name,
       searchTerm: p.search_term,
       reason: p.reason
@@ -94,12 +196,71 @@ export const analyzeImage = async (base64Image: string, mimeType: string): Promi
       products
     };
   } catch (error) {
+    // Re-throw our custom errors as-is
+    if (error instanceof GeminiApiError) {
+      throw error;
+    }
+
+    // Handle specific error types
+    if (error instanceof Error) {
+      const message = error.message.toLowerCase();
+      
+      if (message.includes('api key') || message.includes('unauthorized') || message.includes('401')) {
+        throw new GeminiApiError(
+          'Invalid API key. Please check your GEMINI_API_KEY configuration.',
+          'INVALID_API_KEY',
+          false
+        );
+      }
+      
+      if (message.includes('quota') || message.includes('rate limit') || message.includes('429')) {
+        throw new GeminiApiError(
+          'API rate limit exceeded. Please wait a moment and try again.',
+          'RATE_LIMIT',
+          true
+        );
+      }
+      
+      if (message.includes('network') || message.includes('timeout') || message.includes('fetch')) {
+        throw new GeminiApiError(
+          'Network error. Please check your connection and try again.',
+          'NETWORK_ERROR',
+          true
+        );
+      }
+    }
+
+    // Generic fallback
     console.error("Analysis failed:", error);
-    throw error;
+    throw new GeminiApiError(
+      'An unexpected error occurred while analyzing the image. Please try again.',
+      'UNKNOWN',
+      true
+    );
   }
 };
 
-export const generateRoomVisualization = async (prompt: string, originalImageBase64: string, mimeType: string): Promise<string> => {
+/**
+ * Generate an AI visualization of an organized room
+ * @param prompt - Detailed prompt describing the organization changes
+ * @param originalImageBase64 - Base64 encoded original image
+ * @param mimeType - MIME type of the image
+ * @returns Base64 encoded generated image
+ * @throws GeminiApiError if generation fails
+ */
+export const generateRoomVisualization = async (
+  prompt: string,
+  originalImageBase64: string,
+  mimeType: string
+): Promise<string> => {
+  if (!isApiConfigured()) {
+    throw new GeminiApiError(
+      'API key not configured',
+      'API_KEY_MISSING',
+      false
+    );
+  }
+
   try {
     const response = await ai.models.generateContent({
       model: VISUALIZATION_MODEL,
@@ -111,31 +272,33 @@ export const generateRoomVisualization = async (prompt: string, originalImageBas
               data: originalImageBase64
             }
           },
-          { text: `You are an advanced AI image editor specialized in Decluttering and Interior Design.
+          { 
+            text: `You are an advanced AI image editor specialized in Decluttering and Interior Design.
           
-          INPUT: A photo of a messy room.
-          OUTPUT: A photorealistic "After" photo of the same room, perfectly organized.
-          
-          MANDATORY OPERATIONS:
-          1. REMOVE ALL CLUTTER:
-             - Detect clothes, trash, papers, bags, and loose items on the floor.
-             - ERASE them completely.
-             - INPAINT the clean floor texture underneath.
-          
-          2. TIDY FURNITURE:
-             - If there is a bed, MAKE IT. Render smooth sheets and fluffed pillows.
-             - If there are shelves, ALIGN the books and items.
-             - If there are tables, CLEAR them of clutter.
-             
-          3. APPLY SPECIFIC INSTRUCTIONS FROM THE ORGANIZER:
-          ${prompt}
-          
-          4. PRESERVE REALITY:
-             - Do NOT change the wall color.
-             - Do NOT change the window view.
-             - Do NOT move large furniture (wardrobes, sofas, bed frames).
-             
-          Render the final image with high-end interior design photography lighting. Make it look realistic.` }
+            INPUT: A photo of a messy room.
+            OUTPUT: A photorealistic "After" photo of the same room, perfectly organized.
+            
+            MANDATORY OPERATIONS:
+            1. REMOVE ALL CLUTTER:
+               - Detect clothes, trash, papers, bags, and loose items on the floor.
+               - ERASE them completely.
+               - INPAINT the clean floor texture underneath.
+            
+            2. TIDY FURNITURE:
+               - If there is a bed, MAKE IT. Render smooth sheets and fluffed pillows.
+               - If there are shelves, ALIGN the books and items.
+               - If there are tables, CLEAR them of clutter.
+               
+            3. APPLY SPECIFIC INSTRUCTIONS FROM THE ORGANIZER:
+            ${prompt}
+            
+            4. PRESERVE REALITY:
+               - Do NOT change the wall color.
+               - Do NOT change the window view.
+               - Do NOT move large furniture (wardrobes, sofas, bed frames).
+               
+            Render the final image with high-end interior design photography lighting. Make it look realistic.` 
+          }
         ]
       },
       config: {
@@ -143,18 +306,36 @@ export const generateRoomVisualization = async (prompt: string, originalImageBas
       }
     });
 
-    // Extract base64 image
+    // Extract base64 image from response
     const part = response.candidates?.[0]?.content?.parts?.[0];
     if (part && part.inlineData && part.inlineData.data) {
-        return part.inlineData.data;
+      return part.inlineData.data;
     }
-    throw new Error("No image generated");
+    
+    throw new GeminiApiError(
+      'The AI could not generate a visualization for this room. Try a different image or prompt.',
+      'NO_IMAGE_GENERATED',
+      true
+    );
   } catch (error) {
-    console.error("Visualization generation failed:", error);
-    throw error;
-  }
-}
+    if (error instanceof GeminiApiError) {
+      throw error;
+    }
 
+    console.error("Visualization generation failed:", error);
+    throw new GeminiApiError(
+      'Failed to generate room visualization. Please try again.',
+      'VISUALIZATION_FAILED',
+      true
+    );
+  }
+};
+
+/**
+ * Create a chat session for follow-up questions about the room
+ * @param initialContext - The analysis markdown to use as context
+ * @returns A Chat instance for sending messages
+ */
 export const createChatSession = (initialContext: string): Chat => {
   return ai.chats.create({
     model: ANALYSIS_MODEL,

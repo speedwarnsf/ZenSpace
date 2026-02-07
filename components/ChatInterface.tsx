@@ -1,98 +1,196 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback, KeyboardEvent } from 'react';
+import { Send, Bot, User, Loader2, AlertCircle } from 'lucide-react';
 import { ChatMessage } from '../types';
 import ReactMarkdown from 'react-markdown';
 
 interface ChatInterfaceProps {
+  /** List of chat messages to display */
   messages: ChatMessage[];
+  /** Callback when user sends a message */
   onSendMessage: (text: string) => void;
+  /** Whether the AI is currently generating a response */
   isTyping: boolean;
 }
 
-export const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, onSendMessage, isTyping }) => {
+/**
+ * Chat interface component for follow-up questions about room organization
+ */
+export const ChatInterface: React.FC<ChatInterfaceProps> = ({ 
+  messages, 
+  onSendMessage, 
+  isTyping 
+}) => {
   const [input, setInput] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
+  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  /**
+   * Handle form submission
+   */
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
-    onSendMessage(input);
+    const trimmedInput = input.trim();
+    if (!trimmedInput || isTyping) return;
+    
+    onSendMessage(trimmedInput);
     setInput('');
+  }, [input, isTyping, onSendMessage]);
+
+  /**
+   * Handle keyboard navigation
+   */
+  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLInputElement>) => {
+    // Allow Escape to blur the input
+    if (e.key === 'Escape') {
+      inputRef.current?.blur();
+    }
+  }, []);
+
+  /**
+   * Format timestamp for screen readers
+   */
+  const formatTime = (timestamp: number): string => {
+    return new Date(timestamp).toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
   };
 
   return (
-    <div className="flex flex-col h-[600px] bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-      <div className="p-4 border-b border-slate-100 bg-emerald-50/50 flex items-center gap-2">
-        <Bot className="w-5 h-5 text-emerald-600" />
-        <h3 className="font-semibold text-slate-800">Chat with ZenSpace AI</h3>
-      </div>
+    <section 
+      className="flex flex-col h-[600px] bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden"
+      aria-labelledby="chat-heading"
+    >
+      {/* Header */}
+      <header className="p-4 border-b border-slate-100 bg-emerald-50/50 flex items-center gap-2">
+        <Bot className="w-5 h-5 text-emerald-600" aria-hidden="true" />
+        <h3 id="chat-heading" className="font-semibold text-slate-800">
+          Chat with ZenSpace AI
+        </h3>
+      </header>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.length === 0 && (
-            <div className="text-center text-slate-400 mt-10">
-                <p>Ask me anything about organizing your room!</p>
-                <p className="text-sm mt-2">"Where should I put the shoes?"</p>
-                <p className="text-sm">"Suggest a color for the bins."</p>
+      {/* Messages Area */}
+      <div 
+        className="flex-1 overflow-y-auto p-4 space-y-4"
+        role="log"
+        aria-live="polite"
+        aria-atomic="false"
+        aria-label="Chat messages"
+      >
+        {/* Empty State */}
+        {messages.length === 0 && !isTyping && (
+          <div className="text-center text-slate-400 mt-10" aria-hidden="true">
+            <p>Ask me anything about organizing your room!</p>
+            <div className="mt-4 space-y-2 text-sm">
+              <p className="italic">"Where should I put the shoes?"</p>
+              <p className="italic">"Suggest a color for the bins."</p>
+              <p className="italic">"What's the best way to start?"</p>
             </div>
+          </div>
         )}
+        
+        {/* Message List */}
         {messages.map((msg) => (
-          <div
+          <article
             key={msg.id}
             className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            aria-label={`${msg.role === 'user' ? 'You' : 'ZenSpace'} said at ${formatTime(msg.timestamp)}`}
           >
             <div
               className={`
                 max-w-[85%] rounded-2xl p-3 text-sm leading-relaxed
                 ${msg.role === 'user' 
                   ? 'bg-emerald-600 text-white rounded-br-none' 
-                  : 'bg-slate-100 text-slate-800 rounded-bl-none'
+                  : msg.isError 
+                    ? 'bg-red-50 text-red-800 rounded-bl-none border border-red-200' 
+                    : 'bg-slate-100 text-slate-800 rounded-bl-none'
                 }
               `}
             >
+              {/* Message Header */}
               <div className="flex items-center gap-2 mb-1 opacity-80 text-xs font-medium">
-                 {msg.role === 'user' ? <User className="w-3 h-3" /> : <Bot className="w-3 h-3" />}
-                 <span>{msg.role === 'user' ? 'You' : 'ZenSpace'}</span>
+                {msg.role === 'user' ? (
+                  <User className="w-3 h-3" aria-hidden="true" />
+                ) : msg.isError ? (
+                  <AlertCircle className="w-3 h-3 text-red-500" aria-hidden="true" />
+                ) : (
+                  <Bot className="w-3 h-3" aria-hidden="true" />
+                )}
+                <span>{msg.role === 'user' ? 'You' : 'ZenSpace'}</span>
               </div>
-              <ReactMarkdown className={`prose prose-sm max-w-none ${msg.role === 'user' ? 'prose-invert' : ''}`}>
-                {msg.text}
-              </ReactMarkdown>
+              
+              {/* Message Content */}
+              <div className={`prose prose-sm max-w-none ${msg.role === 'user' ? 'prose-invert' : ''}`}>
+                <ReactMarkdown>
+                  {msg.text}
+                </ReactMarkdown>
+              </div>
             </div>
-          </div>
+          </article>
         ))}
         
+        {/* Typing Indicator */}
         {isTyping && (
-          <div className="flex justify-start w-full">
-             <div className="bg-slate-100 rounded-2xl rounded-bl-none p-4 flex items-center gap-2">
-                <Loader className="w-4 h-4 animate-spin text-slate-400" />
-                <span className="text-xs text-slate-500">Thinking...</span>
-             </div>
+          <div 
+            className="flex justify-start w-full"
+            role="status"
+            aria-label="ZenSpace is typing"
+          >
+            <div className="bg-slate-100 rounded-2xl rounded-bl-none p-4 flex items-center gap-2">
+              <Loader2 
+                className="w-4 h-4 animate-spin text-slate-400" 
+                aria-hidden="true" 
+              />
+              <span className="text-xs text-slate-500">Thinking...</span>
+            </div>
           </div>
         )}
-        <div ref={bottomRef} />
+        
+        {/* Scroll anchor */}
+        <div ref={bottomRef} aria-hidden="true" />
       </div>
 
-      <form onSubmit={handleSubmit} className="p-4 border-t border-slate-100 bg-white">
+      {/* Input Form */}
+      <form 
+        onSubmit={handleSubmit} 
+        className="p-4 border-t border-slate-100 bg-white"
+      >
         <div className="relative">
+          <label htmlFor="chat-input" className="sr-only">
+            Type your message
+          </label>
           <input
+            id="chat-input"
+            ref={inputRef}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Ask a follow-up question..."
-            className="w-full pl-4 pr-12 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition-all text-slate-700"
+            disabled={isTyping}
+            className="w-full pl-4 pr-12 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition-all text-slate-700 disabled:bg-slate-50 disabled:cursor-not-allowed"
+            aria-describedby={isTyping ? "typing-status" : undefined}
           />
+          {isTyping && (
+            <span id="typing-status" className="sr-only">
+              Please wait, ZenSpace is responding
+            </span>
+          )}
           <button
             type="submit"
             disabled={!input.trim() || isTyping}
-            className="absolute right-2 top-2 p-1.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            aria-label="Send message"
           >
-            <Send className="w-4 h-4" />
+            <Send className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
       </form>
-    </div>
+    </section>
   );
 };
