@@ -1,6 +1,6 @@
 # ZenSpace Task Backlog
 
-Last updated: 2026-02-06 17:51 PST
+Last updated: 2026-02-06 18:05 PST
 
 ## ✅ Completed
 
@@ -11,6 +11,7 @@ Last updated: 2026-02-06 17:51 PST
 - [x] Product recommendations
 - [x] Drag-and-drop image upload
 - [x] Camera lens aesthetic UI
+- [x] Image compression before upload
 
 ### Testing
 - [x] 78 unit tests passing
@@ -31,41 +32,42 @@ Last updated: 2026-02-06 17:51 PST
 - [x] Vercel hosting
 - [x] Production API key configuration
 
-## 🔄 In Progress
+### Session Management (v1.1.0)
+- [x] Save/load analysis sessions
+- [x] Session thumbnails
+- [x] Session metadata (names, timestamps)
+- [x] Session search and organization
+- [x] Import/export sessions
+- [x] Storage usage tracking
 
-### Mobile Polish
-- [x] Responsive layouts
-- [x] Touch-friendly upload zone
-- [x] Mobile-optimized chat
-- [ ] PWA support (installable)
-- [ ] Offline fallback page
+### Rate Limiting
+- [x] Client-side rate limiter (token bucket)
+- [x] Rate limit state persistence
+- [x] User-friendly rate limit notifications
+- [x] Applied to image analysis, visualization, and chat
 
 ## 📋 Backlog
 
 ### High Priority
-- [x] E2E tests with Playwright (54 tests, 3 browsers)
-- [x] TypeScript strict mode fixes
 - [ ] PWA manifest and service worker
-- [ ] Image compression before upload
-- [ ] Rate limiting for API calls
+- [ ] Offline fallback page
+- [ ] Share analysis results (URL/link)
 
-### Medium Priority  
-- [ ] Save/load previous analyses
-- [ ] Share analysis results
+### Medium Priority
 - [ ] Before/after comparison slider
 - [ ] Multiple room support
+- [ ] Dark mode
 
 ### Low Priority
-- [ ] Dark mode
 - [ ] Custom themes
 - [ ] Voice input for chat
 - [ ] AR preview (experimental)
 
 ### Performance
 - [ ] Image lazy loading
-- [ ] Code splitting
+- [ ] Code splitting optimization
 - [ ] Preload critical resources
-- [ ] Bundle analysis
+- [ ] Bundle analysis and optimization
 
 ### Accessibility
 - [ ] Full WCAG 2.1 AA audit
@@ -79,15 +81,15 @@ Last updated: 2026-02-06 17:51 PST
 |--------|-------|
 | Unit Tests | 78 passing |
 | E2E Tests | 54 (3 browsers) |
-| Build Time | 1.33s |
-| Bundle Size | 617KB gzipped |
+| Build Time | 1.43s |
+| Bundle Size | 633KB total (108KB gzipped main) |
 | First Paint | < 1.5s |
 | TTI | < 3s |
 
-## 🎯 Next Milestone: v1.1.0
+## 🎯 Next Milestone: v1.2.0
 
 Focus: PWA and sharing
 - [ ] PWA installable
-- [ ] Share results
-- [ ] E2E tests
+- [ ] Share results with link
+- [ ] Offline capability
 - [ ] Image optimization
