@@ -21,6 +21,21 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      build: {
+        // Increase chunk warning limit since Gemini SDK is large
+        chunkSizeWarningLimit: 650,
+        rollupOptions: {
+          output: {
+            // Manual chunking for better caching
+            manualChunks: {
+              // Separate vendor chunks
+              'vendor-react': ['react', 'react-dom'],
+              'vendor-gemini': ['@google/genai'],
+              'vendor-icons': ['lucide-react'],
+            }
+          }
+        }
       }
     };
 });
