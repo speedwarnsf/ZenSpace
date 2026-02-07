@@ -10,9 +10,11 @@ AI-powered room organization assistant. Upload a photo of any messy space and ge
 
 ## 🌐 Live Demo
 
-**Production:** https://zenspace-two.vercel.app
+**Production:** https://dustyork.com/zenspace
 
 > **Note:** Requires `GEMINI_API_KEY` environment variable to be configured in Vercel for full functionality.
+
+The app is proxied from `dustyork.com/zenspace` via Vercel rewrites to `zenspace-two.vercel.app`.
 
 ## 🛠 Tech Stack
 
