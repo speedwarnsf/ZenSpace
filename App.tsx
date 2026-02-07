@@ -9,6 +9,7 @@ import {
   isApiConfigured,
   GeminiApiError
 } from './services/geminiService';
+import { compressImage, formatBytes } from './services/imageCompression';
 import { AnalysisResult, AppState, ChatMessage, AppError, UploadedImage } from './types';
 import { Chat } from '@google/genai';
 import { LayoutGrid, ArrowLeft, AlertCircle, RefreshCw, WifiOff } from 'lucide-react';
@@ -65,6 +66,22 @@ export default function App() {
       setIsAnalyzing(true);
       setAppState(AppState.ANALYZING);
       setError(null);
+
+      // Compress image before analysis
+      let processedFile = file;
+      try {
+        const compression = await compressImage(file, {
+          maxWidth: 1920,
+          maxHeight: 1080,
+          quality: 0.85,
+          targetSize: 2 * 1024 * 1024, // 2MB target
+        });
+        processedFile = compression.file;
+        console.log(`Image compressed: ${formatBytes(compression.originalSize)} → ${formatBytes(compression.compressedSize)} (${Math.round(compression.ratio * 100)}%)`);
+      } catch (compressError) {
+        console.warn('Image compression failed, using original:', compressError);
+        // Continue with original file if compression fails
+      }
 
       // Convert file to base64
       const reader = new FileReader();
@@ -133,7 +150,7 @@ export default function App() {
         }
       };
       
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(processedFile);
     } catch (err) {
       console.error('File handling error:', err);
       setError({
