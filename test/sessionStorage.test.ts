@@ -40,12 +40,17 @@ Object.defineProperty(global, 'localStorage', { value: localStorageMock });
 class MockImage {
   onload: (() => void) | null = null;
   onerror: (() => void) | null = null;
-  src = '';
+  private _src = '';
   width = 800;
   height = 600;
   
-  set _src(value: string) {
-    this.src = value;
+  get src(): string {
+    return this._src;
+  }
+  
+  set src(value: string) {
+    this._src = value;
+    // Trigger onload asynchronously after src is set
     setTimeout(() => this.onload?.(), 0);
   }
 }
@@ -125,7 +130,8 @@ describe('Session Name Generation', () => {
       };
       
       const name = generateSessionName(analysis);
-      expect(name.toLowerCase()).toContain(room.replace(' ', ''));
+      // Check that the room type is present in the generated name
+      expect(name.toLowerCase()).toContain(room.toLowerCase());
     }
   });
   

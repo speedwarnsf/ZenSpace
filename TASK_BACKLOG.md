@@ -63,7 +63,7 @@ Last updated: 2026-02-06 18:15 PST
 ## 📋 Backlog
 
 ### Medium Priority
-- [ ] Before/after comparison slider
+- [x] Before/after comparison slider - ComparisonSlider component integrated into AnalysisDisplay
 - [ ] Multiple room support
 - [x] Dark mode - ThemeContext with light/dark/system toggle
 
@@ -88,17 +88,18 @@ Last updated: 2026-02-06 18:15 PST
 
 | Metric | Value |
 |--------|-------|
-| Unit Tests | 125 passing |
+| Unit Tests | 176 passing |
 | E2E Tests | 54 (3 browsers) |
 | Build Time | 1.30s |
 | Bundle Size | 647KB total (110KB gzipped main) |
 | First Paint | < 1.5s |
 | TTI | < 3s |
 | Dark Mode | Full support (light/dark/system) |
+| Comparison | Before/after slider integrated |
 
 ## 🎯 Next Milestone: v1.3.0
 
 Focus: Enhanced UX
-- [ ] Before/after comparison slider
+- [x] Before/after comparison slider - DONE!
 - [ ] Multiple room support
-- [ ] Dark mode toggle
+- [x] Dark mode toggle - DONE!

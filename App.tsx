@@ -558,6 +558,7 @@ export default function App() {
                 isVisualizing={isVisualizing}
                 visualizationError={visualizationError}
                 onRetryVisualization={handleVisualize}
+                originalImage={uploadedImage?.dataUrl}
               />
             </div>
 

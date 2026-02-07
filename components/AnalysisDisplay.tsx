@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { 
   Sparkles, 
@@ -8,9 +8,12 @@ import {
   Loader2, 
   Image as ImageIcon,
   AlertTriangle,
-  RefreshCw
+  RefreshCw,
+  SplitSquareVertical,
+  Maximize2
 } from 'lucide-react';
 import { ProductSuggestion } from '../types';
+import { ComparisonSlider } from './ComparisonSlider';
 
 interface AnalysisDisplayProps {
   /** Markdown-formatted analysis text */
@@ -27,6 +30,8 @@ interface AnalysisDisplayProps {
   visualizationError?: string | null;
   /** Callback to retry visualization after an error */
   onRetryVisualization?: () => void;
+  /** Original uploaded image for comparison view */
+  originalImage?: string | null;
 }
 
 /**
@@ -39,8 +44,11 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
   visualizationImage,
   isVisualizing,
   visualizationError,
-  onRetryVisualization
+  onRetryVisualization,
+  originalImage
 }) => {
+  const [showComparison, setShowComparison] = useState(false);
+  const canShowComparison = !!visualizationImage && !!originalImage && !visualizationError;
   /**
    * Generate an Amazon affiliate search link
    */
@@ -112,23 +120,67 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
               <p className="text-xs text-zinc-400">AI-generated preview of your organized space</p>
             </div>
           </div>
+          
+          {/* Comparison Toggle */}
+          {canShowComparison && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowComparison(!showComparison)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2
+                  ${showComparison 
+                    ? 'bg-purple-600 text-white' 
+                    : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'}`}
+                aria-pressed={showComparison}
+                aria-label={showComparison ? 'Show single view' : 'Show before/after comparison'}
+              >
+                {showComparison ? (
+                  <>
+                    <Maximize2 className="w-4 h-4" aria-hidden="true" />
+                    <span className="hidden sm:inline">Single View</span>
+                  </>
+                ) : (
+                  <>
+                    <SplitSquareVertical className="w-4 h-4" aria-hidden="true" />
+                    <span className="hidden sm:inline">Compare</span>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="p-6">
           {/* Visualization Image */}
           {visualizationImage && !visualizationError ? (
-            <div className="relative rounded-xl overflow-hidden border border-zinc-700 group">
-              <img 
-                src={`data:image/png;base64,${visualizationImage}`} 
-                alt="AI-generated visualization of your organized room" 
-                className="w-full h-auto object-cover"
-              />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                <span className="text-xs font-mono text-purple-300 uppercase tracking-widest">
-                  AI Generated Preview
-                </span>
+            showComparison && originalImage ? (
+              /* Comparison Slider View */
+              <div className="space-y-3">
+                <ComparisonSlider
+                  beforeImage={originalImage}
+                  afterImage={`data:image/png;base64,${visualizationImage}`}
+                  beforeLabel="Original"
+                  afterLabel="Organized"
+                  className="border border-zinc-700"
+                />
+                <p className="text-center text-xs text-zinc-500">
+                  Drag the slider to compare before and after
+                </p>
               </div>
-            </div>
+            ) : (
+              /* Single View */
+              <div className="relative rounded-xl overflow-hidden border border-zinc-700 group">
+                <img 
+                  src={`data:image/png;base64,${visualizationImage}`} 
+                  alt="AI-generated visualization of your organized room" 
+                  className="w-full h-auto object-cover"
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                  <span className="text-xs font-mono text-purple-300 uppercase tracking-widest">
+                    AI Generated Preview
+                  </span>
+                </div>
+              </div>
+            )
           ) : (
             <div className="bg-zinc-800/50 rounded-xl p-8 text-center border border-zinc-700 border-dashed">
               {/* Loading State */}
