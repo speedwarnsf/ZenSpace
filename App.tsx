@@ -3,6 +3,7 @@ import { UploadZone } from './components/UploadZone';
 import { AnalysisDisplay } from './components/AnalysisDisplay';
 import { ChatInterface } from './components/ChatInterface';
 import { SessionManager } from './components/SessionManager';
+import { ShareButton } from './components/ShareButton';
 import { 
   analyzeImage, 
   createChatSession, 
@@ -392,15 +393,21 @@ export default function App() {
               />
             )}
             
-            {appState === AppState.RESULTS && (
-              <button 
-                onClick={resetApp}
-                className="text-sm text-slate-600 hover:text-emerald-600 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 rounded-lg px-3 py-2"
-                aria-label="Start over with a new image"
-              >
-                <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-                Start Over
-              </button>
+            {appState === AppState.RESULTS && analysis && (
+              <>
+                <ShareButton 
+                  analysis={analysis.rawText} 
+                  roomType="room"
+                />
+                <button 
+                  onClick={resetApp}
+                  className="text-sm text-slate-600 hover:text-emerald-600 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 rounded-lg px-3 py-2"
+                  aria-label="Start over with a new image"
+                >
+                  <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+                  Start Over
+                </button>
+              </>
             )}
           </div>
         </div>
