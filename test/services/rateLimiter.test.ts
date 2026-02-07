@@ -172,8 +172,10 @@ describe('RateLimiter', () => {
       limiter.tryConsume();
       
       expect(mockLocalStorage.setItem).toHaveBeenCalled();
-      const lastCall = mockLocalStorage.setItem.mock.calls.slice(-1)[0];
-      expect(lastCall[0]).toBe('zenspace_rate_limit');
+      const calls = mockLocalStorage.setItem.mock.calls;
+      const lastCall = calls[calls.length - 1];
+      expect(lastCall).toBeDefined();
+      expect(lastCall![0]).toBe('zenspace_rate_limit');
     });
 
     it('loads state from localStorage', () => {

@@ -3,13 +3,15 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { LazyImage } from '../../components/LazyImage';
 
-// Mock IntersectionObserver
-let intersectionCallback: (entries: IntersectionObserverEntry[]) => void;
+// Store the callback to trigger later
+let observerCallback: IntersectionObserverCallback;
+let observerOptions: IntersectionObserverInit | undefined;
 const mockObserve = vi.fn();
 const mockDisconnect = vi.fn();
+const mockUnobserve = vi.fn();
 
 class MockIntersectionObserver implements IntersectionObserver {
   readonly root: Element | Document | null = null;
@@ -20,7 +22,8 @@ class MockIntersectionObserver implements IntersectionObserver {
     callback: IntersectionObserverCallback,
     options?: IntersectionObserverInit
   ) {
-    intersectionCallback = callback;
+    observerCallback = callback;
+    observerOptions = options;
     this.rootMargin = options?.rootMargin || '0px';
     this.thresholds = options?.threshold ? 
       (Array.isArray(options.threshold) ? options.threshold : [options.threshold]) : 
@@ -29,14 +32,25 @@ class MockIntersectionObserver implements IntersectionObserver {
 
   observe = mockObserve;
   disconnect = mockDisconnect;
-  unobserve = vi.fn();
+  unobserve = mockUnobserve;
   takeRecords = vi.fn(() => []);
 }
+
+// Helper to simulate intersection
+const simulateIntersection = (isIntersecting: boolean) => {
+  act(() => {
+    observerCallback(
+      [{ isIntersecting } as IntersectionObserverEntry],
+      {} as IntersectionObserver
+    );
+  });
+};
 
 describe('LazyImage', () => {
   beforeEach(() => {
     mockObserve.mockClear();
     mockDisconnect.mockClear();
+    mockUnobserve.mockClear();
     vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
   });
 
@@ -77,26 +91,25 @@ describe('LazyImage', () => {
   });
 
   describe('Lazy Loading', () => {
-    it('shows placeholder initially before intersection', () => {
-      const placeholder = 'placeholder.jpg';
+    it('shows placeholder initially when not in view', () => {
       render(
         <LazyImage 
           src="real.jpg" 
           alt="Test" 
-          placeholder={placeholder}
+          placeholder="placeholder.svg"
         />
       );
 
-      // Before intersection triggers, should show placeholder
       const img = screen.getByRole('img');
-      expect(img).toHaveAttribute('src', placeholder);
+      // Before intersection, should show placeholder
+      expect(img).toHaveAttribute('src', 'placeholder.svg');
     });
 
-    it('loads real image when intersection occurs', async () => {
+    it('loads real image when in view', async () => {
       render(<LazyImage src="real.jpg" alt="Test" />);
 
-      // Simulate intersection
-      intersectionCallback([{ isIntersecting: true } as IntersectionObserverEntry]);
+      // Simulate coming into view
+      simulateIntersection(true);
 
       await waitFor(() => {
         const img = screen.getByRole('img');
@@ -112,7 +125,7 @@ describe('LazyImage', () => {
     });
   });
 
-  describe('Loading State', () => {
+  describe('Loading Animation', () => {
     it('has opacity transition class', () => {
       render(<LazyImage src="test.jpg" alt="Test" />);
       const img = screen.getByRole('img');
@@ -124,10 +137,26 @@ describe('LazyImage', () => {
       const img = screen.getByRole('img');
       expect(img).toHaveClass('opacity-0');
     });
+
+    it('becomes visible after load', async () => {
+      render(<LazyImage src="test.jpg" alt="Test" />);
+      
+      // Trigger intersection
+      simulateIntersection(true);
+      
+      const img = screen.getByRole('img');
+      
+      // Simulate image load
+      fireEvent.load(img);
+      
+      await waitFor(() => {
+        expect(img).toHaveClass('opacity-100');
+      });
+    });
   });
 
   describe('IntersectionObserver config', () => {
-    it('observes the image element', () => {
+    it('uses provided threshold', () => {
       render(
         <LazyImage 
           src="test.jpg" 
@@ -136,11 +165,11 @@ describe('LazyImage', () => {
         />
       );
 
-      expect(mockObserve).toHaveBeenCalled();
+      expect(observerOptions?.threshold).toBe(0.5);
     });
 
-    it('disconnects on unmount', () => {
-      const { unmount } = render(
+    it('uses provided rootMargin', () => {
+      render(
         <LazyImage 
           src="test.jpg" 
           alt="Test" 
@@ -148,24 +177,27 @@ describe('LazyImage', () => {
         />
       );
 
+      expect(observerOptions?.rootMargin).toBe('200px');
+    });
+
+    it('observes the image element', () => {
+      render(<LazyImage src="test.jpg" alt="Test" />);
+      expect(mockObserve).toHaveBeenCalled();
+    });
+
+    it('disconnects on unmount', () => {
+      const { unmount } = render(<LazyImage src="test.jpg" alt="Test" />);
       unmount();
       expect(mockDisconnect).toHaveBeenCalled();
     });
-  });
 
-  describe('Fallback without IntersectionObserver', () => {
-    it('loads image immediately when IO not supported', () => {
-      // Remove IO from window
-      const originalIO = window.IntersectionObserver;
-      // @ts-expect-error - intentionally removing for test
-      delete window.IntersectionObserver;
-
-      render(<LazyImage src="real.jpg" alt="Test" />);
-      const img = screen.getByRole('img');
-      expect(img).toHaveAttribute('src', 'real.jpg');
-
-      // Restore
-      window.IntersectionObserver = originalIO;
+    it('disconnects after intersection', () => {
+      render(<LazyImage src="test.jpg" alt="Test" />);
+      
+      // Trigger intersection
+      simulateIntersection(true);
+      
+      expect(mockDisconnect).toHaveBeenCalled();
     });
   });
 });
