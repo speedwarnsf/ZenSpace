@@ -65,7 +65,7 @@ Last updated: 2026-02-06 18:15 PST
 ### Medium Priority
 - [ ] Before/after comparison slider
 - [ ] Multiple room support
-- [ ] Dark mode
+- [x] Dark mode - ThemeContext with light/dark/system toggle
 
 ### Low Priority
 - [ ] Custom themes
@@ -88,12 +88,13 @@ Last updated: 2026-02-06 18:15 PST
 
 | Metric | Value |
 |--------|-------|
-| Unit Tests | 130+ passing |
+| Unit Tests | 125 passing |
 | E2E Tests | 54 (3 browsers) |
-| Build Time | 1.43s |
-| Bundle Size | 633KB total (108KB gzipped main) |
+| Build Time | 1.30s |
+| Bundle Size | 647KB total (110KB gzipped main) |
 | First Paint | < 1.5s |
 | TTI | < 3s |
+| Dark Mode | Full support (light/dark/system) |
 
 ## 🎯 Next Milestone: v1.3.0
 

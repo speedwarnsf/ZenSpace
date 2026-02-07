@@ -277,7 +277,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelected, isAnaly
       {error && (
         <p 
           id="upload-error" 
-          className="mt-4 text-sm text-red-500 bg-red-50 px-4 py-2 rounded-lg"
+          className="mt-4 text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-4 py-2 rounded-lg"
           role="alert"
         >
           {error}
@@ -286,7 +286,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelected, isAnaly
 
       {/* Help Text - visible on mobile */}
       {!preview && !isAnalyzing && (
-        <p className="mt-6 text-sm text-slate-400 flex items-center gap-2 md:hidden">
+        <p className="mt-6 text-sm text-slate-400 dark:text-slate-500 flex items-center gap-2 md:hidden">
           <Camera className="w-4 h-4" aria-hidden="true" />
           <span>Tap to take or upload a photo</span>
         </p>

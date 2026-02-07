@@ -4,6 +4,7 @@ import { AnalysisDisplay } from './components/AnalysisDisplay';
 import { ChatInterface } from './components/ChatInterface';
 import { SessionManager } from './components/SessionManager';
 import { ShareButton } from './components/ShareButton';
+import { ThemeToggle } from './components/ThemeToggle';
 import { 
   analyzeImage, 
   createChatSession, 
@@ -366,23 +367,26 @@ export default function App() {
   }, [error, uploadedImage, resetApp]);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col font-sans transition-colors duration-300">
       {/* Header */}
       <header 
-        className="bg-white border-b border-slate-200 sticky top-0 z-50"
+        className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50 transition-colors duration-300"
         role="banner"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <button 
             onClick={resetApp}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 rounded-lg p-1"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded-lg p-1"
             aria-label="ZenSpace - Return to home"
           >
-            <LayoutGrid className="w-6 h-6 text-emerald-600" aria-hidden="true" />
-            <span className="font-serif text-xl font-bold text-slate-800 tracking-tight">ZenSpace</span>
+            <LayoutGrid className="w-6 h-6 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+            <span className="font-serif text-xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">ZenSpace</span>
           </button>
           
           <div className="flex items-center gap-3">
+            {/* Theme Toggle */}
+            <ThemeToggle />
+            
             {/* Session Manager - available on home and results */}
             {(appState === AppState.HOME || appState === AppState.RESULTS) && (
               <SessionManager
@@ -401,7 +405,7 @@ export default function App() {
                 />
                 <button 
                   onClick={resetApp}
-                  className="text-sm text-slate-600 hover:text-emerald-600 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 rounded-lg px-3 py-2"
+                  className="text-sm text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded-lg px-3 py-2"
                   aria-label="Start over with a new image"
                 >
                   <ArrowLeft className="w-4 h-4" aria-hidden="true" />
@@ -419,7 +423,7 @@ export default function App() {
           className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 animate-in slide-in-from-top-4 duration-300"
           role="alert"
         >
-          <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg shadow-lg flex items-center gap-3">
+          <div className="bg-amber-50 dark:bg-amber-900/50 border border-amber-200 dark:border-amber-700 text-amber-800 dark:text-amber-200 px-4 py-3 rounded-lg shadow-lg flex items-center gap-3">
             <Clock className="w-5 h-5 flex-shrink-0" />
             <span className="text-sm font-medium">{rateLimitMessage}</span>
           </div>
@@ -435,26 +439,26 @@ export default function App() {
         {/* Home State */}
         {appState === AppState.HOME && (
           <div className="flex flex-col items-center justify-center min-h-[60vh] animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 text-center mb-6 font-serif">
+            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-slate-100 text-center mb-6 font-serif">
               From Chaos to Calm.
             </h1>
-            <p className="text-lg text-slate-600 text-center max-w-xl mb-12 leading-relaxed">
+            <p className="text-lg text-slate-600 dark:text-slate-400 text-center max-w-xl mb-12 leading-relaxed">
               Upload a photo of any messy room. Our AI will analyze it, give you a step-by-step decluttering plan, and answer your organization questions.
             </p>
             <UploadZone onImageSelected={handleImageSelected} isAnalyzing={isAnalyzing} />
             
             <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-center opacity-80">
               <div>
-                <div className="font-bold text-slate-800 mb-2">Snap</div>
-                <p className="text-sm text-slate-500">Take a photo of your clutter</p>
+                <div className="font-bold text-slate-800 dark:text-slate-200 mb-2">Snap</div>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Take a photo of your clutter</p>
               </div>
               <div>
-                <div className="font-bold text-slate-800 mb-2">Analyze</div>
-                <p className="text-sm text-slate-500">Get a personalized plan</p>
+                <div className="font-bold text-slate-800 dark:text-slate-200 mb-2">Analyze</div>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Get a personalized plan</p>
               </div>
               <div>
-                <div className="font-bold text-slate-800 mb-2">Organize</div>
-                <p className="text-sm text-slate-500">Chat for specific tips</p>
+                <div className="font-bold text-slate-800 dark:text-slate-200 mb-2">Organize</div>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Chat for specific tips</p>
               </div>
             </div>
           </div>
@@ -469,8 +473,8 @@ export default function App() {
             aria-busy="true"
           >
             <UploadZone onImageSelected={handleImageSelected} isAnalyzing={isAnalyzing} />
-            <p className="mt-6 text-slate-500 animate-pulse">Analyzing visual details...</p>
-            <p className="mt-2 text-sm text-slate-400">This may take a few moments</p>
+            <p className="mt-6 text-slate-500 dark:text-slate-400 animate-pulse">Analyzing visual details...</p>
+            <p className="mt-2 text-sm text-slate-400 dark:text-slate-500">This may take a few moments</p>
           </div>
         )}
 
@@ -481,33 +485,33 @@ export default function App() {
             role="alert"
             aria-live="assertive"
           >
-            <div className="bg-red-50 rounded-full p-4 mb-6">
+            <div className="bg-red-50 dark:bg-red-900/30 rounded-full p-4 mb-6">
               {error.code === 'NETWORK_ERROR' ? (
-                <WifiOff className="w-12 h-12 text-red-500" aria-hidden="true" />
+                <WifiOff className="w-12 h-12 text-red-500 dark:text-red-400" aria-hidden="true" />
               ) : (
-                <AlertCircle className="w-12 h-12 text-red-500" aria-hidden="true" />
+                <AlertCircle className="w-12 h-12 text-red-500 dark:text-red-400" aria-hidden="true" />
               )}
             </div>
             
-            <h2 className="text-2xl font-bold text-slate-800 mb-4">
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-4">
               {error.code === 'API_KEY_MISSING' ? 'Setup Required' : 'Something Went Wrong'}
             </h2>
             
-            <p className="text-slate-600 mb-8 leading-relaxed">
+            <p className="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
               {error.message}
             </p>
             
             {error.code === 'API_KEY_MISSING' ? (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800 mb-6">
+              <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg p-4 text-sm text-amber-800 dark:text-amber-200 mb-6">
                 <p className="font-medium mb-2">For Developers:</p>
-                <p>Add <code className="bg-amber-100 px-1 rounded">GEMINI_API_KEY</code> to your environment variables.</p>
+                <p>Add <code className="bg-amber-100 dark:bg-amber-800/50 px-1 rounded">GEMINI_API_KEY</code> to your environment variables.</p>
               </div>
             ) : (
               <div className="flex flex-col sm:flex-row gap-4">
                 {error.isRetryable && (
                   <button 
                     onClick={handleRetry}
-                    className="bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                    className="bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
                     aria-label="Try analyzing the image again"
                   >
                     <RefreshCw className="w-4 h-4" aria-hidden="true" />
@@ -516,7 +520,7 @@ export default function App() {
                 )}
                 <button 
                   onClick={resetApp}
-                  className="bg-slate-100 text-slate-700 px-6 py-3 rounded-lg hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+                  className="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-6 py-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
                   aria-label="Go back to home and start fresh"
                 >
                   Start Fresh
@@ -525,7 +529,7 @@ export default function App() {
             )}
             
             {/* Error code for debugging */}
-            <p className="mt-8 text-xs text-slate-400">
+            <p className="mt-8 text-xs text-slate-400 dark:text-slate-500">
               Error code: {error.code}
             </p>
           </div>
@@ -537,7 +541,7 @@ export default function App() {
             {/* Left Column: Image & Analysis */}
             <div className="lg:col-span-7 space-y-8">
               {/* Image Preview Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden p-2">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden p-2 transition-colors duration-300">
                 <img 
                   src={uploadedImage?.dataUrl || ''} 
                   alt="Your uploaded room photo" 
@@ -573,7 +577,7 @@ export default function App() {
 
       {/* Footer - only on home */}
       {appState === AppState.HOME && (
-        <footer className="py-8 text-center text-sm text-slate-400">
+        <footer className="py-8 text-center text-sm text-slate-400 dark:text-slate-500">
           <p>Powered by Google Gemini AI</p>
         </footer>
       )}

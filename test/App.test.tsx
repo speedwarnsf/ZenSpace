@@ -4,6 +4,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { ReactElement } from 'react';
 
 // Mock the gemini service
 vi.mock('../services/geminiService', () => ({
@@ -25,6 +26,16 @@ vi.mock('../services/geminiService', () => ({
 // Import after mocking
 import App from '../App';
 import { analyzeImage, GeminiApiError } from '../services/geminiService';
+import { ThemeProvider } from '../components/ThemeContext';
+
+// Helper to render App with required providers
+function renderWithProviders(ui: ReactElement) {
+  return render(
+    <ThemeProvider>
+      {ui}
+    </ThemeProvider>
+  );
+}
 
 describe('App', () => {
   beforeEach(() => {
@@ -33,18 +44,18 @@ describe('App', () => {
 
   describe('Initial Render', () => {
     it('renders the app header', () => {
-      render(<App />);
+      renderWithProviders(<App />);
       // Check that the app renders
       expect(document.body).toBeInTheDocument();
     });
 
     it('shows the upload zone initially', () => {
-      render(<App />);
+      renderWithProviders(<App />);
       expect(screen.getByText(/drop photo/i)).toBeInTheDocument();
     });
 
     it('does not show analysis initially', () => {
-      render(<App />);
+      renderWithProviders(<App />);
       expect(screen.queryByText(/key issues/i)).not.toBeInTheDocument();
     });
   });
@@ -54,7 +65,7 @@ describe('App', () => {
       // Mock a slow analysis
       (analyzeImage as any).mockImplementation(() => new Promise(resolve => setTimeout(resolve, 1000)));
       
-      render(<App />);
+      renderWithProviders(<App />);
       
       const file = new File(['test'], 'room.png', { type: 'image/png' });
       const input = document.querySelector('input[type="file"]') as HTMLInputElement;
@@ -78,7 +89,7 @@ describe('App', () => {
       
       (analyzeImage as any).mockResolvedValueOnce(mockAnalysis);
       
-      render(<App />);
+      renderWithProviders(<App />);
       
       const file = new File(['test'], 'room.png', { type: 'image/png' });
       const input = document.querySelector('input[type="file"]') as HTMLInputElement;
@@ -97,7 +108,7 @@ describe('App', () => {
       const error = new (GeminiApiError as any)('API Error', 'NETWORK_ERROR', true);
       (analyzeImage as any).mockRejectedValueOnce(error);
       
-      render(<App />);
+      renderWithProviders(<App />);
       
       const file = new File(['test'], 'room.png', { type: 'image/png' });
       const input = document.querySelector('input[type="file"]') as HTMLInputElement;
@@ -121,7 +132,7 @@ describe('App', () => {
           products: []
         });
       
-      render(<App />);
+      renderWithProviders(<App />);
       
       const file = new File(['test'], 'room.png', { type: 'image/png' });
       const input = document.querySelector('input[type="file"]') as HTMLInputElement;
@@ -137,7 +148,7 @@ describe('App', () => {
 
   describe('Accessibility', () => {
     it('has no accessibility violations in initial state', async () => {
-      render(<App />);
+      renderWithProviders(<App />);
       
       // Check for any button (upload zone)
       const buttons = screen.getAllByRole('button');
@@ -145,7 +156,7 @@ describe('App', () => {
     });
 
     it('maintains focus management', async () => {
-      render(<App />);
+      renderWithProviders(<App />);
       
       // Get the first focusable button
       const buttons = screen.getAllByRole('button');
@@ -160,14 +171,14 @@ describe('App', () => {
 describe('App States', () => {
   describe('HOME state', () => {
     it('shows upload prompt', () => {
-      render(<App />);
+      renderWithProviders(<App />);
       expect(screen.getByText(/drop photo/i)).toBeInTheDocument();
     });
   });
 
   describe('Theme and Styling', () => {
     it('applies dark theme by default', () => {
-      render(<App />);
+      renderWithProviders(<App />);
       
       // Check for dark theme elements
       const app = document.querySelector('[class*="bg-"]');
@@ -189,7 +200,7 @@ describe('Product Suggestions', () => {
     
     (analyzeImage as any).mockResolvedValueOnce(mockAnalysis);
     
-    render(<App />);
+    renderWithProviders(<App />);
     
     const file = new File(['test'], 'room.png', { type: 'image/png' });
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;

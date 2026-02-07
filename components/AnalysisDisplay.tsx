@@ -52,26 +52,26 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
     <div className="space-y-8">
       {/* Main Analysis Card */}
       <section 
-        className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8"
+        className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 md:p-8 transition-colors duration-300"
         aria-labelledby="analysis-heading"
       >
-        <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
-          <Sparkles className="w-6 h-6 text-emerald-500" aria-hidden="true" />
-          <h2 id="analysis-heading" className="text-2xl font-bold text-slate-800 m-0">
+        <div className="flex items-center gap-2 mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+          <Sparkles className="w-6 h-6 text-emerald-500 dark:text-emerald-400" aria-hidden="true" />
+          <h2 id="analysis-heading" className="text-2xl font-bold text-slate-800 dark:text-slate-100 m-0">
             Your Organization Plan
           </h2>
         </div>
         
-        <div className="prose prose-emerald max-w-none prose-headings:font-serif prose-headings:text-emerald-900 prose-p:text-slate-600 prose-li:text-slate-600">
+        <div className="prose prose-emerald dark:prose-invert max-w-none prose-headings:font-serif prose-headings:text-emerald-900 dark:prose-headings:text-emerald-300 prose-p:text-slate-600 dark:prose-p:text-slate-300 prose-li:text-slate-600 dark:prose-li:text-slate-300">
           <ReactMarkdown
             components={{
               h1: ({ children }) => (
-                <h3 className="text-xl font-bold mt-6 mb-3 text-emerald-800 flex items-center gap-2">
+                <h3 className="text-xl font-bold mt-6 mb-3 text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
                   {children}
                 </h3>
               ),
               h2: ({ children }) => (
-                <h3 className="text-xl font-bold mt-8 mb-4 text-emerald-800 flex items-center gap-2 border-b border-emerald-100 pb-2">
+                <h3 className="text-xl font-bold mt-8 mb-4 text-emerald-800 dark:text-emerald-300 flex items-center gap-2 border-b border-emerald-100 dark:border-emerald-800 pb-2">
                   {children}
                 </h3>
               ),
@@ -82,13 +82,13 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
                 <ol className="list-decimal pl-5 space-y-3 my-4">{children}</ol>
               ),
               li: ({ children }) => (
-                <li className="text-slate-700 leading-relaxed">{children}</li>
+                <li className="text-slate-700 dark:text-slate-300 leading-relaxed">{children}</li>
               ),
               strong: ({ children }) => (
-                <span className="font-semibold text-emerald-700">{children}</span>
+                <span className="font-semibold text-emerald-700 dark:text-emerald-400">{children}</span>
               ),
               p: ({ children }) => (
-                <p className="mb-4 text-slate-600 leading-relaxed">{children}</p>
+                <p className="mb-4 text-slate-600 dark:text-slate-300 leading-relaxed">{children}</p>
               ),
             }}
           >
@@ -201,12 +201,12 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
       {/* Product Recommendations */}
       {products.length > 0 && (
         <section 
-          className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8"
+          className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 md:p-8 transition-colors duration-300"
           aria-labelledby="products-heading"
         >
           <div className="flex items-center gap-2 mb-6">
-            <ShoppingBag className="w-6 h-6 text-orange-500" aria-hidden="true" />
-            <h2 id="products-heading" className="text-2xl font-bold text-slate-800 m-0">
+            <ShoppingBag className="w-6 h-6 text-orange-500 dark:text-orange-400" aria-hidden="true" />
+            <h2 id="products-heading" className="text-2xl font-bold text-slate-800 dark:text-slate-100 m-0">
               Shop the Look
             </h2>
           </div>
@@ -221,22 +221,22 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
                   href={generateAmazonLink(product.searchTerm)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex flex-col justify-between p-5 rounded-xl border border-slate-200 hover:border-orange-200 hover:shadow-md transition-all group bg-slate-50/50 hover:bg-white h-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+                  className="flex flex-col justify-between p-5 rounded-xl border border-slate-200 dark:border-slate-600 hover:border-orange-200 dark:hover:border-orange-700 hover:shadow-md transition-all group bg-slate-50/50 dark:bg-slate-700/50 hover:bg-white dark:hover:bg-slate-700 h-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800"
                   aria-label={`${product.name} - ${product.reason}. Opens Amazon search in new tab.`}
                 >
                   <div>
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-bold text-slate-800 group-hover:text-orange-600 transition-colors">
+                      <h4 className="font-bold text-slate-800 dark:text-slate-100 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
                         {product.name}
                       </h4>
                       <ExternalLink 
-                        className="w-4 h-4 text-slate-400 group-hover:text-orange-500 flex-shrink-0 ml-2" 
+                        className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover:text-orange-500 dark:group-hover:text-orange-400 flex-shrink-0 ml-2" 
                         aria-hidden="true"
                       />
                     </div>
-                    <p className="text-sm text-slate-600 mb-4">{product.reason}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">{product.reason}</p>
                   </div>
-                  <div className="mt-auto pt-3 border-t border-slate-200/60 flex items-center text-xs font-bold text-orange-600 uppercase tracking-wider">
+                  <div className="mt-auto pt-3 border-t border-slate-200/60 dark:border-slate-600/60 flex items-center text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider">
                     Find on Amazon →
                   </div>
                 </a>
@@ -244,7 +244,7 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
             ))}
           </ul>
           
-          <p className="mt-4 text-center text-xs text-slate-400 italic">
+          <p className="mt-4 text-center text-xs text-slate-400 dark:text-slate-500 italic">
             *As an Amazon Associate we earn from qualifying purchases.
           </p>
         </section>
