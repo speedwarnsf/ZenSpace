@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { UploadZone } from './components/UploadZone';
 import { AnalysisDisplay } from './components/AnalysisDisplay';
 import { ChatInterface } from './components/ChatInterface';
+import { SessionManager } from './components/SessionManager';
 import { 
   analyzeImage, 
   createChatSession, 
@@ -10,9 +11,11 @@ import {
   GeminiApiError
 } from './services/geminiService';
 import { compressImage, formatBytes } from './services/imageCompression';
+import { rateLimiter } from './services/rateLimiter';
+import { saveSession, SavedSession } from './services/sessionStorage';
 import { AnalysisResult, AppState, ChatMessage, AppError, UploadedImage } from './types';
 import { Chat } from '@google/genai';
-import { LayoutGrid, ArrowLeft, AlertCircle, RefreshCw, WifiOff } from 'lucide-react';
+import { LayoutGrid, ArrowLeft, AlertCircle, RefreshCw, WifiOff, Clock } from 'lucide-react';
 
 /**
  * Main application component for ZenSpace room organizer
@@ -34,6 +37,10 @@ export default function App() {
   
   // Error state
   const [error, setError] = useState<AppError | null>(null);
+  
+  // Session state
+  const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(undefined);
+  const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null);
 
   // Check API configuration on mount
   useEffect(() => {
@@ -62,10 +69,19 @@ export default function App() {
    * Handle image selection from the upload zone
    */
   const handleImageSelected = useCallback(async (file: File) => {
+    // Check rate limit before processing
+    if (!rateLimiter.tryConsume()) {
+      const waitTime = rateLimiter.formatWaitTime();
+      setRateLimitMessage(`Too many requests. Please wait ${waitTime}.`);
+      setTimeout(() => setRateLimitMessage(null), 5000);
+      return;
+    }
+    
     try {
       setIsAnalyzing(true);
       setAppState(AppState.ANALYZING);
       setError(null);
+      setCurrentSessionId(undefined); // Reset session ID for new analysis
 
       // Compress image before analysis
       let processedFile = file;
@@ -169,6 +185,13 @@ export default function App() {
   const handleVisualize = useCallback(async () => {
     if (!analysis?.visualizationPrompt || isVisualizing || !uploadedImage) return;
     
+    // Check rate limit
+    if (!rateLimiter.tryConsume()) {
+      const waitTime = rateLimiter.formatWaitTime();
+      setVisualizationError(`Rate limit exceeded. Please wait ${waitTime}.`);
+      return;
+    }
+    
     try {
       setIsVisualizing(true);
       setVisualizationError(null);
@@ -196,6 +219,20 @@ export default function App() {
    */
   const handleSendMessage = useCallback(async (text: string) => {
     if (!chatSession) return;
+    
+    // Check rate limit for chat messages
+    if (!rateLimiter.tryConsume()) {
+      const waitTime = rateLimiter.formatWaitTime();
+      const errorMsg: ChatMessage = {
+        id: Date.now().toString(),
+        role: 'model',
+        text: `Rate limit exceeded. Please wait ${waitTime} before sending another message.`,
+        timestamp: Date.now(),
+        isError: true
+      };
+      setMessages(prev => [...prev, errorMsg]);
+      return;
+    }
 
     // Add user message immediately
     const userMsg: ChatMessage = {
@@ -245,6 +282,45 @@ export default function App() {
     setMessages([]);
     setChatSession(null);
     setError(null);
+  }, []);
+
+  /**
+   * Save current session
+   */
+  const handleSaveSession = useCallback(async () => {
+    if (!analysis || !uploadedImage) return;
+    
+    try {
+      const session = await saveSession(
+        uploadedImage,
+        analysis,
+        messages,
+        visualizationImage || undefined,
+        currentSessionId
+      );
+      setCurrentSessionId(session.id);
+    } catch (err) {
+      console.error('Failed to save session:', err);
+      throw err;
+    }
+  }, [analysis, messages, uploadedImage, visualizationImage, currentSessionId]);
+
+  /**
+   * Load a saved session
+   */
+  const handleLoadSession = useCallback((session: SavedSession) => {
+    setAnalysis(session.analysis);
+    setMessages(session.messages);
+    setVisualizationImage(session.visualizationImage || null);
+    setCurrentSessionId(session.id);
+    setAppState(AppState.RESULTS);
+    
+    // Recreate chat session with analysis context
+    const chat = createChatSession(session.analysis.rawText);
+    setChatSession(chat);
+    
+    // Clear uploaded image (it's not stored due to size)
+    setUploadedImage(null);
   }, []);
 
   /**
@@ -305,18 +381,43 @@ export default function App() {
             <span className="font-serif text-xl font-bold text-slate-800 tracking-tight">ZenSpace</span>
           </button>
           
-          {appState === AppState.RESULTS && (
-            <button 
-              onClick={resetApp}
-              className="text-sm text-slate-600 hover:text-emerald-600 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 rounded-lg px-3 py-2"
-              aria-label="Start over with a new image"
-            >
-              <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-              Start Over
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {/* Session Manager - available on home and results */}
+            {(appState === AppState.HOME || appState === AppState.RESULTS) && (
+              <SessionManager
+                currentSessionId={currentSessionId}
+                onLoadSession={handleLoadSession}
+                onSaveSession={handleSaveSession}
+                hasUnsavedChanges={appState === AppState.RESULTS && !!analysis}
+              />
+            )}
+            
+            {appState === AppState.RESULTS && (
+              <button 
+                onClick={resetApp}
+                className="text-sm text-slate-600 hover:text-emerald-600 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 rounded-lg px-3 py-2"
+                aria-label="Start over with a new image"
+              >
+                <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+                Start Over
+              </button>
+            )}
+          </div>
         </div>
       </header>
+
+      {/* Rate Limit Toast */}
+      {rateLimitMessage && (
+        <div 
+          className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 animate-in slide-in-from-top-4 duration-300"
+          role="alert"
+        >
+          <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg shadow-lg flex items-center gap-3">
+            <Clock className="w-5 h-5 flex-shrink-0" />
+            <span className="text-sm font-medium">{rateLimitMessage}</span>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <main 
