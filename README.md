@@ -86,14 +86,26 @@ npm run test:coverage
 
 ### Test Structure
 
+**251+ tests passing** across 13 test files:
+
 ```
 test/
-├── setup.ts                    # Test setup and global mocks
+├── setup.ts                          # Test setup and global mocks
+├── App.test.tsx                      # Main app tests
+├── sessionStorage.test.ts            # Session persistence tests
 ├── components/
-│   ├── ChatInterface.test.tsx  # Chat component tests
-│   └── UploadZone.test.tsx     # Upload component tests
+│   ├── ChatInterface.test.tsx        # Chat component tests
+│   ├── ComparisonSlider.test.tsx     # Before/after slider tests
+│   ├── LazyImage.test.tsx            # Lazy loading image tests
+│   ├── SessionManager.test.tsx       # Session UI tests
+│   ├── ShareButton.test.tsx          # Social sharing tests
+│   ├── ThemeContext.test.tsx         # Theme state tests
+│   ├── ThemeToggle.test.tsx          # Theme toggle tests
+│   └── UploadZone.test.tsx           # Upload component tests
 └── services/
-    └── geminiService.test.ts   # API service tests
+    ├── geminiService.test.ts         # AI service tests
+    ├── imageCompression.test.ts      # Image compression tests
+    └── rateLimiter.test.ts           # Rate limiting tests
 ```
 
 ## ☁️ Deployment (Vercel)

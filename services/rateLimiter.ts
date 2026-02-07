@@ -9,9 +9,13 @@ export interface RateLimitConfig {
   refillInterval: number;      // Interval in ms to check refill
 }
 
+// Alias for backwards compatibility with tests
+export type RateLimiterConfig = RateLimitConfig;
+
 export interface RateLimitState {
   tokens: number;
   lastRefill: number;
+  isLimited?: boolean;         // Optional: whether rate limit is active
 }
 
 const STORAGE_KEY = 'zenspace_rate_limit';
@@ -94,6 +98,23 @@ export class RateLimiter {
     
     if (this.state.tokens >= 1) {
       this.state.tokens -= 1;
+      this.saveState();
+      return true;
+    }
+    
+    return false;
+  }
+
+  /**
+   * Consume a specified number of tokens
+   * @param amount - Number of tokens to consume
+   * @returns true if tokens were consumed, false if insufficient tokens
+   */
+  public consume(amount: number = 1): boolean {
+    this.refill();
+    
+    if (this.state.tokens >= amount) {
+      this.state.tokens -= amount;
       this.saveState();
       return true;
     }

@@ -12,7 +12,7 @@ import {
   isApiConfigured,
   GeminiApiError
 } from './services/geminiService';
-import { compressImage, formatBytes } from './services/imageCompression';
+import { compressImage } from './services/imageCompression';
 import { rateLimiter } from './services/rateLimiter';
 import { saveSession, SavedSession } from './services/sessionStorage';
 import { AnalysisResult, AppState, ChatMessage, AppError, UploadedImage } from './types';
@@ -95,7 +95,8 @@ export default function App() {
           targetSize: 2 * 1024 * 1024, // 2MB target
         });
         processedFile = compression.file;
-        console.log(`Image compressed: ${formatBytes(compression.originalSize)} → ${formatBytes(compression.compressedSize)} (${Math.round(compression.ratio * 100)}%)`);
+        // Compression successful - data available in compression object if needed
+        // Original: ${compression.originalSize}, Compressed: ${compression.compressedSize}
       } catch (compressError) {
         console.warn('Image compression failed, using original:', compressError);
         // Continue with original file if compression fails
