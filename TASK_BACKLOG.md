@@ -42,7 +42,7 @@ Last updated: 2026-02-06
 ## 📋 Backlog
 
 ### High Priority
-- [ ] E2E tests with Playwright
+- [x] E2E tests with Playwright (19 tests, 3 browsers)
 - [ ] PWA manifest and service worker
 - [ ] Image compression before upload
 - [ ] Rate limiting for API calls
