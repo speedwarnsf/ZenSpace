@@ -4,7 +4,6 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { UploadZone } from '../../components/UploadZone';
 
 // Mock FileReader
@@ -13,7 +12,7 @@ class MockFileReader {
   onloadend: (() => void) | null = null;
   onerror: (() => void) | null = null;
   
-  readAsDataURL(file: File) {
+  readAsDataURL(_file: File) {
     // Simulate async read
     setTimeout(() => {
       this.result = 'data:image/png;base64,mockbase64data';

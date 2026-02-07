@@ -149,7 +149,7 @@ describe('App', () => {
       
       // Get the first focusable button
       const buttons = screen.getAllByRole('button');
-      const uploadButton = buttons[0];
+      const uploadButton = buttons[0]!;
       uploadButton.focus();
       
       expect(document.activeElement).toBe(uploadButton);

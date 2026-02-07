@@ -157,8 +157,8 @@ describe('GeminiService Unit Tests', () => {
       
       const result = transformProducts(apiProducts);
       
-      expect(result[0].searchTerm).toBe('woven basket');
-      expect(result[0]).not.toHaveProperty('search_term');
+      expect(result[0]!.searchTerm).toBe('woven basket');
+      expect(result[0]!).not.toHaveProperty('search_term');
     });
 
     it('handles empty array', () => {
@@ -174,8 +174,8 @@ describe('GeminiService Unit Tests', () => {
       const result = transformProducts(apiProducts);
       
       expect(result).toHaveLength(2);
-      expect(result[0].name).toBe('A');
-      expect(result[1].name).toBe('B');
+      expect(result[0]!.name).toBe('A');
+      expect(result[1]!.name).toBe('B');
     });
   });
 
