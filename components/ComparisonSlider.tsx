@@ -91,6 +91,8 @@ export function ComparisonSlider({
   }, []);
 
   const allLoaded = isLoaded.before && isLoaded.after;
+  const instructionId = 'comparison-slider-instructions';
+  const valueText = `${Math.round(sliderPosition)}% ${beforeLabel} / ${Math.round(100 - sliderPosition)}% ${afterLabel}`;
 
   return (
     <div
@@ -100,13 +102,19 @@ export function ComparisonSlider({
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
       role="slider"
-      aria-label="Image comparison slider"
+      aria-label="Compare before and after images"
+      aria-describedby={instructionId}
+      aria-orientation="horizontal"
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={Math.round(sliderPosition)}
+      aria-valuetext={valueText}
       tabIndex={0}
       onKeyDown={handleKeyDown}
     >
+      <span id={instructionId} className="sr-only">
+        Use left and right arrow keys or drag to compare before and after images.
+      </span>
       {/* Loading state */}
       {!allLoaded && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">

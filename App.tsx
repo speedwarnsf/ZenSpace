@@ -21,7 +21,8 @@ import { rateLimiter } from './services/rateLimiter';
 import { saveSession, SavedSession } from './services/sessionStorage';
 import { validateImageFile, preprocessImage } from './services/edgeCaseHandlers';
 import { analytics } from './services/analytics';
-import { createAnalysisPrompt } from './services/promptTemplates';
+import { getErrorMessage } from './services/errorMessages';
+import { validateChatMessage } from './services/validation';
 import { AnalysisResult, AppState, ChatMessage, AppError, UploadedImage } from './types';
 import { Chat } from '@google/genai';
 import { LayoutGrid, ArrowLeft, AlertCircle, RefreshCw, WifiOff, Clock } from 'lucide-react';
@@ -59,6 +60,22 @@ function AppContent() {
   const networkStatus = useNetworkStatus();
   const { announce, playSound } = useAccessibility();
 
+  const buildAppError = useCallback((
+    code: string,
+    message?: string,
+    isRetryable?: boolean,
+    suggestion?: string
+  ): AppError => {
+    const mapped = getErrorMessage(code);
+    return {
+      code,
+      message: message ?? mapped.description,
+      title: mapped.title,
+      suggestion: suggestion ?? mapped.suggestion,
+      isRetryable: isRetryable ?? mapped.isRetryable
+    };
+  }, []);
+
   // Check API configuration on mount
   useEffect(() => {
     if (!isApiConfigured()) {
@@ -70,7 +87,7 @@ function AppContent() {
    * Parse a data URL into its components
    */
   const parseDataUrl = useCallback((dataUrl: string): { base64: string; mimeType: string } | null => {
-    const matches = dataUrl.match(/^data:(.+);base64,(.+)$/);
+    const matches = dataUrl.match(/^data:([^;]+)(?:;charset=[^;]+)?;base64,(.+)$/);
     if (!matches || matches.length !== 3) {
       return null;
     }
@@ -88,14 +105,18 @@ function AppContent() {
   const handleImageSelected = useCallback(async (file: File) => {
     // Analytics tracking
     analytics.trackImageUpload(file);
+
+    if (isAnalyzing) {
+      const message = 'Analysis already in progress. Please wait for it to finish.';
+      setRateLimitMessage(message);
+      setTimeout(() => setRateLimitMessage(null), 4000);
+      announce(message, 'polite');
+      return;
+    }
     
     // Check network connection
     if (!networkStatus.isOnline) {
-      setError({
-        message: 'No internet connection. Please check your network and try again.',
-        code: 'OFFLINE',
-        isRetryable: true
-      });
+      setError(buildAppError('NETWORK_OFFLINE'));
       setAppState(AppState.ERROR);
       announce('Upload failed: No internet connection', 'assertive');
       playSound('error');
@@ -124,11 +145,12 @@ function AppContent() {
       const validation = await validateImageFile(file);
       
       if (!validation.canProceed) {
-        setError({
-          message: validation.error || 'Invalid image file',
-          code: 'VALIDATION_FAILED',
-          isRetryable: true
-        });
+        setError(buildAppError(
+          'VALIDATION_FAILED',
+          validation.error || 'Invalid image file',
+          true,
+          validation.suggestion
+        ));
         setAppState(AppState.ERROR);
         analytics.track('image_rejected', { reason: validation.error });
         announce(`Upload failed: ${validation.error}`, 'assertive');
@@ -162,11 +184,11 @@ function AppContent() {
       const reader = new FileReader();
       
       reader.onerror = () => {
-        setError({
-          message: 'Failed to read the image file. Please try a different image.',
-          code: 'FILE_READ_ERROR',
-          isRetryable: true
-        });
+        setError(buildAppError(
+          'FILE_READ_ERROR',
+          'Failed to read the image file. Please try a different image.',
+          true
+        ));
         setAppState(AppState.ERROR);
         setIsAnalyzing(false);
         announce('Failed to read image file', 'assertive');
@@ -227,17 +249,9 @@ function AppContent() {
           });
           
           if (apiError instanceof GeminiApiError) {
-            setError({
-              message: apiError.message,
-              code: apiError.code,
-              isRetryable: apiError.isRetryable
-            });
+            setError(buildAppError(apiError.code, apiError.message, apiError.isRetryable));
           } else {
-            setError({
-              message: 'An unexpected error occurred. Please try again.',
-              code: 'UNKNOWN',
-              isRetryable: true
-            });
+            setError(buildAppError('UNKNOWN', 'An unexpected error occurred. Please try again.', true));
           }
           setAppState(AppState.ERROR);
           announce(`Analysis failed: ${apiError instanceof Error ? apiError.message : 'Unknown error'}`, 'assertive');
@@ -251,21 +265,33 @@ function AppContent() {
       reader.readAsDataURL(processedFile);
     } catch (err) {
       console.error('File handling error:', err);
-      setError({
-        message: 'Failed to process the image. Please try again.',
-        code: 'PROCESSING_ERROR',
-        isRetryable: true
-      });
+      setError(buildAppError('PROCESSING_ERROR', 'Failed to process the image. Please try again.', true));
       setIsAnalyzing(false);
       setAppState(AppState.ERROR);
     }
-  }, [parseDataUrl]);
+  }, [announce, buildAppError, isAnalyzing, networkStatus.isOnline, parseDataUrl, playSound]);
 
   /**
    * Generate AI visualization of the organized room
    */
   const handleVisualize = useCallback(async () => {
-    if (!analysis?.visualizationPrompt || isVisualizing || !uploadedImage) return;
+    if (isVisualizing) return;
+
+    if (!analysis?.visualizationPrompt) {
+      setVisualizationError('Visualization instructions are missing. Please re-run the analysis.');
+      return;
+    }
+
+    if (!uploadedImage) {
+      setVisualizationError('Original image is not available. Please upload a new photo.');
+      return;
+    }
+
+    if (!networkStatus.isOnline) {
+      setVisualizationError(getErrorMessage('NETWORK_OFFLINE').description);
+      announce('Visualization failed: no internet connection', 'assertive');
+      return;
+    }
     
     // Check rate limit
     if (!rateLimiter.tryConsume()) {
@@ -287,20 +313,45 @@ function AppContent() {
     } catch (err) {
       console.error("Visualization failed:", err);
       if (err instanceof GeminiApiError) {
-        setVisualizationError(err.message);
+        setVisualizationError(getErrorMessage(err.code).description ?? err.message);
       } else {
         setVisualizationError('Failed to generate visualization. Please try again.');
       }
     } finally {
       setIsVisualizing(false);
     }
-  }, [analysis, isVisualizing, uploadedImage]);
+  }, [analysis, announce, isVisualizing, networkStatus.isOnline, uploadedImage]);
 
   /**
    * Send a message in the chat
    */
   const handleSendMessage = useCallback(async (text: string) => {
     if (!chatSession) return;
+
+    if (!networkStatus.isOnline) {
+      const offlineMsg: ChatMessage = {
+        id: Date.now().toString(),
+        role: 'model',
+        text: getErrorMessage('NETWORK_OFFLINE').description,
+        timestamp: Date.now(),
+        isError: true
+      };
+      setMessages(prev => [...prev, offlineMsg]);
+      return;
+    }
+
+    const validation = validateChatMessage(text);
+    if (!validation.valid) {
+      const invalidMsg: ChatMessage = {
+        id: Date.now().toString(),
+        role: 'model',
+        text: validation.error || 'Please enter a valid message.',
+        timestamp: Date.now(),
+        isError: true
+      };
+      setMessages(prev => [...prev, invalidMsg]);
+      return;
+    }
     
     // Check rate limit for chat messages
     if (!rateLimiter.tryConsume()) {
@@ -350,7 +401,7 @@ function AppContent() {
     } finally {
       setIsChatTyping(false);
     }
-  }, [chatSession]);
+  }, [chatSession, networkStatus.isOnline]);
 
   /**
    * Reset the app to initial state
@@ -424,17 +475,9 @@ function AppContent() {
         })
         .catch(apiError => {
           if (apiError instanceof GeminiApiError) {
-            setError({
-              message: apiError.message,
-              code: apiError.code,
-              isRetryable: apiError.isRetryable
-            });
+            setError(buildAppError(apiError.code, apiError.message, apiError.isRetryable));
           } else {
-            setError({
-              message: 'An unexpected error occurred. Please try again.',
-              code: 'UNKNOWN',
-              isRetryable: true
-            });
+            setError(buildAppError('UNKNOWN', 'An unexpected error occurred. Please try again.', true));
           }
           setAppState(AppState.ERROR);
         })
@@ -444,7 +487,13 @@ function AppContent() {
     } else {
       resetApp();
     }
-  }, [error, uploadedImage, resetApp]);
+  }, [buildAppError, error, uploadedImage, resetApp]);
+
+  const errorInfo = error ? getErrorMessage(error.code) : null;
+  const errorTitle = error?.title ?? errorInfo?.title ?? 'Something Went Wrong';
+  const errorMessage = error?.message ?? errorInfo?.description ?? '';
+  const errorSuggestion = error?.suggestion ?? errorInfo?.suggestion;
+  const isNetworkError = ['NETWORK_ERROR', 'NETWORK_OFFLINE', 'NETWORK_TIMEOUT'].includes(error?.code ?? '');
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col font-sans transition-colors duration-300">
@@ -572,7 +621,7 @@ function AppContent() {
             aria-live="assertive"
           >
             <div className="bg-red-50 dark:bg-red-900/30 rounded-full p-4 mb-6">
-              {error.code === 'NETWORK_ERROR' ? (
+              {isNetworkError ? (
                 <WifiOff className="w-12 h-12 text-red-500 dark:text-red-400" aria-hidden="true" />
               ) : (
                 <AlertCircle className="w-12 h-12 text-red-500 dark:text-red-400" aria-hidden="true" />
@@ -580,12 +629,18 @@ function AppContent() {
             </div>
             
             <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-4">
-              {error.code === 'API_KEY_MISSING' ? 'Setup Required' : 'Something Went Wrong'}
+              {errorTitle}
             </h2>
             
             <p className="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
-              {error.message}
+              {errorMessage}
             </p>
+
+            {errorSuggestion && (
+              <p className="text-slate-500 dark:text-slate-400 mb-8 text-sm">
+                {errorSuggestion}
+              </p>
+            )}
             
             {error.code === 'API_KEY_MISSING' ? (
               <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg p-4 text-sm text-amber-800 dark:text-amber-200 mb-6">
@@ -628,11 +683,18 @@ function AppContent() {
             <div className="lg:col-span-7 space-y-8">
               {/* Image Preview Card */}
               <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden p-2 transition-colors duration-300">
-                <img 
-                  src={uploadedImage?.dataUrl || ''} 
-                  alt="Your uploaded room photo" 
-                  className="w-full h-64 md:h-80 object-cover rounded-xl"
-                />
+                {uploadedImage?.dataUrl ? (
+                  <img 
+                    src={uploadedImage.dataUrl} 
+                    alt="Your uploaded room photo" 
+                    className="w-full h-64 md:h-80 object-cover rounded-xl"
+                    decoding="async"
+                  />
+                ) : (
+                  <div className="w-full h-64 md:h-80 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300 text-sm">
+                    Original image not available. Upload a new photo to view it here.
+                  </div>
+                )}
               </div>
               
               {/* Analysis Results & Visualization */}

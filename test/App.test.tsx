@@ -23,6 +23,11 @@ vi.mock('../services/geminiService', () => ({
   },
 }));
 
+vi.mock('../services/edgeCaseHandlers', () => ({
+  validateImageFile: vi.fn(async () => ({ canProceed: true })),
+  preprocessImage: vi.fn(async (file: File) => ({ file, wasModified: false, modifications: [] })),
+}));
+
 // Import after mocking
 import App from '../App';
 import { analyzeImage, GeminiApiError } from '../services/geminiService';
@@ -74,7 +79,7 @@ describe('App', () => {
       
       // Should show analyzing state
       await waitFor(() => {
-        expect(screen.getByText(/focusing/i)).toBeInTheDocument();
+        expect(screen.getByText(/uploading image/i)).toBeInTheDocument();
       });
     });
 

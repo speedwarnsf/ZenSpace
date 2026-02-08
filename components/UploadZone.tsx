@@ -9,8 +9,8 @@ interface UploadZoneProps {
 }
 
 /** Accepted image MIME types */
-const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-const ACCEPTED_EXTENSIONS = '.jpg,.jpeg,.png,.webp,.gif';
+const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+const ACCEPTED_EXTENSIONS = '.jpg,.jpeg,.png,.webp,.heic,.heif';
 
 /**
  * Drag-and-drop image upload component with camera lens aesthetic
@@ -20,6 +20,14 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelected, isAnaly
   const [isDragOver, setIsDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const errorId = 'upload-error';
+  const hintId = 'upload-hint';
+  const describedBy = [error ? errorId : null, hintId].filter(Boolean).join(' ') || undefined;
+  const hintText = isAnalyzing
+    ? 'Analysis in progress. Upload is disabled.'
+    : isDragOver
+      ? 'Release to upload your room photo.'
+      : 'Drag and drop a room photo, or press Enter to browse.';
 
   /**
    * Validate and process an uploaded file
@@ -29,7 +37,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelected, isAnaly
     
     // Validate file type
     if (!ACCEPTED_TYPES.includes(file.type)) {
-      setError('Please upload a JPG, PNG, or WebP image.');
+      setError('Please upload a JPG, PNG, WebP, or HEIC image.');
       return;
     }
     
@@ -141,7 +149,8 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelected, isAnaly
         tabIndex={isAnalyzing ? -1 : 0}
         aria-label={isAnalyzing ? "Analyzing image" : "Upload a room photo. Click or drag and drop."}
         aria-busy={isAnalyzing}
-        aria-describedby={error ? "upload-error" : undefined}
+        aria-describedby={describedBy}
+        aria-disabled={isAnalyzing}
         className={`
           relative w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96
           rounded-full 
@@ -276,13 +285,18 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelected, isAnaly
       {/* Error Message */}
       {error && (
         <p 
-          id="upload-error" 
+          id={errorId} 
           className="mt-4 text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-4 py-2 rounded-lg"
           role="alert"
         >
           {error}
         </p>
       )}
+
+      {/* Screen reader hint */}
+      <p id={hintId} className="sr-only" aria-live="polite">
+        {hintText}
+      </p>
 
       {/* Help Text - visible on mobile */}
       {!preview && !isAnalyzing && (

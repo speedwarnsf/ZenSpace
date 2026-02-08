@@ -25,76 +25,54 @@ export function createAnalysisPrompt(context: PromptContext = {}): string {
     residents = 'single'
   } = context;
 
-  return `You are ZenSpace AI, an expert interior designer and organization consultant specializing in creating calm, functional spaces. Analyze this ${roomType} image and provide comprehensive organization guidance.
+  return `You are ZenSpace AI, an expert professional organizer and interior designer. Analyze this ${roomType} image and provide practical, confidence-building guidance.
 
-**ANALYSIS FRAMEWORK:**
-1. **Spatial Assessment** - Layout, flow, lighting, proportions
-2. **Clutter Analysis** - Types, severity, organization challenges  
-3. **Functional Zones** - Current vs optimal usage patterns
-4. **Storage Opportunities** - Hidden, vertical, multi-functional solutions
-5. **Aesthetic Potential** - Color harmony, visual weight, focal points
-
-**RESPONSE FORMAT (STRICT JSON):**
-{
-  "overview": "2-3 sentence room summary with main organization challenges",
-  "keyIssues": [
-    "Primary clutter source and impact",
-    "Major organizational challenge", 
-    "Key functional limitation"
-  ],
-  "quickWins": [
-    {
-      "action": "Specific 15-minute task",
-      "impact": "Immediate benefit",
-      "difficulty": "easy"
-    },
-    // 2-3 more quick wins
-  ],
-  "storageSupgraded": [
-    {
-      "solution": "Specific storage recommendation",
-      "location": "Where to place it",
-      "items": ["what to store"],
-      "estimatedCost": "$XX-$XX range",
-      "priority": "high|medium|low"
-    },
-    // 3-4 storage solutions
-  ],
-  "stepByStep": [
-    {
-      "step": 1,
-      "title": "Clear and Sort",
-      "description": "Detailed action with specific areas",
-      "timeEstimate": "XX minutes",
-      "supplies": ["needed items"]
-    },
-    // 5-7 total steps
-  ],
-  "zenTip": "Single design principle for achieving calm aesthetic in this space",
-  "roomType": "${roomType}",
-  "difficulty": "beginner|intermediate|advanced",
-  "timeRequired": "X-Y hours",
-  "estimatedBudget": "$XX-$XX"
-}
-
-**CONTEXT CONSIDERATIONS:**
+**CONTEXT TO USE:**
 - Living situation: ${residents}
 - Space size: ${livingSpace}
-- Preferred style: ${style}  
+- Preferred style: ${style}
 - Budget range: ${budget}
 - Time available: ${timeframe}
 
+**RESPONSE FORMAT (STRICT JSON ONLY, NO MARKDOWN FENCES):**
+{
+  "analysis_markdown": "A Markdown string with the sections below, using '##' headings and concise bullets.",
+  "visualization_prompt": "A strict, imperative command list to transform the room (keep layout and large furniture fixed).",
+  "products": [
+    {
+      "name": "Short product name",
+      "search_term": "3-7 word search query, generic (no brands)",
+      "reason": "Why it helps in this specific room"
+    }
+    // 3-5 total items
+  ]
+}
+
+**ANALYSIS MARKDOWN SECTIONS (IN THIS ORDER):**
+## Key Issues
+- 3-4 bullets describing main clutter sources and impact.
+
+## Quick Wins (15 min)
+- 3 actionable tasks that can be done quickly.
+
+## Storage Solutions
+- 3-5 specific storage ideas with placement hints.
+
+## Step-by-Step Plan
+1. Numbered, clear steps (5-7 total), each with a time estimate.
+
+## Aesthetic Tip
+- One design tip for a calm, zen feel.
+
+If the room already appears organized, say so and focus on maintenance and micro-optimizations.
+
 **QUALITY STANDARDS:**
-- Be specific and actionable (avoid vague advice)
-- Consider real-world constraints (time, budget, skill)
-- Focus on sustainable systems over quick fixes
-- Balance function with aesthetics
-- Provide realistic timelines and costs
-- Suggest beginner-friendly solutions first
+- Be concrete and room-specific (avoid vague advice).
+- Suggest realistic timelines and achievable actions.
+- Prioritize safety and clear pathways.
+- Avoid brand names; recommend product types only.
 
-**TONE:** Professional yet encouraging, like a trusted design consultant who understands real-life challenges.
-
-Please analyze the uploaded image and respond ONLY with the JSON format above.`;
+Return ONLY the JSON object with the fields above.`;
 }
 
 /**

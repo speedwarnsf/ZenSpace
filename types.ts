@@ -56,8 +56,12 @@ export enum AppState {
  * Error information for display in the UI
  */
 export interface AppError {
+  /** Short heading for the error */
+  title?: string;
   /** User-friendly error message */
   message: string;
+  /** Actionable suggestion for the user */
+  suggestion?: string;
   /** Error code for debugging/handling */
   code: string;
   /** Whether the user can retry the action */

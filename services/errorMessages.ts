@@ -221,6 +221,24 @@ const errorMessages: Record<string, UserErrorMessage> = {
     isRetryable: true,
     icon: 'file-x'
   },
+  INVALID_INPUT: {
+    title: 'Missing Information',
+    description: 'We didn\'t receive everything needed to complete this request.',
+    suggestion: 'Please try again and make sure the image is fully uploaded.',
+    severity: ErrorSeverity.WARNING,
+    category: ErrorCategory.VALIDATION,
+    isRetryable: true,
+    icon: 'alert-circle'
+  },
+  VALIDATION_FAILED: {
+    title: 'Invalid Upload',
+    description: 'Your image didn\'t pass our validation checks.',
+    suggestion: 'Please try a different photo that is clear, well-lit, and in a supported format.',
+    severity: ErrorSeverity.WARNING,
+    category: ErrorCategory.VALIDATION,
+    isRetryable: true,
+    icon: 'file-x'
+  },
 
   // Visualization errors
   NO_IMAGE_GENERATED: {

@@ -1,5 +1,7 @@
 import { GoogleGenAI, Chat, Type, Modality } from "@google/genai";
 import { AnalysisResult, ProductSuggestion } from '../types';
+import { createAnalysisPrompt, createChatContextPrompt } from './promptTemplates';
+import { createTimeoutHandler } from './edgeCaseHandlers';
 
 // Environment variable validation with helpful error messages
 // Vite requires VITE_ prefix for client-side env vars
@@ -28,6 +30,8 @@ const ai = new GoogleGenAI({ apiKey });
 // Model configuration - using latest stable models
 const ANALYSIS_MODEL = 'gemini-2.0-flash';
 const VISUALIZATION_MODEL = 'gemini-2.0-flash-exp'; // Flash exp supports image generation
+const ANALYSIS_TIMEOUT_MS = 45000;
+const VISUALIZATION_TIMEOUT_MS = 70000;
 
 /**
  * Custom error class for API-related errors
@@ -65,9 +69,145 @@ const validateAnalysisResponse = (data: unknown): data is AnalysisApiResponse =>
   const obj = data as Record<string, unknown>;
   return (
     typeof obj.analysis_markdown === 'string' &&
+    obj.analysis_markdown.trim().length > 0 &&
     typeof obj.visualization_prompt === 'string' &&
     Array.isArray(obj.products)
   );
+};
+
+const REQUIRED_SECTIONS = [
+  'Key Issues',
+  'Quick Wins',
+  'Storage Solutions',
+  'Step-by-Step Plan',
+  'Aesthetic Tip'
+];
+
+const coerceString = (value: unknown): string | null => {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+};
+
+const extractJsonFromText = (text: string): string | null => {
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+
+  if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+    return trimmed;
+  }
+
+  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (fenced && fenced[1]) {
+    return fenced[1].trim();
+  }
+
+  const firstBrace = trimmed.indexOf('{');
+  const lastBrace = trimmed.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    return trimmed.slice(firstBrace, lastBrace + 1);
+  }
+
+  return null;
+};
+
+const looksLikeHtml = (text: string): boolean => {
+  return /<!doctype|<html|<body/i.test(text);
+};
+
+const looksLikeAnalysis = (text: string): boolean => {
+  return /key issues|quick wins|storage|step-by-step|aesthetic tip/i.test(text);
+};
+
+const ensureMarkdownSections = (analysisMarkdown: string): string => {
+  let result = analysisMarkdown.trim();
+
+  REQUIRED_SECTIONS.forEach((section) => {
+    const headingRegex = new RegExp(`(^|\\n)\\s*(#{1,6}\\s*${section}|\\*\\*${section}\\*\\*)`, 'i');
+    if (!headingRegex.test(result)) {
+      const fallback = section === 'Aesthetic Tip'
+        ? '- Choose a calm, neutral palette and keep surfaces visually light.'
+        : section === 'Step-by-Step Plan'
+          ? '1. Clear the most visible surfaces first (10-15 min).\n2. Sort items into keep, relocate, and donate bins (20-30 min).\n3. Assign storage locations for frequently used items (15-20 min).\n4. Return items using the new zones and containers (20-30 min).\n5. Finish with a quick reset routine (5 min).'
+          : '- Add one or two specific, room-appropriate improvements here.';
+
+      result += `\n\n## ${section}\n${fallback}`;
+    }
+  });
+
+  return result;
+};
+
+const createFallbackVisualizationPrompt = (analysisMarkdown: string): string => {
+  return `TASK: Transform this messy room into a clean, organized version.
+1. FLOORS: Remove visible clutter and reveal clean flooring.
+2. SURFACES: Clear tables, desks, and counters of loose items.
+3. FURNITURE: Straighten and align major furniture. Make beds if present.
+4. ITEMS: Group similar items into tidy, labeled storage areas.
+5. ATMOSPHERE: Bright, even lighting with a calm, minimal aesthetic.
+
+Use the following analysis as guidance:
+${analysisMarkdown}
+
+Constraint: Keep original room geometry and large furniture positions exactly the same.`;
+};
+
+const normalizeProducts = (value: unknown): ProductSuggestion[] => {
+  if (!Array.isArray(value)) return [];
+
+  const cleaned = value
+    .map((item) => {
+      if (!item || typeof item !== 'object') return null;
+      const obj = item as Record<string, unknown>;
+      const name = coerceString(obj.name);
+      const searchTerm = coerceString(obj.search_term ?? obj.searchTerm);
+      const reason = coerceString(obj.reason);
+
+      if (!name || !searchTerm || !reason) return null;
+      return { name, searchTerm, reason };
+    })
+    .filter((item): item is ProductSuggestion => item !== null);
+
+  const deduped = new Map<string, ProductSuggestion>();
+  cleaned.forEach((item) => {
+    const key = `${item.name.toLowerCase()}|${item.searchTerm.toLowerCase()}`;
+    if (!deduped.has(key)) {
+      deduped.set(key, item);
+    }
+  });
+
+  return Array.from(deduped.values()).slice(0, 5);
+};
+
+const normalizeAnalysisResponse = (data: unknown, rawText: string): AnalysisResult => {
+  const obj = data && typeof data === 'object' ? (data as Record<string, unknown>) : null;
+  const analysisMarkdown =
+    coerceString(obj?.analysis_markdown) ||
+    coerceString(obj?.analysisMarkdown) ||
+    coerceString(obj?.analysis) ||
+    (looksLikeAnalysis(rawText) ? rawText.trim() : null);
+
+  if (!analysisMarkdown) {
+    throw new GeminiApiError(
+      'Invalid response structure from AI. Please try again.',
+      'INVALID_RESPONSE',
+      true
+    );
+  }
+
+  const visualizationPrompt =
+    coerceString(obj?.visualization_prompt) ||
+    coerceString(obj?.visualizationPrompt) ||
+    coerceString(obj?.visualization) ||
+    createFallbackVisualizationPrompt(analysisMarkdown);
+
+  const products = normalizeProducts(obj?.products ?? obj?.productSuggestions ?? obj?.product_suggestions);
+
+  return {
+    rawText: ensureMarkdownSections(analysisMarkdown),
+    visualizationPrompt,
+    products
+  };
 };
 
 /**
@@ -91,8 +231,14 @@ export const analyzeImage = async (base64Image: string, mimeType: string): Promi
     throw new GeminiApiError('No image data provided', 'INVALID_INPUT', false);
   }
 
+  if (!mimeType || !mimeType.startsWith('image/')) {
+    throw new GeminiApiError('Unsupported image type provided.', 'INVALID_FORMAT', false);
+  }
+
   try {
-    const response = await ai.models.generateContent({
+    const { withTimeout } = createTimeoutHandler(ANALYSIS_TIMEOUT_MS);
+    const promptText = createAnalysisPrompt({ roomType: 'room' });
+    const response = await withTimeout(ai.models.generateContent({
       model: ANALYSIS_MODEL,
       contents: {
         parts: [
@@ -103,34 +249,7 @@ export const analyzeImage = async (base64Image: string, mimeType: string): Promi
             }
           },
           {
-            text: `You are an expert professional organizer and interior designer. 
-            Analyze this uploaded photo of a room.
-            
-            Return a JSON object with three fields:
-            1. 'analysis_markdown': A structured Markdown string. It MUST have these sections:
-               - **Key Issues**: Briefly identify the main sources of clutter.
-               - **Quick Wins**: 3 immediate actions (under 15 mins).
-               - **Storage Solutions**: Specific suggestions for storage containers/furniture.
-               - **Step-by-Step Plan**: A numbered list to organize the space.
-               - **Aesthetic Tip**: One design tip for a "Zen" look.
-            
-            2. 'visualization_prompt': A set of STRICT, IMPERATIVE COMMANDS for an AI image generator to "fix" the room.
-            It MUST implement the solutions you proposed in 'analysis_markdown'.
-            
-            Format as a direct command list:
-            "TASK: Transform this messy room into a clean one.
-            1. FLOORS: [Command to remove specific floor clutter and reveal flooring. E.g. 'Remove pile of clothes, show hardwood'].
-            2. SURFACES: [Command to clear specific tables/counters. E.g. 'Clear nightstand of cups and papers'].
-            3. BEDDING/FURNITURE: [Command to make the bed or straighten cushions. E.g. 'Make the bed with white duvet, tight tuck'].
-            4. ITEMS: [Command to organize specific messy items like books, toys. E.g. 'Place books vertically on shelves'].
-            5. ATMOSPHERE: [Lighting and mood instructions].
-            
-            Constraint: Keep original room geometry and large furniture positions exactly the same."
-            
-            3. 'products': An array of 3-5 specific products that would help organize this room. For each product provide:
-               - 'name': Short display name (e.g., "Woven Basket").
-               - 'search_term': A specific search query to find this on Amazon (e.g., "large woven storage basket for blankets").
-               - 'reason': Why this helps.`
+            text: promptText
           }
         ]
       },
@@ -152,12 +271,14 @@ export const analyzeImage = async (base64Image: string, mimeType: string): Promi
                 }
               }
             }
-          }
+          },
+          required: ['analysis_markdown', 'visualization_prompt', 'products']
         }
       }
-    });
+    }));
 
-    if (!response.text) {
+    const responseText = response.text?.trim() ?? '';
+    if (!responseText) {
       throw new GeminiApiError(
         'The AI returned an empty response. Please try again with a different image.',
         'EMPTY_RESPONSE',
@@ -165,10 +286,7 @@ export const analyzeImage = async (base64Image: string, mimeType: string): Promi
       );
     }
 
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(response.text);
-    } catch (parseError) {
+    if (looksLikeHtml(responseText)) {
       throw new GeminiApiError(
         'Failed to parse AI response. The service may be temporarily unavailable.',
         'PARSE_ERROR',
@@ -176,26 +294,22 @@ export const analyzeImage = async (base64Image: string, mimeType: string): Promi
       );
     }
 
-    if (!validateAnalysisResponse(parsed)) {
-      throw new GeminiApiError(
-        'Invalid response structure from AI. Please try again.',
-        'INVALID_RESPONSE',
-        true
-      );
+    let parsed: unknown = null;
+    const jsonText = extractJsonFromText(responseText);
+    if (jsonText) {
+      try {
+        parsed = JSON.parse(jsonText);
+      } catch (parseError) {
+        parsed = null;
+      }
     }
 
-    // Transform snake_case API response to camelCase for TypeScript
-    const products: ProductSuggestion[] = parsed.products.map((p) => ({
-      name: p.name,
-      searchTerm: p.search_term,
-      reason: p.reason
-    }));
+    if (parsed && validateAnalysisResponse(parsed)) {
+      return normalizeAnalysisResponse(parsed, responseText);
+    }
 
-    return {
-      rawText: parsed.analysis_markdown,
-      visualizationPrompt: parsed.visualization_prompt,
-      products
-    };
+    // Fallback: attempt to normalize partial or non-JSON responses
+    return normalizeAnalysisResponse(parsed, responseText);
   } catch (error) {
     // Re-throw our custom errors as-is
     if (error instanceof GeminiApiError) {
@@ -262,8 +376,26 @@ export const generateRoomVisualization = async (
     );
   }
 
+  const trimmedPrompt = prompt?.trim();
+  if (!trimmedPrompt) {
+    throw new GeminiApiError(
+      'Missing visualization instructions. Please re-run the analysis.',
+      'INVALID_INPUT',
+      false
+    );
+  }
+
+  if (!originalImageBase64 || !mimeType) {
+    throw new GeminiApiError(
+      'Original image data is missing.',
+      'INVALID_INPUT',
+      false
+    );
+  }
+
   try {
-    const response = await ai.models.generateContent({
+    const { withTimeout } = createTimeoutHandler(VISUALIZATION_TIMEOUT_MS);
+    const response = await withTimeout(ai.models.generateContent({
       model: VISUALIZATION_MODEL,
       contents: {
         parts: [
@@ -291,7 +423,7 @@ export const generateRoomVisualization = async (
                - If there are tables, CLEAR them of clutter.
                
             3. APPLY SPECIFIC INSTRUCTIONS FROM THE ORGANIZER:
-            ${prompt}
+            ${trimmedPrompt}
             
             4. PRESERVE REALITY:
                - Do NOT change the wall color.
@@ -305,7 +437,7 @@ export const generateRoomVisualization = async (
       config: {
         responseModalities: [Modality.IMAGE]
       }
-    });
+    }));
 
     // Extract base64 image from response
     const part = response.candidates?.[0]?.content?.parts?.[0];
@@ -341,15 +473,7 @@ export const createChatSession = (initialContext: string): Chat => {
   return ai.chats.create({
     model: ANALYSIS_MODEL,
     config: {
-      systemInstruction: `You are a helpful, encouraging professional organizer assistant named "ZenSpace AI". 
-      The user has just uploaded a photo of their room and you have already provided an initial analysis.
-      
-      Here is the context of your initial analysis of their room:
-      "${initialContext}"
-      
-      Answer the user's follow-up questions based on this analysis. 
-      Keep your answers concise (under 3 paragraphs) unless asked for details.
-      Be friendly and supportive. If they ask about specific products, suggest general types (e.g., "clear acrylic bins") rather than specific brands unless necessary.`
+      systemInstruction: createChatContextPrompt(initialContext)
     }
   });
 };
