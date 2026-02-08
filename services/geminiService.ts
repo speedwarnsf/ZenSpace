@@ -1,31 +1,73 @@
-import { GoogleGenAI, Chat, Type, Modality } from "@google/genai";
+import { Type, Modality } from "@google/genai";
 import { AnalysisResult, ProductSuggestion } from '../types';
 import { createAnalysisPrompt, createChatContextPrompt } from './promptTemplates';
 import { createTimeoutHandler } from './edgeCaseHandlers';
 
-// Environment variable validation with helpful error messages
-// Vite requires VITE_ prefix for client-side env vars
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+// API calls go through our server-side proxy to keep the key safe
+const PROXY_URL = '/api/gemini';
 
 /**
  * Check if the API is configured and ready to use
+ * With proxy, always returns true (server holds the key)
  */
 export const isApiConfigured = (): boolean => {
-  return apiKey.length > 0;
+  return true;
 };
 
 /**
  * Get a user-friendly error message for API configuration issues
  */
 export const getApiConfigError = (): string => {
-  if (!apiKey) {
-    return 'The Gemini API key is not configured. Please add GEMINI_API_KEY to your environment variables.';
-  }
   return '';
 };
 
-// Initialize the Gemini AI client
-const ai = new GoogleGenAI({ apiKey });
+// Proxy wrapper that mirrors the SDK interface
+const ai = {
+  models: {
+    async generateContent(params: any) {
+      const response = await fetch(PROXY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'generateContent',
+          model: params.model,
+          contents: params.contents,
+          config: params.config,
+        }),
+      });
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: 'Proxy request failed' }));
+        throw new GeminiApiError(err.error || `API error ${response.status}`, err.code || 'API_ERROR', response.status >= 500);
+      }
+      return response.json();
+    }
+  },
+  chats: {
+    create(params: any) {
+      // Return a chat-like object that uses the proxy
+      return {
+        async sendMessage(msg: any) {
+          const response = await fetch(PROXY_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'chat',
+              model: params.model,
+              chatContext: params.config?.systemInstruction,
+              message: typeof msg === 'string' ? msg : msg.message,
+            }),
+          });
+          if (!response.ok) {
+            const err = await response.json().catch(() => ({ error: 'Chat request failed' }));
+            throw new GeminiApiError(err.error || 'Chat failed', err.code || 'CHAT_ERROR', true);
+          }
+          const data = await response.json();
+          return { text: data.text };
+        }
+      };
+    }
+  }
+};
 
 // Model configuration - using latest stable models
 const ANALYSIS_MODEL = 'gemini-2.0-flash';
