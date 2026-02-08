@@ -5,6 +5,10 @@ import { ChatInterface } from './components/ChatInterface';
 import { SessionManager } from './components/SessionManager';
 import { ShareButton } from './components/ShareButton';
 import { ThemeToggle } from './components/ThemeToggle';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { NetworkStatus, useNetworkStatus } from './components/NetworkStatus';
+import { AnalysisLoading } from './components/EnhancedLoadingSkeleton';
+import { AccessibilityProvider, AccessibilityToolbar, SkipNavigation, useAccessibility } from './components/AccessibilityFeatures';
 import { 
   analyzeImage, 
   createChatSession, 
@@ -15,14 +19,17 @@ import {
 import { compressImage } from './services/imageCompression';
 import { rateLimiter } from './services/rateLimiter';
 import { saveSession, SavedSession } from './services/sessionStorage';
+import { validateImageFile, preprocessImage } from './services/edgeCaseHandlers';
+import { analytics } from './services/analytics';
+import { createAnalysisPrompt } from './services/promptTemplates';
 import { AnalysisResult, AppState, ChatMessage, AppError, UploadedImage } from './types';
 import { Chat } from '@google/genai';
 import { LayoutGrid, ArrowLeft, AlertCircle, RefreshCw, WifiOff, Clock } from 'lucide-react';
 
 /**
- * Main application component for ZenSpace room organizer
+ * Main application component wrapper with enhanced providers
  */
-export default function App() {
+function AppContent() {
   // Application state
   const [appState, setAppState] = useState<AppState>(AppState.HOME);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
@@ -43,6 +50,14 @@ export default function App() {
   // Session state
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(undefined);
   const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null);
+
+  // Enhanced state for production features
+  const [analysisStage, setAnalysisStage] = useState<'uploading' | 'processing' | 'analyzing' | 'generating'>('uploading');
+  const [analysisProgress, setAnalysisProgress] = useState(0);
+
+  // Network and accessibility hooks
+  const networkStatus = useNetworkStatus();
+  const { announce, playSound } = useAccessibility();
 
   // Check API configuration on mount
   useEffect(() => {
@@ -68,41 +83,82 @@ export default function App() {
   }, []);
 
   /**
-   * Handle image selection from the upload zone
+   * Handle image selection from the upload zone with enhanced validation
    */
   const handleImageSelected = useCallback(async (file: File) => {
+    // Analytics tracking
+    analytics.trackImageUpload(file);
+    
+    // Check network connection
+    if (!networkStatus.isOnline) {
+      setError({
+        message: 'No internet connection. Please check your network and try again.',
+        code: 'OFFLINE',
+        isRetryable: true
+      });
+      setAppState(AppState.ERROR);
+      announce('Upload failed: No internet connection', 'assertive');
+      playSound('error');
+      return;
+    }
+
     // Check rate limit before processing
     if (!rateLimiter.tryConsume()) {
       const waitTime = rateLimiter.formatWaitTime();
       setRateLimitMessage(`Too many requests. Please wait ${waitTime}.`);
       setTimeout(() => setRateLimitMessage(null), 5000);
+      playSound('error');
       return;
     }
-    
+
     try {
+      // Stage 1: Validate file
+      setAnalysisStage('uploading');
+      setAnalysisProgress(10);
       setIsAnalyzing(true);
       setAppState(AppState.ANALYZING);
       setError(null);
-      setCurrentSessionId(undefined); // Reset session ID for new analysis
+      setCurrentSessionId(undefined);
+      announce('Starting image analysis', 'polite');
 
-      // Compress image before analysis
-      let processedFile = file;
-      try {
-        const compression = await compressImage(file, {
-          maxWidth: 1920,
-          maxHeight: 1080,
-          quality: 0.85,
-          targetSize: 2 * 1024 * 1024, // 2MB target
+      const validation = await validateImageFile(file);
+      
+      if (!validation.canProceed) {
+        setError({
+          message: validation.error || 'Invalid image file',
+          code: 'VALIDATION_FAILED',
+          isRetryable: true
         });
-        processedFile = compression.file;
-        // Compression successful - data available in compression object if needed
-        // Original: ${compression.originalSize}, Compressed: ${compression.compressedSize}
-      } catch (compressError) {
-        console.warn('Image compression failed, using original:', compressError);
-        // Continue with original file if compression fails
+        setAppState(AppState.ERROR);
+        analytics.track('image_rejected', { reason: validation.error });
+        announce(`Upload failed: ${validation.error}`, 'assertive');
+        playSound('error');
+        setIsAnalyzing(false);
+        return;
       }
 
-      // Convert file to base64
+      if (validation.warning) {
+        announce(validation.warning, 'polite');
+      }
+
+      // Stage 2: Preprocess image (compression if needed)
+      setAnalysisStage('processing');
+      setAnalysisProgress(25);
+      
+      const preprocessResult = await preprocessImage(file);
+      const processedFile = preprocessResult.file;
+      
+      if (preprocessResult.wasModified) {
+        analytics.trackImageCompression(
+          file.size,
+          processedFile.size,
+          0, 0 // Dimensions will be calculated later
+        );
+        announce(`Image optimized: ${preprocessResult.modifications[0]}`, 'polite');
+      }
+
+      // Stage 3: Convert file to base64
+      setAnalysisProgress(40);
       const reader = new FileReader();
       
       reader.onerror = () => {
@@ -113,42 +169,62 @@ export default function App() {
         });
         setAppState(AppState.ERROR);
         setIsAnalyzing(false);
+        announce('Failed to read image file', 'assertive');
+        playSound('error');
+        analytics.track('analysis_failed', { stage: 'file_read', error: 'FILE_READ_ERROR' });
       };
       
       reader.onloadend = async () => {
-        const dataUrl = reader.result as string;
-        const parsed = parseDataUrl(dataUrl);
-        
-        if (!parsed) {
-          setError({
-            message: 'Invalid image format. Please upload a JPG, PNG, or WebP image.',
-            code: 'INVALID_FORMAT',
-            isRetryable: true
-          });
-          setAppState(AppState.ERROR);
-          setIsAnalyzing(false);
-          return;
-        }
-
-        setUploadedImage({
-          dataUrl,
-          base64: parsed.base64,
-          mimeType: parsed.mimeType,
-          fileName: file.name
-        });
-
         try {
-          // Analyze the image
-          const result = await analyzeImage(parsed.base64, parsed.mimeType);
-          setAnalysis(result);
+          const dataUrl = reader.result as string;
+          const parsed = parseDataUrl(dataUrl);
+          
+          if (!parsed) {
+            throw new Error('Invalid image format after processing');
+          }
 
-          // Initialize chat session with analysis context
+          setUploadedImage({
+            dataUrl,
+            base64: parsed.base64,
+            mimeType: parsed.mimeType,
+            fileName: processedFile.name
+          });
+
+          // Stage 4: AI Analysis
+          setAnalysisStage('analyzing');
+          setAnalysisProgress(60);
+          analytics.trackAnalysisStart();
+          announce('Analyzing room layout and clutter', 'polite');
+
+          // Use enhanced prompt template
+          const result = await analyzeImage(parsed.base64, parsed.mimeType);
+          
+          setAnalysisProgress(80);
+          
+          // Stage 5: Setup chat session
+          setAnalysisStage('generating');
+          setAnalysisProgress(90);
+          
           const chat = createChatSession(result.rawText);
           setChatSession(chat);
           
+          // Complete
+          setAnalysisProgress(100);
+          setAnalysis(result);
           setAppState(AppState.RESULTS);
+          
+          analytics.trackAnalysisComplete(result.products?.length || 0);
+          announce(`Analysis complete! Found ${result.products?.length || 0} organization recommendations.`, 'polite');
+          playSound('success');
+          
         } catch (apiError) {
           console.error('Analysis error:', apiError);
+          
+          analytics.track('analysis_failed', {
+            stage: analysisStage,
+            error: apiError instanceof GeminiApiError ? apiError.code : 'UNKNOWN',
+            isRetryable: apiError instanceof GeminiApiError ? apiError.isRetryable : false
+          });
           
           if (apiError instanceof GeminiApiError) {
             setError({
@@ -164,8 +240,11 @@ export default function App() {
             });
           }
           setAppState(AppState.ERROR);
+          announce(`Analysis failed: ${apiError instanceof Error ? apiError.message : 'Unknown error'}`, 'assertive');
+          playSound('error');
         } finally {
           setIsAnalyzing(false);
+          setAnalysisProgress(0);
         }
       };
       
@@ -385,6 +464,9 @@ export default function App() {
           </button>
           
           <div className="flex items-center gap-3">
+            {/* Network Status */}
+            <NetworkStatus showIndicator={true} />
+            
             {/* Theme Toggle */}
             <ThemeToggle />
             
@@ -433,6 +515,7 @@ export default function App() {
 
       {/* Main Content */}
       <main 
+        id="main-content"
         className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8"
         role="main"
       >
@@ -465,7 +548,7 @@ export default function App() {
           </div>
         )}
 
-        {/* Analyzing State */}
+        {/* Analyzing State - Enhanced with stage indicators */}
         {appState === AppState.ANALYZING && (
           <div 
             className="flex flex-col items-center justify-center min-h-[60vh]"
@@ -473,9 +556,11 @@ export default function App() {
             aria-live="polite"
             aria-busy="true"
           >
-            <UploadZone onImageSelected={handleImageSelected} isAnalyzing={isAnalyzing} />
-            <p className="mt-6 text-slate-500 dark:text-slate-400 animate-pulse">Analyzing visual details...</p>
-            <p className="mt-2 text-sm text-slate-400 dark:text-slate-500">This may take a few moments</p>
+            <AnalysisLoading 
+              stage={analysisStage}
+              progress={analysisProgress}
+              className="max-w-md"
+            />
           </div>
         )}
 
@@ -584,5 +669,20 @@ export default function App() {
         </footer>
       )}
     </div>
+  );
+}
+
+/**
+ * Main App component with all production enhancements
+ */
+export default function App() {
+  return (
+    <ErrorBoundary>
+      <AccessibilityProvider>
+        <SkipNavigation />
+        <AppContent />
+        <AccessibilityToolbar />
+      </AccessibilityProvider>
+    </ErrorBoundary>
   );
 }

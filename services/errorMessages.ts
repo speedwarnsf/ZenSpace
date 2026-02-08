@@ -269,7 +269,7 @@ const errorMessages: Record<string, UserErrorMessage> = {
  * Get a user-friendly error message for an error code
  */
 export function getErrorMessage(code: string): UserErrorMessage {
-  return errorMessages[code] || errorMessages.UNKNOWN;
+  return errorMessages[code] ?? errorMessages.UNKNOWN!;
 }
 
 /**

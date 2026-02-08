@@ -2,7 +2,8 @@ import { GoogleGenAI, Chat, Type, Modality } from "@google/genai";
 import { AnalysisResult, ProductSuggestion } from '../types';
 
 // Environment variable validation with helpful error messages
-const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
+// Vite requires VITE_ prefix for client-side env vars
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
 
 /**
  * Check if the API is configured and ready to use

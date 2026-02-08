@@ -47,6 +47,8 @@ export type AnalyticsEventType =
   // Error events
   | 'error_displayed'
   | 'error_dismissed'
+  // Network events
+  | 'network_status_changed'
   // Performance events
   | 'perf_image_load'
   | 'perf_api_call'
@@ -373,7 +375,7 @@ class Analytics {
   /**
    * Track product link click
    */
-  trackProductClick(productName: string, searchTerm: string): void {
+  trackProductClick(productName: string, _searchTerm: string): void {
     this.track('product_link_clicked', {
       source: productName,
       // Don't include searchTerm in analytics to avoid PII/tracking issues

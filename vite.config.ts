@@ -5,9 +5,8 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
-      // Use /zenspace base path for deployment under dustyork.com/zenspace
-      // Assets will be loaded from /zenspace/assets/... when proxied
-      base: process.env.VERCEL ? '/zenspace/' : '/',
+      // Root base path for standalone deployment at zenspace-two.vercel.app
+      base: '/',
       server: {
         port: 3000,
         host: '0.0.0.0',
