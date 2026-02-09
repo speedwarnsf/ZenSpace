@@ -239,11 +239,24 @@ const normalizeProducts = (value: unknown): ProductSuggestion[] => {
 
 const normalizeAnalysisResponse = (data: unknown, rawText: string): AnalysisResult => {
   const obj = data && typeof data === 'object' ? (data as Record<string, unknown>) : null;
-  const analysisMarkdown =
+  let analysisMarkdown =
     coerceString(obj?.analysis_markdown) ||
     coerceString(obj?.analysisMarkdown) ||
     coerceString(obj?.analysis) ||
     (looksLikeAnalysis(rawText) ? rawText.trim() : null);
+  
+  // If analysis_markdown contains raw JSON (hallucination), extract just the markdown part
+  if (analysisMarkdown && analysisMarkdown.includes('"search_term"')) {
+    // The markdown leaked JSON into it — truncate at the JSON boundary
+    const jsonStart = analysisMarkdown.indexOf('{"');
+    if (jsonStart > 0) {
+      analysisMarkdown = analysisMarkdown.substring(0, jsonStart).trim();
+    }
+  }
+  // Also cap at reasonable length (analysis shouldn't be more than ~3000 chars)
+  if (analysisMarkdown && analysisMarkdown.length > 4000) {
+    analysisMarkdown = analysisMarkdown.substring(0, 4000).trim();
+  }
 
   if (!analysisMarkdown) {
     throw new GeminiApiError(
