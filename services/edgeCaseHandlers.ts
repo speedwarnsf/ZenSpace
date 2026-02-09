@@ -17,8 +17,8 @@ export interface EdgeCaseResult {
 // Maximum file sizes (in bytes)
 export const FILE_LIMITS = {
   MAX_SIZE: 50 * 1024 * 1024,        // 50MB absolute max
-  IDEAL_SIZE: 5 * 1024 * 1024,       // 5MB ideal max
-  COMPRESSION_THRESHOLD: 2 * 1024 * 1024, // 2MB compression threshold
+  IDEAL_SIZE: 2 * 1024 * 1024,       // 2MB ideal max (keeps base64 under Vercel's 4.5MB limit)
+  COMPRESSION_THRESHOLD: 1 * 1024 * 1024, // 1MB compression threshold
   TINY_FILE: 10 * 1024,              // 10KB minimum size
 } as const;
 
