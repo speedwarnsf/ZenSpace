@@ -1,4 +1,10 @@
 {
+  "functions": {
+    "api/gemini.ts": {
+      "maxDuration": 90,
+      "memory": 1024
+    }
+  },
   "headers": [
     {
       "source": "/assets/(.*)",

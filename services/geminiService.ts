@@ -319,7 +319,12 @@ export const analyzeImage = async (base64Image: string, mimeType: string): Promi
       }
     }));
 
-    const responseText = response.text?.trim() ?? '';
+    // Extract text from either proxy response format or SDK format
+    const responseText = (
+      response.text?.trim() ||
+      response.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
+      ''
+    );
     if (!responseText) {
       throw new GeminiApiError(
         'The AI returned an empty response. Please try again with a different image.',
