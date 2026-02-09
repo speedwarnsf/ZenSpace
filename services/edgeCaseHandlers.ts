@@ -3,7 +3,6 @@
  * Robust handling of unusual scenarios and edge cases
  */
 import { compressImage } from './imageCompression';
-import { rateLimiter } from './rateLimiter';
 import { analytics } from './analytics';
 
 export interface EdgeCaseResult {
@@ -424,9 +423,8 @@ export async function preprocessImage(file: File): Promise<{
         compressionRatio: compressed.ratio,
         automatic: true
       });
-    } catch (error) {
-      console.warn('Automatic compression failed:', error);
-      // Continue with original file
+    } catch {
+      // Compression failed — continue with original file
     }
   }
 

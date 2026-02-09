@@ -3,7 +3,7 @@
  * Provides real-time network status and offline mode handling
  */
 import { useState, useEffect, useCallback } from 'react';
-import { Wifi, WifiOff, AlertCircle, CheckCircle, Cloud, CloudOff } from 'lucide-react';
+import { Wifi, WifiOff, AlertCircle, CheckCircle, CloudOff } from 'lucide-react';
 import { analytics } from '../services/analytics';
 
 interface NetworkStatus {

@@ -3,7 +3,7 @@
  * WCAG 2.1 AA compliant features and enhancements
  */
 import { useState, useEffect, useCallback, createContext, useContext } from 'react';
-import { Eye, EyeOff, Volume2, VolumeX, Keyboard, Mouse, Focus } from 'lucide-react';
+import { EyeOff, Volume2, VolumeX, Focus } from 'lucide-react';
 
 // Accessibility context for global settings
 interface AccessibilitySettings {
@@ -102,8 +102,7 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.3);
     } catch (error) {
-      // Fallback to simple beep if Web Audio API fails
-      console.log('Sound feedback not available');
+      // Web Audio API not available — silently degrade
     }
   }, [settings.soundEnabled]);
 

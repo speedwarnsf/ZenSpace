@@ -54,13 +54,6 @@ export class ErrorBoundary extends Component<Props, State> {
 
     // Call custom error handler if provided
     this.props.onError?.(error, errorInfo);
-
-    // Log to console for debugging
-    console.group('🚨 Error Boundary Caught Error');
-    console.error('Error:', error);
-    console.error('Error Info:', errorInfo);
-    console.error('Error ID:', this.state.errorId);
-    console.groupEnd();
   }
 
   handleRetry = () => {

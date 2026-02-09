@@ -51,8 +51,6 @@ const ai = {
         } catch { 
           if (text) errMsg += `: ${text.slice(0, 200)}`;
         }
-        // Log for debugging
-        console.error('[ZenSpace proxy error]', response.status, errMsg);
         throw new GeminiApiError(errMsg, errCode, response.status >= 500);
       }
       return response.json();
@@ -430,7 +428,6 @@ export const analyzeImage = async (base64Image: string, mimeType: string): Promi
 
     // Generic fallback — surface the actual error for debugging
     const errMsg = error instanceof Error ? error.message : String(error);
-    console.error("Analysis failed:", errMsg, error);
     throw new GeminiApiError(
       `Analysis error: ${errMsg.slice(0, 200)}`,
       'UNKNOWN',
@@ -536,7 +533,6 @@ CRITICAL RULES:
       throw error;
     }
 
-    console.error("Visualization generation failed:", error);
     throw new GeminiApiError(
       'Failed to generate room visualization. Please try again.',
       'VISUALIZATION_FAILED',

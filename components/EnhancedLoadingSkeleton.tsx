@@ -3,7 +3,7 @@
  * Beautiful, accessible loading states for all app components
  */
 import { ReactNode, useEffect, useState } from 'react';
-import { Camera, Brain, Image, MessageSquare, Share2, Sparkles } from 'lucide-react';
+import { Camera, Brain, Image, Sparkles } from 'lucide-react';
 
 interface LoadingSkeletonProps {
   variant?: 'card' | 'text' | 'image' | 'button' | 'chat' | 'analysis';
