@@ -71,7 +71,7 @@ const ai = {
 
 // Model configuration - using latest stable models
 const ANALYSIS_MODEL = 'gemini-2.0-flash';
-const VISUALIZATION_MODEL = 'gemini-2.0-flash-exp'; // Flash exp supports image generation
+const VISUALIZATION_MODEL = 'gemini-2.0-flash-exp-image-generation'; // Image generation model
 const ANALYSIS_TIMEOUT_MS = 45000;
 const VISUALIZATION_TIMEOUT_MS = 70000;
 
