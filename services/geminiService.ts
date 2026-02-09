@@ -477,14 +477,16 @@ export const generateRoomVisualization = async (
         ]
       },
       config: {
-        responseModalities: [Modality.IMAGE]
+        responseModalities: [Modality.TEXT, Modality.IMAGE]
       }
     }));
 
-    // Extract base64 image from response
-    const part = response.candidates?.[0]?.content?.parts?.[0];
-    if (part && part.inlineData && part.inlineData.data) {
-      return part.inlineData.data;
+    // Extract base64 image from response (may be in any part)
+    const parts = response.candidates?.[0]?.content?.parts || [];
+    for (const part of parts) {
+      if (part && part.inlineData && part.inlineData.data) {
+        return part.inlineData.data;
+      }
     }
     
     throw new GeminiApiError(
