@@ -201,9 +201,9 @@ const normalizeProducts = (value: unknown): ProductSuggestion[] => {
     .map((item) => {
       if (!item || typeof item !== 'object') return null;
       const obj = item as Record<string, unknown>;
-      const name = coerceString(obj.name);
-      const searchTerm = coerceString(obj.search_term ?? obj.searchTerm);
-      const reason = coerceString(obj.reason);
+      const name = coerceString(obj.name)?.slice(0, 100);
+      const searchTerm = coerceString(obj.search_term ?? obj.searchTerm)?.slice(0, 80);
+      const reason = coerceString(obj.reason)?.slice(0, 300);
 
       if (!name || !searchTerm || !reason) return null;
       return { name, searchTerm, reason };
@@ -307,9 +307,9 @@ export const analyzeImage = async (base64Image: string, mimeType: string): Promi
               items: {
                 type: Type.OBJECT,
                 properties: {
-                  name: { type: Type.STRING },
-                  search_term: { type: Type.STRING },
-                  reason: { type: Type.STRING }
+                  name: { type: Type.STRING, description: "Short product name, max 5 words" },
+                  search_term: { type: Type.STRING, description: "3-7 word generic search query, no brands, max 50 characters" },
+                  reason: { type: Type.STRING, description: "One sentence explaining why this helps" }
                 }
               }
             }
