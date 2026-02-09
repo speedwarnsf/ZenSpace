@@ -25,19 +25,35 @@ export const getApiConfigError = (): string => {
 const ai = {
   models: {
     async generateContent(params: any) {
-      const response = await fetch(PROXY_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'generateContent',
-          model: params.model,
-          contents: params.contents,
-          config: params.config,
-        }),
-      });
+      let response: Response;
+      try {
+        response = await fetch(PROXY_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'generateContent',
+            model: params.model,
+            contents: params.contents,
+            config: params.config,
+          }),
+        });
+      } catch (fetchErr: any) {
+        throw new GeminiApiError(`Network error: ${fetchErr.message}`, 'NETWORK_ERROR', true);
+      }
       if (!response.ok) {
-        const err = await response.json().catch(() => ({ error: 'Proxy request failed' }));
-        throw new GeminiApiError(err.error || `API error ${response.status}`, err.code || 'API_ERROR', response.status >= 500);
+        const text = await response.text().catch(() => '');
+        let errMsg = `API error ${response.status}`;
+        let errCode = 'API_ERROR';
+        try {
+          const errJson = JSON.parse(text);
+          errMsg = errJson.error || errMsg;
+          errCode = errJson.code || errCode;
+        } catch { 
+          if (text) errMsg += `: ${text.slice(0, 200)}`;
+        }
+        // Log for debugging
+        console.error('[ZenSpace proxy error]', response.status, errMsg);
+        throw new GeminiApiError(errMsg, errCode, response.status >= 500);
       }
       return response.json();
     }
@@ -393,10 +409,11 @@ export const analyzeImage = async (base64Image: string, mimeType: string): Promi
       }
     }
 
-    // Generic fallback
-    console.error("Analysis failed:", error);
+    // Generic fallback — surface the actual error for debugging
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error("Analysis failed:", errMsg, error);
     throw new GeminiApiError(
-      'An unexpected error occurred while analyzing the image. Please try again.',
+      `Analysis error: ${errMsg.slice(0, 200)}`,
       'UNKNOWN',
       true
     );
