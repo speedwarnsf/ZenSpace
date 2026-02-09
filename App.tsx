@@ -1,14 +1,16 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { UploadZone } from './components/UploadZone';
-import { AnalysisDisplay } from './components/AnalysisDisplay';
-import { ChatInterface } from './components/ChatInterface';
-import { SessionManager } from './components/SessionManager';
-import { ShareButton } from './components/ShareButton';
 import { ThemeToggle } from './components/ThemeToggle';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { NetworkStatus, useNetworkStatus } from './components/NetworkStatus';
 import { AnalysisLoading } from './components/EnhancedLoadingSkeleton';
 import { AccessibilityProvider, AccessibilityToolbar, SkipNavigation, useAccessibility } from './components/AccessibilityFeatures';
+
+// Lazy-loaded components (code splitting)
+const AnalysisDisplay = lazy(() => import('./components/AnalysisDisplay').then(m => ({ default: m.AnalysisDisplay })));
+const ChatInterface = lazy(() => import('./components/ChatInterface').then(m => ({ default: m.ChatInterface })));
+const SessionManager = lazy(() => import('./components/SessionManager').then(m => ({ default: m.SessionManager })));
+const ShareButton = lazy(() => import('./components/ShareButton').then(m => ({ default: m.ShareButton })));
 import { 
   analyzeImage, 
   createChatSession, 
@@ -525,20 +527,24 @@ function AppContent() {
             
             {/* Session Manager - available on home and results */}
             {(appState === AppState.HOME || appState === AppState.RESULTS) && (
-              <SessionManager
-                currentSessionId={currentSessionId}
-                onLoadSession={handleLoadSession}
-                onSaveSession={handleSaveSession}
-                hasUnsavedChanges={appState === AppState.RESULTS && !!analysis}
-              />
+              <Suspense fallback={null}>
+                <SessionManager
+                  currentSessionId={currentSessionId}
+                  onLoadSession={handleLoadSession}
+                  onSaveSession={handleSaveSession}
+                  hasUnsavedChanges={appState === AppState.RESULTS && !!analysis}
+                />
+              </Suspense>
             )}
             
             {appState === AppState.RESULTS && analysis && (
               <>
-                <ShareButton 
-                  analysis={analysis.rawText} 
-                  roomType="room"
-                />
+                <Suspense fallback={null}>
+                  <ShareButton 
+                    analysis={analysis.rawText} 
+                    roomType="room"
+                  />
+                </Suspense>
                 <button 
                   onClick={resetApp}
                   className="text-sm text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded-lg px-2 sm:px-3 py-2 whitespace-nowrap"
@@ -682,49 +688,52 @@ function AppContent() {
 
         {/* Results State */}
         {appState === AppState.RESULTS && analysis && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
-            {/* Left Column: Image & Analysis */}
-            <div className="lg:col-span-7 space-y-8">
-              {/* Image Preview Card */}
-              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden p-2 transition-colors duration-300">
-                {uploadedImage?.dataUrl ? (
-                  <img 
-                    src={uploadedImage.dataUrl} 
-                    alt="Your uploaded room photo" 
-                    className="w-full h-64 md:h-80 object-cover rounded-xl"
-                    decoding="async"
-                  />
-                ) : (
-                  <div className="w-full h-64 md:h-80 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300 text-sm">
-                    Original image not available. Upload a new photo to view it here.
-                  </div>
-                )}
-              </div>
-              
-              {/* Analysis Results & Visualization */}
-              <AnalysisDisplay 
-                analysis={analysis.rawText} 
-                products={analysis.products}
-                visualizationImage={visualizationImage}
-                onVisualize={handleVisualize}
-                isVisualizing={isVisualizing}
-                visualizationError={visualizationError}
-                onRetryVisualization={handleVisualize}
-                originalImage={uploadedImage?.dataUrl}
-              />
-            </div>
-
-            {/* Right Column: Chat */}
-            <div className="lg:col-span-5">
-              <div className="lg:sticky lg:top-24">
-                <ChatInterface 
-                  messages={messages}
-                  onSendMessage={handleSendMessage}
-                  isTyping={isChatTyping}
+          <Suspense fallback={<div className="flex items-center justify-center min-h-[40vh]"><AnalysisLoading stage="generating" progress={95} className="max-w-md" /></div>}>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
+              {/* Left Column: Image & Analysis */}
+              <div className="lg:col-span-7 space-y-8">
+                {/* Image Preview Card */}
+                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden p-2 transition-colors duration-300">
+                  {uploadedImage?.dataUrl ? (
+                    <img 
+                      src={uploadedImage.dataUrl} 
+                      alt="Your uploaded room photo" 
+                      className="w-full h-64 md:h-80 object-cover rounded-xl"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <div className="w-full h-64 md:h-80 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300 text-sm">
+                      Original image not available. Upload a new photo to view it here.
+                    </div>
+                  )}
+                </div>
+                
+                {/* Analysis Results & Visualization */}
+                <AnalysisDisplay 
+                  analysis={analysis.rawText} 
+                  products={analysis.products}
+                  visualizationImage={visualizationImage}
+                  onVisualize={handleVisualize}
+                  isVisualizing={isVisualizing}
+                  visualizationError={visualizationError}
+                  onRetryVisualization={handleVisualize}
+                  originalImage={uploadedImage?.dataUrl}
                 />
               </div>
+
+              {/* Right Column: Chat */}
+              <div className="lg:col-span-5">
+                <div className="lg:sticky lg:top-24">
+                  <ChatInterface 
+                    messages={messages}
+                    onSendMessage={handleSendMessage}
+                    isTyping={isChatTyping}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
+          </Suspense>
         )}
       </main>
 
