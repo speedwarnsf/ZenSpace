@@ -304,12 +304,13 @@ export const analyzeImage = async (base64Image: string, mimeType: string): Promi
             visualization_prompt: { type: Type.STRING },
             products: {
               type: Type.ARRAY,
+              maxItems: 5,
               items: {
                 type: Type.OBJECT,
                 properties: {
-                  name: { type: Type.STRING, description: "Short product name, max 5 words" },
-                  search_term: { type: Type.STRING, description: "3-7 word generic search query, no brands, max 50 characters" },
-                  reason: { type: Type.STRING, description: "One sentence explaining why this helps" }
+                  name: { type: Type.STRING, maxLength: 50, description: "Short product name, 2-5 words" },
+                  search_term: { type: Type.STRING, maxLength: 60, description: "3-7 word search query, NO repetition, NO brands" },
+                  reason: { type: Type.STRING, maxLength: 200, description: "One sentence" }
                 }
               }
             }

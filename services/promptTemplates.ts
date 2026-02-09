@@ -40,12 +40,20 @@ export function createAnalysisPrompt(context: PromptContext = {}): string {
   "visualization_prompt": "A strict, imperative command list to transform the room (keep layout and large furniture fixed).",
   "products": [
     {
-      "name": "Short product name",
-      "search_term": "3-7 word search query, generic (no brands)",
-      "reason": "Why it helps in this specific room"
+      "name": "Under-bed storage bin",
+      "search_term": "under bed storage bin",
+      "reason": "Maximizes unused space beneath the bed for seasonal items"
     }
-    // 3-5 total items
   ]
+}
+
+**CRITICAL: Each search_term MUST be 3-7 words ONLY. Never repeat words. Never exceed 50 characters. Example: "woven storage basket neutral". NOT "storage storage storage..."**
+
+**PRODUCTS RULES:**
+- Exactly 3-5 product objects
+- search_term: SHORT generic query, 3-7 words max, NO repetition
+- name: 2-5 words max
+- reason: One sentence max
 }
 
 **ANALYSIS MARKDOWN SECTIONS (IN THIS ORDER):**
