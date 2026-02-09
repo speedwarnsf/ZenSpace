@@ -86,7 +86,7 @@ const ai = {
 };
 
 // Model configuration - using latest stable models
-const ANALYSIS_MODEL = 'gemini-2.0-flash';
+const ANALYSIS_MODEL = 'gemini-2.5-flash';
 const VISUALIZATION_MODEL = 'gemini-2.5-flash-image'; // Better at image editing/inpainting
 const ANALYSIS_TIMEOUT_MS = 45000;
 const VISUALIZATION_TIMEOUT_MS = 70000;
@@ -114,7 +114,6 @@ interface AnalysisApiResponse {
   visualization_prompt: string;
   products: Array<{
     name: string;
-    search_term: string;
     reason: string;
   }>;
 }
@@ -218,17 +217,18 @@ const normalizeProducts = (value: unknown): ProductSuggestion[] => {
       if (!item || typeof item !== 'object') return null;
       const obj = item as Record<string, unknown>;
       const name = coerceString(obj.name)?.slice(0, 100);
-      const searchTerm = coerceString(obj.search_term ?? obj.searchTerm)?.slice(0, 80);
       const reason = coerceString(obj.reason)?.slice(0, 300);
 
-      if (!name || !searchTerm || !reason) return null;
+      if (!name || !reason) return null;
+      // Derive searchTerm from name (no more hallucination risk)
+      const searchTerm = name.toLowerCase().slice(0, 60);
       return { name, searchTerm, reason };
     })
     .filter((item): item is ProductSuggestion => item !== null);
 
   const deduped = new Map<string, ProductSuggestion>();
   cleaned.forEach((item) => {
-    const key = `${item.name.toLowerCase()}|${item.searchTerm.toLowerCase()}`;
+    const key = item.name.toLowerCase();
     if (!deduped.has(key)) {
       deduped.set(key, item);
     }
@@ -245,17 +245,23 @@ const normalizeAnalysisResponse = (data: unknown, rawText: string): AnalysisResu
     coerceString(obj?.analysis) ||
     (looksLikeAnalysis(rawText) ? rawText.trim() : null);
   
-  // If analysis_markdown contains raw JSON (hallucination), extract just the markdown part
-  if (analysisMarkdown && analysisMarkdown.includes('"search_term"')) {
-    // The markdown leaked JSON into it — truncate at the JSON boundary
-    const jsonStart = analysisMarkdown.indexOf('{"');
-    if (jsonStart > 0) {
-      analysisMarkdown = analysisMarkdown.substring(0, jsonStart).trim();
+  // Strip any raw JSON that leaked into the markdown (hallucination guard)
+  if (analysisMarkdown) {
+    // Remove any JSON object blocks embedded in the markdown
+    analysisMarkdown = analysisMarkdown
+      .replace(/\{[\s\S]*?"(?:search_term|name|reason|products|visualization_prompt)"[\s\S]*?\}/g, '')
+      .replace(/```json[\s\S]*?```/g, '')
+      .replace(/\[\s*\{[\s\S]*?\}\s*\]/g, '') // Remove JSON arrays
+      .trim();
+    
+    // If it still looks like JSON (starts with { or [), it's fully corrupted
+    if (/^\s*[\[{]/.test(analysisMarkdown)) {
+      analysisMarkdown = null;
     }
   }
-  // Also cap at reasonable length (analysis shouldn't be more than ~3000 chars)
-  if (analysisMarkdown && analysisMarkdown.length > 4000) {
-    analysisMarkdown = analysisMarkdown.substring(0, 4000).trim();
+  // Cap at reasonable length
+  if (analysisMarkdown && analysisMarkdown.length > 5000) {
+    analysisMarkdown = analysisMarkdown.substring(0, 5000).trim();
   }
 
   if (!analysisMarkdown) {
@@ -337,10 +343,10 @@ export const analyzeImage = async (base64Image: string, mimeType: string): Promi
               items: {
                 type: Type.OBJECT,
                 properties: {
-                  name: { type: Type.STRING, maxLength: 50, description: "Short product name, 2-5 words" },
-                  search_term: { type: Type.STRING, maxLength: 60, description: "3-7 word search query, NO repetition, NO brands" },
-                  reason: { type: Type.STRING, maxLength: 200, description: "One sentence" }
-                }
+                  name: { type: Type.STRING, description: "Short product name, 2-5 words" },
+                  reason: { type: Type.STRING, description: "One sentence why this helps" }
+                },
+                required: ['name', 'reason']
               }
             }
           },
@@ -544,7 +550,7 @@ CRITICAL RULES:
  * @param initialContext - The analysis markdown to use as context
  * @returns A Chat instance for sending messages
  */
-export const createChatSession = (initialContext: string): Chat => {
+export const createChatSession = (initialContext: string): any => {
   return ai.chats.create({
     model: ANALYSIS_MODEL,
     config: {

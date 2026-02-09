@@ -41,20 +41,15 @@ export function createAnalysisPrompt(context: PromptContext = {}): string {
   "products": [
     {
       "name": "Under-bed storage bin",
-      "search_term": "under bed storage bin",
       "reason": "Maximizes unused space beneath the bed for seasonal items"
     }
   ]
 }
 
-**CRITICAL: Each search_term MUST be 3-7 words ONLY. Never repeat words. Never exceed 50 characters. Example: "woven storage basket neutral". NOT "storage storage storage..."**
-
 **PRODUCTS RULES:**
 - Exactly 3-5 product objects
-- search_term: SHORT generic query, 3-7 words max, NO repetition
-- name: 2-5 words max
+- name: 2-5 words, generic product type (no brands)
 - reason: One sentence max
-}
 
 **ANALYSIS MARKDOWN SECTIONS (IN THIS ORDER):**
 ## Key Issues
