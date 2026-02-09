@@ -63,7 +63,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   return (
     <section 
-      className="flex flex-col h-[600px] bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden transition-colors duration-300"
+      className="flex flex-col h-[calc(100vh-12rem)] sm:h-[600px] max-h-[600px] bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden transition-colors duration-300"
       aria-labelledby="chat-heading"
     >
       {/* Header */}

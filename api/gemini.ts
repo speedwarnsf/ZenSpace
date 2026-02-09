@@ -16,15 +16,36 @@ export default async function handler(req: any, res: any) {
   if (!ai) return res.status(500).json({ error: 'API key not configured on server' });
 
   try {
-    const { action, model, contents, config: reqConfig, message, chatContext } = req.body;
+    const body = req.body;
+    if (!body || typeof body !== 'object') {
+      return res.status(400).json({ error: 'Invalid request body', code: 'INVALID_INPUT' });
+    }
+
+    const { action, model, contents, config: reqConfig, message, chatContext } = body;
+
+    if (!action) {
+      return res.status(400).json({ error: 'Missing action parameter', code: 'INVALID_INPUT' });
+    }
 
     if (action === 'chat') {
+      const trimmedMessage = (typeof message === 'string' ? message : '').trim();
+      if (!trimmedMessage) {
+        return res.status(400).json({ error: 'Empty chat message', code: 'INVALID_INPUT' });
+      }
       const chat = ai.chats.create({
         model: model || 'gemini-2.0-flash',
         config: { systemInstruction: chatContext || '' }
       });
-      const response = await chat.sendMessage({ message: message || '' });
-      return res.status(200).json({ text: response.text });
+      const response = await chat.sendMessage({ message: trimmedMessage });
+      return res.status(200).json({ text: response.text || '' });
+    }
+
+    if (action !== 'generateContent') {
+      return res.status(400).json({ error: `Unknown action: ${action}`, code: 'INVALID_INPUT' });
+    }
+
+    if (!contents) {
+      return res.status(400).json({ error: 'Missing contents', code: 'INVALID_INPUT' });
     }
 
     // generateContent - pass everything through

@@ -182,7 +182,7 @@ export function AccessibilityToolbar() {
   }, [updateSetting, announce, playSound]);
 
   return (
-    <div className="fixed top-4 right-4 z-50">
+    <div className="fixed bottom-4 left-4 z-40">
       {/* Toggle button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -196,7 +196,7 @@ export function AccessibilityToolbar() {
       {/* Toolbar panel */}
       {isOpen && (
         <div 
-          className="mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg shadow-xl p-4 w-64"
+          className="mb-2 absolute bottom-full left-0 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg shadow-xl p-4 w-64"
           role="dialog"
           aria-label="Accessibility Settings"
         >

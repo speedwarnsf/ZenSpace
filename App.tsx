@@ -245,7 +245,7 @@ function AppContent() {
           console.error('Analysis error:', apiError);
           
           analytics.track('analysis_failed', {
-            stage: analysisStage,
+            stage: 'analyzing',
             error: apiError instanceof GeminiApiError ? apiError.code : 'UNKNOWN',
             isRetryable: apiError instanceof GeminiApiError ? apiError.isRetryable : false
           });
@@ -271,6 +271,7 @@ function AppContent() {
       setIsAnalyzing(false);
       setAppState(AppState.ERROR);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- analysisStage is intentionally excluded (stale closure)
   }, [announce, buildAppError, isAnalyzing, networkStatus.isOnline, parseDataUrl, playSound]);
 
   /**

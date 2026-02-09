@@ -61,16 +61,21 @@ const ai = {
       // Return a chat-like object that uses the proxy
       return {
         async sendMessage(msg: any) {
-          const response = await fetch(PROXY_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              action: 'chat',
-              model: params.model,
-              chatContext: params.config?.systemInstruction,
-              message: typeof msg === 'string' ? msg : msg.message,
-            }),
-          });
+          let response: Response;
+          try {
+            response = await fetch(PROXY_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                action: 'chat',
+                model: params.model,
+                chatContext: params.config?.systemInstruction,
+                message: typeof msg === 'string' ? msg : msg.message,
+              }),
+            });
+          } catch (fetchErr: any) {
+            throw new GeminiApiError(`Network error: ${fetchErr.message}`, 'NETWORK_ERROR', true);
+          }
           if (!response.ok) {
             const err = await response.json().catch(() => ({ error: 'Chat request failed' }));
             throw new GeminiApiError(err.error || 'Chat failed', err.code || 'CHAT_ERROR', true);

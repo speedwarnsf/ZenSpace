@@ -171,6 +171,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelected, isAnaly
           ref={fileInputRef}
           onChange={handleFileChange}
           accept={ACCEPTED_EXTENSIONS}
+          capture="environment"
           className="hidden"
           aria-hidden="true"
           tabIndex={-1}
