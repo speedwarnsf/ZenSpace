@@ -505,19 +505,23 @@ function AppContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <button 
             onClick={resetApp}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded-lg p-1"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded-lg p-1 flex-shrink-0"
             aria-label="ZenSpace - Return to home"
           >
             <LayoutGrid className="w-6 h-6 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
             <span className="font-serif text-xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">ZenSpace</span>
           </button>
           
-          <div className="flex items-center gap-3">
-            {/* Network Status */}
-            <NetworkStatus showIndicator={true} />
+          <div className="flex items-center gap-1 sm:gap-3 overflow-x-auto flex-shrink min-w-0">
+            {/* Network Status - hide on mobile when in results */}
+            <span className="hidden sm:inline-flex">
+              <NetworkStatus showIndicator={true} />
+            </span>
             
-            {/* Theme Toggle */}
-            <ThemeToggle />
+            {/* Theme Toggle - hide on mobile in results view */}
+            <span className={appState === AppState.RESULTS ? 'hidden sm:inline-flex' : ''}>
+              <ThemeToggle />
+            </span>
             
             {/* Session Manager - available on home and results */}
             {(appState === AppState.HOME || appState === AppState.RESULTS) && (
@@ -537,11 +541,11 @@ function AppContent() {
                 />
                 <button 
                   onClick={resetApp}
-                  className="text-sm text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded-lg px-3 py-2"
+                  className="text-sm text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded-lg px-2 sm:px-3 py-2 whitespace-nowrap"
                   aria-label="Start over with a new image"
                 >
                   <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-                  Start Over
+                  <span className="hidden sm:inline">Start Over</span>
                 </button>
               </>
             )}
