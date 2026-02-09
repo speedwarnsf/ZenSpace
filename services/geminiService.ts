@@ -71,7 +71,7 @@ const ai = {
 
 // Model configuration - using latest stable models
 const ANALYSIS_MODEL = 'gemini-2.0-flash';
-const VISUALIZATION_MODEL = 'gemini-2.0-flash-exp-image-generation'; // Image generation model
+const VISUALIZATION_MODEL = 'gemini-2.5-flash-image'; // Better at image editing/inpainting
 const ANALYSIS_TIMEOUT_MS = 45000;
 const VISUALIZATION_TIMEOUT_MS = 70000;
 
@@ -454,31 +454,26 @@ export const generateRoomVisualization = async (
             }
           },
           { 
-            text: `You are an advanced AI image editor specialized in Decluttering and Interior Design.
-          
-            INPUT: A photo of a messy room.
-            OUTPUT: A photorealistic "After" photo of the same room, perfectly organized.
-            
-            MANDATORY OPERATIONS:
-            1. REMOVE ALL CLUTTER:
-               - Detect clothes, trash, papers, bags, and loose items on the floor.
-               - ERASE them completely.
-               - INPAINT the clean floor texture underneath.
-            
-            2. TIDY FURNITURE:
-               - If there is a bed, MAKE IT. Render smooth sheets and fluffed pillows.
-               - If there are shelves, ALIGN the books and items.
-               - If there are tables, CLEAR them of clutter.
-               
-            3. APPLY SPECIFIC INSTRUCTIONS FROM THE ORGANIZER:
-            ${trimmedPrompt}
-            
-            4. PRESERVE REALITY:
-               - Do NOT change the wall color.
-               - Do NOT change the window view.
-               - Do NOT move large furniture (wardrobes, sofas, bed frames).
-               
-            Render the final image with high-end interior design photography lighting. Make it look realistic.` 
+            text: `EDIT THIS EXACT PHOTO. Do NOT generate a new room. Keep the SAME walls, SAME floor, SAME furniture layout, SAME camera angle, SAME lighting.
+
+Your job: Remove clutter and tidy up THIS specific room in the photo.
+
+WHAT TO DO:
+- Remove visible clutter (dishes, papers, clothes on surfaces)
+- Straighten items that remain
+- Make beds if visible
+- Clear table surfaces
+- Keep ALL furniture in the exact same position
+
+SPECIFIC CHANGES REQUESTED:
+${trimmedPrompt}
+
+CRITICAL RULES:
+- The output MUST be recognizable as the SAME room from the SAME angle
+- Keep the same wall color, floor material, window placement
+- Do NOT change the room layout or add new furniture
+- Do NOT change the camera perspective
+- Only remove clutter and organize what's already there` 
           }
         ]
       },
