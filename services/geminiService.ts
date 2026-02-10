@@ -694,16 +694,23 @@ export const generateDesignVisualization = async (
         parts: [
           { inlineData: { mimeType, data: originalImageBase64 } },
           {
-            text: `REDESIGN THIS EXACT PHOTO. Keep the SAME walls, floor, camera angle, and room geometry.
+            text: `REDESIGN THIS EXACT PHOTO. Keep the SAME room geometry, camera angle, and architectural bones (walls, windows, doors, floor plan).
 
-Apply this design direction:
+TRANSFORM it with this design vision:
 ${visualizationPrompt.trim()}
 
-CRITICAL RULES:
-- The output MUST be recognizable as the SAME room from the SAME angle
-- Transform the decor, colours, textures, and furnishings to match the design direction
-- Keep structural elements (walls, windows, doors) identical
-- Make it feel aspirational yet achievable`
+STYLE DIRECTION:
+- Make it look like a professional interior design portfolio shot
+- Rich textures, interesting lighting, layered details
+- This should look like something from Architectural Digest or Dwell magazine
+- Add atmospheric lighting (warm pools of light, shadows, depth)
+- Include tactile materials (velvet, wood grain, woven textiles, metal patina)
+
+RULES:
+- SAME room, SAME angle — must be recognizable as the same space
+- Keep structural elements identical
+- Be BOLD with the transformation — this should feel dramatic, not subtle
+- Make the user excited about the possibility`
           }
         ]
       },
