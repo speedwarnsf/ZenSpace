@@ -352,9 +352,18 @@ function FullScreenCard({
 
           {/* Full Plan */}
           {entry.option.fullPlan && (
-            <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
-              <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Full Design Plan</h4>
-              <div className="prose prose-sm dark:prose-invert max-w-none text-slate-600 dark:text-slate-300">
+            <div className="border-t border-slate-200 dark:border-slate-700 pt-6 mt-2">
+              <h4 className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-6">Full Design Plan</h4>
+              <div className="prose prose-slate dark:prose-invert max-w-none
+                prose-headings:font-serif prose-headings:tracking-tight
+                prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-3 prose-h2:text-slate-800 dark:prose-h2:text-slate-100
+                prose-h3:text-lg prose-h3:font-semibold prose-h3:mt-6 prose-h3:mb-2 prose-h3:text-slate-700 dark:prose-h3:text-slate-200
+                prose-h4:text-base prose-h4:font-semibold prose-h4:mt-5 prose-h4:mb-1.5 prose-h4:text-slate-700 dark:prose-h4:text-slate-200
+                prose-p:text-[15px] prose-p:leading-relaxed prose-p:mb-4 prose-p:text-slate-600 dark:prose-p:text-slate-300
+                prose-strong:text-slate-800 dark:prose-strong:text-slate-100 prose-strong:font-semibold
+                prose-li:text-[15px] prose-li:leading-relaxed prose-li:mb-1
+                prose-ul:mt-2 prose-ul:mb-4
+              ">
                 <ReactMarkdown>{entry.option.fullPlan}</ReactMarkdown>
               </div>
             </div>

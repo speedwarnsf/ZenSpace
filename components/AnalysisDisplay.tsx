@@ -77,7 +77,15 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
           </h2>
         </div>
         
-        <div className="prose prose-emerald dark:prose-invert max-w-none prose-headings:font-serif prose-headings:text-emerald-900 dark:prose-headings:text-emerald-300 prose-p:text-slate-600 dark:prose-p:text-slate-300 prose-li:text-slate-600 dark:prose-li:text-slate-300">
+        <div className="prose prose-slate dark:prose-invert max-w-none
+          prose-headings:font-serif prose-headings:tracking-tight
+          prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-3 prose-h2:text-emerald-900 dark:prose-h2:text-emerald-300
+          prose-h3:text-lg prose-h3:font-semibold prose-h3:mt-6 prose-h3:mb-2 prose-h3:text-slate-700 dark:prose-h3:text-slate-200
+          prose-h4:text-base prose-h4:font-semibold prose-h4:mt-5 prose-h4:mb-1.5
+          prose-p:text-[15px] prose-p:leading-relaxed prose-p:mb-4 prose-p:text-slate-600 dark:prose-p:text-slate-300
+          prose-strong:font-semibold
+          prose-li:text-[15px] prose-li:leading-relaxed prose-li:mb-1 prose-li:text-slate-600 dark:prose-li:text-slate-300
+          prose-ul:mt-2 prose-ul:mb-4">
           <ReactMarkdown
             components={{
               h1: ({ children }) => (
