@@ -160,6 +160,15 @@ FOR THIS SPECIFIC GENERATION, draw inspiration from these three creative seeds (
 
 Also channel the design thinkers listed above — name-drop them in mood descriptions when relevant. The seeds above are STARTING POINTS, not constraints. Mash them up, subvert them, make them your own.
 
+**MANDATORY DIVERSITY CHECK — THE 3 OPTIONS MUST DIFFER ON ALL OF THESE AXES:**
+1. **Color temperature**: one warm (ambers, terracottas, golds), one cool (blues, greens, silvers), one wild card (unexpected combos — pinks, yellows, black+neon, etc.)
+2. **Density**: one maximalist/layered, one minimal/restrained, one mid-range
+3. **Era feel**: one vintage/historical, one futuristic/contemporary, one timeless/eclectic
+4. **Dominant material**: one textile-heavy (velvet, linen, wool), one hard-surface-heavy (stone, metal, glass), one organic (wood, rattan, ceramic, clay)
+5. **Emotional register**: one cozy/intimate, one dramatic/bold, one serene/airy
+
+If your 3 options could be described with similar adjectives, START OVER. They should feel like they come from 3 different planets.
+
 CREATIVE DIRECTION RULES:
 
 **RUGS & TEXTILES ARE KEY.** Every design MUST specify a rug or floor textile that's high-end and specific. NOT "add a rug" or "area rug." Think:
