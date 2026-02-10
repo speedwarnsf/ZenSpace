@@ -1,6 +1,6 @@
 import { Type, Modality } from "@google/genai";
-import { AnalysisResult, ProductSuggestion } from '../types';
-import { createAnalysisPrompt, createChatContextPrompt } from './promptTemplates';
+import { AnalysisResult, ProductSuggestion, DesignAnalysis, DesignOption, DesignFramework } from '../types';
+import { createAnalysisPrompt, createChatContextPrompt, createDesignAnalysisPrompt } from './promptTemplates';
 import { createTimeoutHandler } from './edgeCaseHandlers';
 
 // API calls go through our server-side proxy to keep the key safe
@@ -558,4 +558,168 @@ export const createChatSession = (initialContext: string): any => {
       systemInstruction: createChatContextPrompt(initialContext)
     }
   });
+};
+
+// --- Design Theory Analysis (V2) ---
+
+const VALID_FRAMEWORKS: DesignFramework[] = [
+  'Aesthetic Order', 'Human-Centric', 'Universal Design', 'Biophilic', 'Phenomenological'
+];
+
+const normalizeDesignOption = (raw: any, index: number): DesignOption => {
+  const name = (typeof raw?.name === 'string' && raw.name.trim()) || `Design ${index + 1}`;
+  const mood = (typeof raw?.mood === 'string' && raw.mood.trim()) || 'A unique design direction for your space.';
+
+  const frameworks: DesignFramework[] = Array.isArray(raw?.frameworks)
+    ? raw.frameworks.filter((f: any) => VALID_FRAMEWORKS.includes(f)).slice(0, 3)
+    : ['Aesthetic Order', 'Biophilic'];
+
+  const palette: string[] = Array.isArray(raw?.palette)
+    ? raw.palette.filter((c: any) => typeof c === 'string' && /^#[0-9A-Fa-f]{6}$/.test(c)).slice(0, 5)
+    : ['#E8DCC8', '#6B8E7B', '#4A4A4A', '#C49A6C', '#2D2D2D'];
+  while (palette.length < 5) palette.push('#888888');
+
+  const keyChanges: string[] = Array.isArray(raw?.key_changes)
+    ? raw.key_changes.filter((s: any) => typeof s === 'string').slice(0, 5)
+    : ['Refresh the layout', 'Update lighting', 'Add accent pieces'];
+
+  const fullPlan = (typeof raw?.full_plan === 'string' && raw.full_plan.trim()) || `## ${name}\n- ${keyChanges.join('\n- ')}`;
+  const visualizationPrompt = (typeof raw?.visualization_prompt === 'string' && raw.visualization_prompt.trim()) || `Redesign this room in a ${name} style: ${keyChanges.join('. ')}.`;
+
+  return { name, mood, frameworks, palette, keyChanges, fullPlan, visualizationPrompt };
+};
+
+/**
+ * Analyze a room through 5 design-theory frameworks and generate 3 distinct design directions
+ */
+export const generateDesignOptions = async (
+  base64Image: string,
+  mimeType: string
+): Promise<DesignAnalysis> => {
+  if (!base64Image || !mimeType?.startsWith('image/')) {
+    throw new GeminiApiError('Invalid image data', 'INVALID_INPUT', false);
+  }
+
+  try {
+    const { withTimeout } = createTimeoutHandler(60000); // 60s for richer prompt
+    const promptText = createDesignAnalysisPrompt({ roomType: 'room' });
+
+    const response = await withTimeout(ai.models.generateContent({
+      model: ANALYSIS_MODEL,
+      contents: {
+        parts: [
+          { inlineData: { mimeType, data: base64Image } },
+          { text: promptText }
+        ]
+      },
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            room_reading: { type: Type.STRING },
+            options: {
+              type: Type.ARRAY,
+              minItems: 3,
+              maxItems: 3,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  name: { type: Type.STRING },
+                  mood: { type: Type.STRING },
+                  frameworks: { type: Type.ARRAY, items: { type: Type.STRING } },
+                  palette: { type: Type.ARRAY, items: { type: Type.STRING } },
+                  key_changes: { type: Type.ARRAY, items: { type: Type.STRING } },
+                  full_plan: { type: Type.STRING },
+                  visualization_prompt: { type: Type.STRING }
+                },
+                required: ['name', 'mood', 'frameworks', 'palette', 'key_changes', 'full_plan', 'visualization_prompt']
+              }
+            }
+          },
+          required: ['room_reading', 'options']
+        }
+      }
+    }));
+
+    const responseText = (
+      response.text?.trim() ||
+      response.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
+      ''
+    );
+
+    if (!responseText) {
+      throw new GeminiApiError('Empty response from AI', 'EMPTY_RESPONSE', true);
+    }
+
+    const jsonText = extractJsonFromText(responseText);
+    if (!jsonText) {
+      throw new GeminiApiError('Could not parse design analysis', 'PARSE_ERROR', true);
+    }
+
+    const parsed = JSON.parse(jsonText);
+    const roomReading = (typeof parsed.room_reading === 'string' && parsed.room_reading.trim())
+      || 'Room analysis through design theory frameworks.';
+
+    const rawOptions = Array.isArray(parsed.options) ? parsed.options : [];
+    // Ensure exactly 3 options
+    while (rawOptions.length < 3) rawOptions.push({});
+    const options = rawOptions.slice(0, 3).map(normalizeDesignOption) as [DesignOption, DesignOption, DesignOption];
+
+    return { roomReading, options };
+  } catch (error) {
+    if (error instanceof GeminiApiError) throw error;
+    const msg = error instanceof Error ? error.message : String(error);
+    throw new GeminiApiError(`Design analysis failed: ${msg.slice(0, 200)}`, 'UNKNOWN', true);
+  }
+};
+
+/**
+ * Generate a visualization image for a specific design option
+ */
+export const generateDesignVisualization = async (
+  visualizationPrompt: string,
+  originalImageBase64: string,
+  mimeType: string
+): Promise<string> => {
+  if (!visualizationPrompt?.trim() || !originalImageBase64 || !mimeType) {
+    throw new GeminiApiError('Missing visualization data', 'INVALID_INPUT', false);
+  }
+
+  try {
+    const { withTimeout } = createTimeoutHandler(VISUALIZATION_TIMEOUT_MS);
+    const response = await withTimeout(ai.models.generateContent({
+      model: VISUALIZATION_MODEL,
+      contents: {
+        parts: [
+          { inlineData: { mimeType, data: originalImageBase64 } },
+          {
+            text: `REDESIGN THIS EXACT PHOTO. Keep the SAME walls, floor, camera angle, and room geometry.
+
+Apply this design direction:
+${visualizationPrompt.trim()}
+
+CRITICAL RULES:
+- The output MUST be recognizable as the SAME room from the SAME angle
+- Transform the decor, colours, textures, and furnishings to match the design direction
+- Keep structural elements (walls, windows, doors) identical
+- Make it feel aspirational yet achievable`
+          }
+        ]
+      },
+      config: {
+        responseModalities: [Modality.TEXT, Modality.IMAGE]
+      }
+    }));
+
+    const parts = response.candidates?.[0]?.content?.parts || [];
+    for (const part of parts) {
+      if (part?.inlineData?.data) return part.inlineData.data;
+    }
+
+    throw new GeminiApiError('No visualization generated', 'NO_IMAGE_GENERATED', true);
+  } catch (error) {
+    if (error instanceof GeminiApiError) throw error;
+    throw new GeminiApiError('Visualization failed', 'VISUALIZATION_FAILED', true);
+  }
 };

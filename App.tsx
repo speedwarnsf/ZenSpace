@@ -11,10 +11,14 @@ const AnalysisDisplay = lazy(() => import('./components/AnalysisDisplay').then(m
 const ChatInterface = lazy(() => import('./components/ChatInterface').then(m => ({ default: m.ChatInterface })));
 const SessionManager = lazy(() => import('./components/SessionManager').then(m => ({ default: m.SessionManager })));
 const ShareButton = lazy(() => import('./components/ShareButton').then(m => ({ default: m.ShareButton })));
+const DesignOptionsView = lazy(() => import('./components/DesignOptionsView').then(m => ({ default: m.DesignOptionsView })));
+const DesignDetailView = lazy(() => import('./components/DesignOptionsView').then(m => ({ default: m.DesignDetailView })));
 import { 
   analyzeImage, 
   createChatSession, 
   generateRoomVisualization,
+  generateDesignOptions,
+  generateDesignVisualization,
   isApiConfigured,
   GeminiApiError
 } from './services/geminiService';
@@ -25,7 +29,8 @@ import { validateImageFile, preprocessImage } from './services/edgeCaseHandlers'
 import { analytics } from './services/analytics';
 import { getErrorMessage } from './services/errorMessages';
 import { validateChatMessage } from './services/validation';
-import { AnalysisResult, AppState, ChatMessage, AppError, UploadedImage } from './types';
+import { AnalysisResult, AppState, ChatMessage, AppError, UploadedImage, DesignAnalysis, DesignOption, ShoppingListData } from './types';
+import { generateShoppingList, shoppingListFromProducts } from './services/shoppingListGenerator';
 import { Chat } from '@google/genai';
 import { LayoutGrid, ArrowLeft, AlertCircle, RefreshCw, WifiOff, Clock } from 'lucide-react';
 
@@ -47,6 +52,13 @@ function AppContent() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isChatTyping, setIsChatTyping] = useState(false);
   
+  // Design options state (V2 flow)
+  const [designAnalysis, setDesignAnalysis] = useState<DesignAnalysis | null>(null);
+  const [selectedDesignIndex, setSelectedDesignIndex] = useState<number | null>(null);
+  const [isGeneratingVisuals, setIsGeneratingVisuals] = useState(false);
+  const [isVisualizingDesign, setIsVisualizingDesign] = useState(false);
+  const [shoppingList, setShoppingList] = useState<ShoppingListData | null>(null);
+
   // Error state
   const [error, setError] = useState<AppError | null>(null);
   
@@ -214,32 +226,51 @@ function AppContent() {
             fileName: processedFile.name
           });
 
-          // Stage 4: AI Analysis
+          // Stage 4: Design Theory Analysis (V2 flow)
           setAnalysisStage('analyzing');
           setAnalysisProgress(60);
           analytics.trackAnalysisStart();
-          announce('Analyzing room layout and clutter', 'polite');
+          announce('Analyzing room through design theory frameworks', 'polite');
 
-          // Use enhanced prompt template
-          const result = await analyzeImage(parsed.base64, parsed.mimeType);
+          const designResult = await generateDesignOptions(parsed.base64, parsed.mimeType);
           
           setAnalysisProgress(80);
+          setDesignAnalysis(designResult);
+          setSelectedDesignIndex(null);
           
-          // Stage 5: Setup chat session
+          // Stage 5: Generate visualization thumbnails for all 3 options (in background)
           setAnalysisStage('generating');
-          setAnalysisProgress(90);
-          
-          const chat = createChatSession(result.rawText);
-          setChatSession(chat);
-          
-          // Complete
+          setAnalysisProgress(95);
+
+          // Complete — show design options
           setAnalysisProgress(100);
-          setAnalysis(result);
-          setAppState(AppState.RESULTS);
+          setAppState(AppState.DESIGN_OPTIONS);
           
-          analytics.trackAnalysisComplete(result.products?.length || 0);
-          announce(`Analysis complete! Found ${result.products?.length || 0} organization recommendations.`, 'polite');
+          analytics.trackAnalysisComplete(3);
+          announce('Analysis complete! Choose from 3 design directions.', 'polite');
           playSound('success');
+          
+          // Fire-and-forget: generate preview images for all 3 cards
+          setIsGeneratingVisuals(true);
+          Promise.allSettled(
+            designResult.options.map(async (opt, idx) => {
+              try {
+                const img = await generateDesignVisualization(
+                  opt.visualizationPrompt,
+                  parsed.base64,
+                  parsed.mimeType
+                );
+                setDesignAnalysis(prev => {
+                  if (!prev) return prev;
+                  const updated = { ...prev, options: [...prev.options] as [DesignOption, DesignOption, DesignOption] };
+                  updated.options[idx] = Object.assign({}, updated.options[idx], { visualizationImage: img }) as DesignOption;
+                  return updated;
+                });
+              } catch (e) {
+                console.warn(`Visualization for option ${idx} failed`, e);
+              }
+            })
+          ).finally(() => setIsGeneratingVisuals(false));
           
         } catch (apiError) {
           console.error('Analysis error:', apiError);
@@ -418,6 +449,9 @@ function AppContent() {
     setMessages([]);
     setChatSession(null);
     setError(null);
+    setDesignAnalysis(null);
+    setSelectedDesignIndex(null);
+    setShoppingList(null);
   }, []);
 
   /**
@@ -475,6 +509,11 @@ function AppContent() {
           const chat = createChatSession(result.rawText);
           setChatSession(chat);
           setAppState(AppState.RESULTS);
+          // Generate basic shopping list from products
+          if (result.products?.length) {
+            const sid = currentSessionId || `session-${Date.now()}`;
+            setShoppingList(shoppingListFromProducts(result.products, sid));
+          }
         })
         .catch(apiError => {
           if (apiError instanceof GeminiApiError) {
@@ -491,6 +530,74 @@ function AppContent() {
       resetApp();
     }
   }, [buildAppError, error, uploadedImage, resetApp]);
+
+  /**
+   * Handle selecting one of the 3 design options
+   */
+  const handleSelectDesign = useCallback((index: number) => {
+    setSelectedDesignIndex(index);
+    if (designAnalysis && designAnalysis.options[index]) {
+      const opt = designAnalysis.options[index]!;
+      // Create a chat session scoped to this design
+      const chat = createChatSession(
+        `Design: ${opt.name}\n\n${opt.fullPlan}\n\nRoom Reading:\n${designAnalysis.roomReading}`
+      );
+      setChatSession(chat);
+      // Build a legacy AnalysisResult for the results view
+      setAnalysis({
+        rawText: `## ${opt.name}\n\n*${opt.mood}*\n\n${opt.fullPlan}`,
+        visualizationPrompt: opt.visualizationPrompt,
+        products: []
+      });
+      setVisualizationImage(opt.visualizationImage || null);
+      setAppState(AppState.RESULTS);
+      // Generate shopping list for this design in the background
+      const sid = currentSessionId || `session-${Date.now()}`;
+      generateShoppingList(
+        opt.name,
+        opt.mood,
+        opt.fullPlan,
+        designAnalysis.roomReading,
+        sid
+      ).then(setShoppingList).catch(err => console.error('Shopping list error:', err));
+    }
+  }, [designAnalysis, currentSessionId]);
+
+  /**
+   * Go back from detail to 3-options view
+   */
+  const handleBackToOptions = useCallback(() => {
+    setSelectedDesignIndex(null);
+    setAppState(AppState.DESIGN_OPTIONS);
+  }, []);
+
+  /**
+   * Generate visualization for a specific design option on the detail page
+   */
+  const handleVisualizeDesign = useCallback(async () => {
+    if (selectedDesignIndex === null || !designAnalysis || !uploadedImage) return;
+    const opt = designAnalysis.options[selectedDesignIndex];
+    if (!opt) return;
+    setIsVisualizingDesign(true);
+    try {
+      const img = await generateDesignVisualization(
+        opt.visualizationPrompt,
+        uploadedImage.base64,
+        uploadedImage.mimeType
+      );
+      setDesignAnalysis(prev => {
+        if (!prev) return prev;
+        const updated = { ...prev, options: [...prev.options] as [DesignOption, DesignOption, DesignOption] };
+        updated.options[selectedDesignIndex] = Object.assign({}, updated.options[selectedDesignIndex], { visualizationImage: img }) as DesignOption;
+        return updated;
+      });
+      setVisualizationImage(img);
+    } catch (e) {
+      console.error('Design visualization failed', e);
+    } finally {
+      setIsVisualizingDesign(false);
+    }
+  }, [selectedDesignIndex, designAnalysis, uploadedImage]);
 
   const errorInfo = error ? getErrorMessage(error.code) : null;
   const errorTitle = error?.title ?? errorInfo?.title ?? 'Something Went Wrong';
@@ -527,6 +634,16 @@ function AppContent() {
             </span>
             
             {/* Session Manager - available on home and results */}
+            {(appState === AppState.DESIGN_OPTIONS) && (
+              <button 
+                onClick={resetApp}
+                className="text-sm text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded-lg px-2 sm:px-3 py-2 whitespace-nowrap"
+                aria-label="Start over with a new image"
+              >
+                <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+                <span className="hidden sm:inline">Start Over</span>
+              </button>
+            )}
             {(appState === AppState.HOME || appState === AppState.RESULTS) && (
               <Suspense fallback={null}>
                 <SessionManager
@@ -624,6 +741,18 @@ function AppContent() {
           </div>
         )}
 
+        {/* Design Options State (V2 — 3 cards) */}
+        {appState === AppState.DESIGN_OPTIONS && designAnalysis && (
+          <Suspense fallback={<div className="flex items-center justify-center min-h-[40vh]"><AnalysisLoading stage="generating" progress={95} className="max-w-md" /></div>}>
+            <DesignOptionsView
+              roomReading={designAnalysis.roomReading}
+              options={designAnalysis.options}
+              onSelectDesign={handleSelectDesign}
+              isGeneratingVisuals={isGeneratingVisuals}
+            />
+          </Suspense>
+        )}
+
         {/* Error State */}
         {appState === AppState.ERROR && error && (
           <div 
@@ -693,6 +822,15 @@ function AppContent() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
               {/* Left Column: Image & Analysis */}
               <div className="lg:col-span-7 space-y-8">
+                {/* Back to designs button when in design flow */}
+                {designAnalysis && (
+                  <button
+                    onClick={handleBackToOptions}
+                    className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors text-sm font-medium"
+                  >
+                    <ArrowLeft className="w-4 h-4" /> Back to 3 Designs
+                  </button>
+                )}
                 {/* Image Preview Card */}
                 <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden p-2 transition-colors duration-300">
                   {uploadedImage?.dataUrl ? (
@@ -720,6 +858,8 @@ function AppContent() {
                   visualizationError={visualizationError}
                   onRetryVisualization={handleVisualize}
                   originalImage={uploadedImage?.dataUrl}
+                  shoppingList={shoppingList}
+                  sessionId={currentSessionId}
                 />
               </div>
 

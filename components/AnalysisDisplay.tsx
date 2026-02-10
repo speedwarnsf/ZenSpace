@@ -12,8 +12,9 @@ import {
   SplitSquareVertical,
   Maximize2
 } from 'lucide-react';
-import { ProductSuggestion } from '../types';
+import { ProductSuggestion, ShoppingListData } from '../types';
 import { ComparisonSlider } from './ComparisonSlider';
+import { ShoppingList } from './ShoppingList';
 
 interface AnalysisDisplayProps {
   /** Markdown-formatted analysis text */
@@ -32,6 +33,10 @@ interface AnalysisDisplayProps {
   onRetryVisualization?: () => void;
   /** Original uploaded image for comparison view */
   originalImage?: string | null;
+  /** Shopping list data (if generated) */
+  shoppingList?: ShoppingListData | null;
+  /** Session ID for affiliate tracking */
+  sessionId?: string;
 }
 
 /**
@@ -45,7 +50,9 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
   isVisualizing,
   visualizationError,
   onRetryVisualization,
-  originalImage
+  originalImage,
+  shoppingList,
+  sessionId,
 }) => {
   const [showComparison, setShowComparison] = useState(false);
   const canShowComparison = !!visualizationImage && !!originalImage && !visualizationError;
@@ -302,6 +309,14 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
             *As an Amazon Associate we earn from qualifying purchases.
           </p>
         </section>
+      )}
+
+      {/* Shopping List (enhanced with categories, budget, check-off) */}
+      {shoppingList && shoppingList.items.length > 0 && (
+        <ShoppingList
+          shoppingList={shoppingList}
+          sessionId={sessionId || 'unknown'}
+        />
       )}
     </div>
   );

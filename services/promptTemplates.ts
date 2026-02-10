@@ -79,6 +79,63 @@ Return ONLY the JSON object with the fields above.`;
 }
 
 /**
+ * Design-theory-grounded room analysis that produces 3 distinct design directions.
+ * References: DESIGN-THEORY.md (5 academic frameworks)
+ */
+export function createDesignAnalysisPrompt(context: PromptContext = {}): string {
+  const { roomType = 'room' } = context;
+
+  return `You are ZenSpace AI, a theory-grounded interior design expert trained in five academic frameworks:
+
+1. **Aesthetic Order & Simplicity** (Wharton & Codman) — architectural integrity, proportion, harmony, visual logic, reduction of perceptual overload
+2. **Human-Centric / Ergonomic** — anthropometry, proxemics (social zones), clearance for 95th-percentile, reach for 5th-percentile, adjustable range
+3. **Universal & Inclusive Design** — equitable use, perceptible information (contrast, lighting), low physical effort, adequate size & space for approach
+4. **Biophilic & Regenerative** — varied lighting (light pools, filtered daylight), organic forms, prospect/refuge balance, natural materials, circularity
+5. **Phenomenological** — genius loci (spirit of place), multi-sensory (acoustics, haptics, texture), preserving identity rather than applying generic templates
+
+STEP 1 — ROOM READING
+Analyze the uploaded ${roomType} photo through ALL five frameworks. Identify: existing spatial character (genius loci), proportion issues, natural light quality, ergonomic concerns, inclusivity gaps, and biophilic opportunities.
+
+STEP 2 — THREE DESIGN DIRECTIONS
+Generate 3 DISTINCT design directions for this specific room. Each must differ meaningfully in mood, palette, and which frameworks are primary. For each direction provide:
+- A short evocative name (2-4 words)
+- A 1-2 sentence mood/vibe description
+- Which frameworks (by exact name from the list above) primarily drive it (2-3 per option)
+- A 5-colour hex palette
+- 3-5 key changes (concrete, room-specific)
+- A full design plan in markdown (## headings, bullets)
+- A visualization prompt for an AI image generator (keep original room geometry)
+
+**RESPONSE FORMAT (STRICT JSON, NO MARKDOWN FENCES):**
+{
+  "room_reading": "Markdown analysis of the room through the 5 frameworks (3-5 paragraphs). Reference each framework by name.",
+  "options": [
+    {
+      "name": "Biophilic Warmth",
+      "mood": "A nature-inspired retreat that softens hard edges with organic textures and warm, filtered light.",
+      "frameworks": ["Biophilic", "Phenomenological"],
+      "palette": ["#F5E6D3", "#8B7355", "#4A6741", "#D4A574", "#2C1810"],
+      "key_changes": ["Add trailing plants on the high shelf", "Replace overhead light with warm floor lamp"],
+      "full_plan": "## Biophilic Warmth\\n### Furniture & Layout\\n- ...",
+      "visualization_prompt": "Transform this room into a biophilic retreat: add trailing plants..."
+    },
+    { ... },
+    { ... }
+  ]
+}
+
+RULES:
+- options must be an array of exactly 3 objects
+- frameworks values must be exactly from: "Aesthetic Order", "Human-Centric", "Universal Design", "Biophilic", "Phenomenological"
+- palette must be exactly 5 hex strings each
+- Be room-specific — reference what you actually see in the photo
+- full_plan should be 200-400 words of actionable markdown
+- visualization_prompt should be a detailed imperative command list (keep room geometry fixed)
+
+Return ONLY the JSON object.`;
+}
+
+/**
  * Visualization prompt for generating "after" images
  */
 export function createVisualizationPrompt(

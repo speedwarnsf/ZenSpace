@@ -1,0 +1,250 @@
+import React, { useState, useCallback, useEffect } from 'react';
+import {
+  ShoppingCart,
+  ChevronDown,
+  ChevronRight,
+  ExternalLink,
+  Copy,
+  Check,
+  DollarSign,
+  Sofa,
+  Lamp,
+  Shrub,
+  Palette,
+  PackageOpen,
+  Flower2,
+} from 'lucide-react';
+import { ShoppingProduct, ProductCategory, ShoppingListData } from '../types';
+import { trackProductClick } from '../services/affiliateTracking';
+
+const PURCHASED_KEY = 'zenspace_purchased';
+
+const CATEGORY_META: Record<ProductCategory, { label: string; icon: React.ReactNode }> = {
+  furniture: { label: 'Furniture', icon: <Sofa className="w-4 h-4" /> },
+  lighting: { label: 'Lighting', icon: <Lamp className="w-4 h-4" /> },
+  textiles: { label: 'Textiles', icon: <Palette className="w-4 h-4" /> },
+  decor: { label: 'Decor', icon: <Flower2 className="w-4 h-4" /> },
+  plants: { label: 'Plants', icon: <Shrub className="w-4 h-4" /> },
+  storage: { label: 'Storage', icon: <PackageOpen className="w-4 h-4" /> },
+};
+
+const CATEGORY_ORDER: ProductCategory[] = ['furniture', 'lighting', 'textiles', 'decor', 'plants', 'storage'];
+
+interface ShoppingListProps {
+  shoppingList: ShoppingListData;
+  sessionId: string;
+}
+
+function loadPurchased(): Set<string> {
+  try {
+    const raw = localStorage.getItem(PURCHASED_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function savePurchased(ids: Set<string>) {
+  try {
+    localStorage.setItem(PURCHASED_KEY, JSON.stringify([...ids]));
+  } catch { /* ignore */ }
+}
+
+export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessionId }) => {
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set());
+  const [purchasedIds, setPurchasedIds] = useState<Set<string>>(loadPurchased);
+  const [copied, setCopied] = useState(false);
+
+  // Persist purchased state
+  useEffect(() => {
+    savePurchased(purchasedIds);
+  }, [purchasedIds]);
+
+  const items = shoppingList.items;
+
+  // Group by category
+  const grouped: Partial<Record<ProductCategory, ShoppingProduct[]>> = {};
+  for (const item of items) {
+    if (!grouped[item.category]) grouped[item.category] = [];
+    grouped[item.category]!.push(item);
+  }
+
+  // Budget calculation
+  const totalLow = items.reduce((s, i) => s + i.priceEstimate.low * i.quantity, 0);
+  const totalHigh = items.reduce((s, i) => s + i.priceEstimate.high * i.quantity, 0);
+  const purchasedCount = items.filter(i => purchasedIds.has(i.id)).length;
+
+  const toggleCategory = useCallback((cat: string) => {
+    setCollapsedCategories(prev => {
+      const next = new Set(prev);
+      next.has(cat) ? next.delete(cat) : next.add(cat);
+      return next;
+    });
+  }, []);
+
+  const togglePurchased = useCallback((id: string) => {
+    setPurchasedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }, []);
+
+  const handleBuyClick = useCallback((item: ShoppingProduct) => {
+    trackProductClick(item.id, item.name, item.designDirection, item.category, sessionId);
+  }, [sessionId]);
+
+  const handleCopyList = useCallback(() => {
+    const lines: string[] = [`Shopping List: ${shoppingList.designName}`, ''];
+    for (const cat of CATEGORY_ORDER) {
+      const catItems = grouped[cat];
+      if (!catItems?.length) continue;
+      lines.push(`## ${CATEGORY_META[cat].label}`);
+      for (const item of catItems) {
+        const check = purchasedIds.has(item.id) ? '✅' : '⬜';
+        lines.push(`${check} ${item.name} (x${item.quantity}) — $${item.priceEstimate.low}–$${item.priceEstimate.high}`);
+        lines.push(`   ${item.description}`);
+      }
+      lines.push('');
+    }
+    lines.push(`Estimated Total: $${totalLow.toLocaleString()}–$${totalHigh.toLocaleString()}`);
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [shoppingList, grouped, purchasedIds, totalLow, totalHigh]);
+
+  return (
+    <section
+      className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 md:p-8 transition-colors duration-300"
+      aria-labelledby="shopping-list-heading"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mb-2 border-b border-slate-100 dark:border-slate-700 pb-4">
+        <div className="flex items-center gap-2">
+          <ShoppingCart className="w-6 h-6 text-emerald-500" aria-hidden="true" />
+          <h2 id="shopping-list-heading" className="text-2xl font-bold text-slate-800 dark:text-slate-100 m-0">
+            Shopping List
+          </h2>
+        </div>
+        <button
+          onClick={handleCopyList}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300"
+          aria-label="Copy shopping list to clipboard"
+        >
+          {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+          {copied ? 'Copied!' : 'Copy List'}
+        </button>
+      </div>
+
+      {/* Design context */}
+      <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+        Curated for <span className="font-semibold text-slate-700 dark:text-slate-200">{shoppingList.designName}</span> — {shoppingList.designDescription}
+      </p>
+
+      {/* Budget summary */}
+      <div className="flex flex-wrap items-center gap-4 mb-6 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800">
+        <div className="flex items-center gap-2">
+          <DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+          <span className="font-bold text-emerald-800 dark:text-emerald-200 text-lg">
+            ${totalLow.toLocaleString()} – ${totalHigh.toLocaleString()}
+          </span>
+          <span className="text-sm text-emerald-600 dark:text-emerald-400">estimated total</span>
+        </div>
+        <div className="text-sm text-slate-500 dark:text-slate-400 ml-auto">
+          {purchasedCount}/{items.length} items checked off
+        </div>
+      </div>
+
+      {/* Category sections */}
+      <div className="space-y-4">
+        {CATEGORY_ORDER.map(cat => {
+          const catItems = grouped[cat];
+          if (!catItems?.length) return null;
+          const isCollapsed = collapsedCategories.has(cat);
+          const meta = CATEGORY_META[cat];
+
+          return (
+            <div key={cat} className="border border-slate-100 dark:border-slate-700 rounded-xl overflow-hidden">
+              <button
+                onClick={() => toggleCategory(cat)}
+                className="w-full flex items-center gap-3 px-4 py-3 bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-left"
+                aria-expanded={!isCollapsed}
+              >
+                {isCollapsed ? <ChevronRight className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                <span className="text-slate-500 dark:text-slate-400">{meta.icon}</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-100">{meta.label}</span>
+                <span className="text-xs text-slate-400 ml-auto">{catItems.length} item{catItems.length > 1 ? 's' : ''}</span>
+              </button>
+
+              {!isCollapsed && (
+                <ul className="divide-y divide-slate-100 dark:divide-slate-700 list-none m-0 p-0">
+                  {catItems.map(item => {
+                    const isPurchased = purchasedIds.has(item.id);
+                    return (
+                      <li key={item.id} className={`p-4 transition-colors ${isPurchased ? 'bg-emerald-50/50 dark:bg-emerald-900/10' : ''}`}>
+                        <div className="flex items-start gap-3">
+                          {/* Checkbox */}
+                          <button
+                            onClick={() => togglePurchased(item.id)}
+                            className={`mt-1 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                              isPurchased
+                                ? 'bg-emerald-500 border-emerald-500 text-white'
+                                : 'border-slate-300 dark:border-slate-600 hover:border-emerald-400'
+                            }`}
+                            aria-label={isPurchased ? `Unmark ${item.name} as purchased` : `Mark ${item.name} as purchased`}
+                          >
+                            {isPurchased && <Check className="w-3 h-3" />}
+                          </button>
+
+                          {/* Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className={`font-semibold text-slate-800 dark:text-slate-100 ${isPurchased ? 'line-through opacity-60' : ''}`}>
+                                {item.name}
+                              </span>
+                              {item.quantity > 1 && (
+                                <span className="text-xs px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">
+                                  ×{item.quantity}
+                                </span>
+                              )}
+                              <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                                ${item.priceEstimate.low}–${item.priceEstimate.high}
+                              </span>
+                            </div>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{item.description}</p>
+                            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 italic">
+                              🎨 {item.designTheoryJustification}
+                            </p>
+                          </div>
+
+                          {/* Buy button */}
+                          <a
+                            href={item.affiliateUrl || `https://www.amazon.com/s?k=${encodeURIComponent(item.searchTerm)}&tag=zenspace-20`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => handleBuyClick(item)}
+                            className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium transition-colors"
+                            aria-label={`Buy ${item.name} on Amazon`}
+                          >
+                            Buy <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <p className="mt-4 text-center text-xs text-slate-400 dark:text-slate-500 italic">
+        *As an Amazon Associate we earn from qualifying purchases. Prices are estimates and may vary.
+      </p>
+    </section>
+  );
+};
+
+export default ShoppingList;
