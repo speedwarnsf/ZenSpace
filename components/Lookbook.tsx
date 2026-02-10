@@ -353,7 +353,7 @@ function FullScreenCard({
           {/* Key Changes */}
           <div>
             <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Key Changes</h4>
-            <ul className="space-y-1">
+            <ul className="space-y-3">
               {entry.option.keyChanges.map((change, i) => (
                 <li key={i} className="text-sm text-slate-600 dark:text-slate-400 flex items-start gap-2">
                   <span className="text-emerald-500 mt-0.5">•</span>
