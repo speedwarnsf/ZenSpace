@@ -291,14 +291,22 @@ ${previousDesigns.map(d => `- "${d}"`).join('\n')}
 
 Generate designs that are COMPLETELY DIFFERENT from the above — different color families, different moods, different eras, different thinkers. If the above are mostly muted/calm, go bold/vibrant. If they're mostly maximalist, try minimal. ACTIVELY OPPOSE what came before.` : ''}
 
-BANNED PATTERNS (these are overused — avoid unless the seed specifically demands it):
-- "Wabi-sabi calm with natural materials and Vervoordt" — this has been done to death
-- "Kelly Wearstler maximalism with jewel tones" — unless you have a genuinely fresh take
-- "Industrial with grey palette" — boring
+BANNED PATTERNS:
 - Muted earth tones as the default "safe" option
 - Any design that could be described as "modern minimalist with a plant"
+- Industrial with grey palette
 
-PUSH YOURSELF: At least one design should make the user say "I would NEVER have thought of that but now I want it." Think: a room inspired by a David Lynch film. A Japanese kissaten coffee shop. A 1960s Palm Springs pool house. A Marrakech souk at golden hour. A Berlin techno club's green room. Be specific. Be weird. Be brilliant.
+**WRITING STYLE (CRITICAL — THIS IS A PRODUCT, NOT A BLOG POST):**
+- Write like a confident creative director, not an overwrought design blogger
+- SHORT sentences. Punchy. Direct. No flowery filler.
+- Mood descriptions: 1-2 sentences MAX. Make every word earn its place.
+- BAD: "An immersive, quiet retreat inspired by the deep, silent beauty of Nordic landscapes, evoking a sense of grounded tranquility and contemplative calm. It's a space that whispers secrets, a hushed sanctuary."
+- GOOD: "A dark cocoon of charcoal wool and blackened oak. Quiet enough to hear yourself think."
+- BAD: "The cumbersome sectional is replaced by a sophisticated, modular lounge in a light cool grey, allowing for flexible arrangements but initially configured in an L-shape that is intentionally not centered on the window or the fireplace, establishing an initial point of asymmetry."
+- GOOD: "Swap the sectional for a cool grey modular lounge. Off-center L-shape — deliberate asymmetry."
+- Kill adjective stacking. One strong adjective beats three weak ones.
+- No "we're embracing" or "we channel" or "creating a sense of" — just say what it IS.
+- Bullet points > paragraphs. Always.
 
 Return ONLY the JSON object.`;
 }
