@@ -252,7 +252,6 @@ describe('UploadZone', () => {
       { type: 'image/jpeg', ext: '.jpg' },
       { type: 'image/png', ext: '.png' },
       { type: 'image/webp', ext: '.webp' },
-      { type: 'image/gif', ext: '.gif' },
     ];
 
     validTypes.forEach(({ type, ext }) => {

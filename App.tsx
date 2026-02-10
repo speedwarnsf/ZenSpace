@@ -13,6 +13,7 @@ const SessionManager = lazy(() => import('./components/SessionManager').then(m =
 const ShareButton = lazy(() => import('./components/ShareButton').then(m => ({ default: m.ShareButton })));
 const DesignOptionsView = lazy(() => import('./components/DesignOptionsView').then(m => ({ default: m.DesignOptionsView })));
 const DesignDetailView = lazy(() => import('./components/DesignOptionsView').then(m => ({ default: m.DesignDetailView })));
+const MyRoomsGallery = lazy(() => import('./components/MyRoomsGallery').then(m => ({ default: m.MyRoomsGallery })));
 import { 
   analyzeImage, 
   createChatSession, 
@@ -25,6 +26,7 @@ import {
 import { compressImage } from './services/imageCompression';
 import { rateLimiter } from './services/rateLimiter';
 import { saveSession, SavedSession } from './services/sessionStorage';
+import { saveRoom, SavedRoom, getRoomCount } from './services/roomStorage';
 import { validateImageFile, preprocessImage } from './services/edgeCaseHandlers';
 import { analytics } from './services/analytics';
 import { getErrorMessage } from './services/errorMessages';
@@ -32,7 +34,7 @@ import { validateChatMessage } from './services/validation';
 import { AnalysisResult, AppState, ChatMessage, AppError, UploadedImage, DesignAnalysis, DesignOption, ShoppingListData } from './types';
 import { generateShoppingList, shoppingListFromProducts } from './services/shoppingListGenerator';
 import { Chat } from '@google/genai';
-import { LayoutGrid, ArrowLeft, AlertCircle, RefreshCw, WifiOff, Clock } from 'lucide-react';
+import { LayoutGrid, ArrowLeft, AlertCircle, RefreshCw, WifiOff, Clock, Home } from 'lucide-react';
 
 /**
  * Main application component wrapper with enhanced providers
@@ -64,6 +66,8 @@ function AppContent() {
   
   // Session state
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(undefined);
+  const [currentRoomId, setCurrentRoomId] = useState<string | undefined>(undefined);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null);
 
   // Enhanced state for production features
@@ -452,6 +456,7 @@ function AppContent() {
     setDesignAnalysis(null);
     setSelectedDesignIndex(null);
     setShoppingList(null);
+    setCurrentRoomId(undefined);
   }, []);
 
   /**
@@ -474,6 +479,71 @@ function AppContent() {
       throw err;
     }
   }, [analysis, messages, uploadedImage, visualizationImage, currentSessionId]);
+
+  /**
+   * Save current state as a room project
+   */
+  const handleSaveRoom = useCallback(async () => {
+    if (!uploadedImage || !designAnalysis || selectedDesignIndex === null) return;
+    try {
+      const room = await saveRoom(
+        uploadedImage,
+        designAnalysis,
+        selectedDesignIndex,
+        shoppingList || undefined,
+        currentRoomId
+      );
+      setCurrentRoomId(room.id);
+    } catch (err) {
+      console.error('Failed to save room:', err);
+    }
+  }, [uploadedImage, designAnalysis, selectedDesignIndex, shoppingList, currentRoomId]);
+
+  /**
+   * Load a room from the gallery
+   */
+  const handleLoadRoom = useCallback((room: SavedRoom, designIndex: number) => {
+    const design = room.designs[designIndex];
+    if (!design) return;
+    
+    // Restore design analysis
+    const restoredOptions = room.designs.map(d => ({
+      name: d.name,
+      mood: d.mood,
+      frameworks: [] as any,
+      palette: d.palette,
+      keyChanges: d.keyChanges,
+      fullPlan: '',
+      visualizationPrompt: '',
+      visualizationImage: d.visualizationImage,
+    })) as [DesignOption, DesignOption, DesignOption];
+    
+    setDesignAnalysis({ roomReading: room.roomReading, options: restoredOptions });
+    setSelectedDesignIndex(designIndex);
+    setCurrentRoomId(room.id);
+    
+    // Set analysis for results view
+    setAnalysis({
+      rawText: `## ${design.name}\n\n*${design.mood}*`,
+      visualizationPrompt: '',
+      products: []
+    });
+    setVisualizationImage(design.visualizationImage || null);
+    setShoppingList(design.shoppingList || null);
+    
+    // Restore image
+    setUploadedImage({
+      dataUrl: room.imageDataUrl,
+      base64: room.imageDataUrl.split(',')[1] || '',
+      mimeType: 'image/jpeg',
+      fileName: 'room.jpg'
+    });
+    
+    const chat = createChatSession(`Design: ${design.name}\n\n${design.mood}`);
+    setChatSession(chat);
+    setMessages([]);
+    setAppState(AppState.RESULTS);
+  }, []);
 
   /**
    * Load a saved session
@@ -642,6 +712,32 @@ function AppContent() {
               >
                 <ArrowLeft className="w-4 h-4" aria-hidden="true" />
                 <span className="hidden sm:inline">Start Over</span>
+              </button>
+            )}
+            {/* My Rooms gallery button */}
+            {(appState === AppState.HOME || appState === AppState.RESULTS || appState === AppState.DESIGN_OPTIONS) && (
+              <button
+                onClick={() => setIsGalleryOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                title="My Rooms"
+              >
+                <Home className="w-4 h-4" />
+                <span className="hidden sm:inline">My Rooms</span>
+              </button>
+            )}
+            {/* Save Room button */}
+            {appState === AppState.RESULTS && designAnalysis && selectedDesignIndex !== null && uploadedImage && (
+              <button
+                onClick={handleSaveRoom}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${
+                  currentRoomId
+                    ? 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                    : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                }`}
+                title={currentRoomId ? 'Update Room' : 'Save Room'}
+              >
+                <Home className="w-4 h-4" />
+                <span className="hidden sm:inline">{currentRoomId ? 'Update' : 'Save Room'}</span>
               </button>
             )}
             {(appState === AppState.HOME || appState === AppState.RESULTS) && (
@@ -884,6 +980,15 @@ function AppContent() {
           <p>Powered by Google Gemini AI</p>
         </footer>
       )}
+
+      {/* My Rooms Gallery Modal */}
+      <Suspense fallback={null}>
+        <MyRoomsGallery
+          isOpen={isGalleryOpen}
+          onClose={() => setIsGalleryOpen(false)}
+          onLoadRoom={handleLoadRoom}
+        />
+      </Suspense>
     </div>
   );
 }

@@ -11,6 +11,8 @@ vi.mock('../services/geminiService', () => ({
   analyzeImage: vi.fn(),
   createChatSession: vi.fn(() => ({ send: vi.fn() })),
   generateRoomVisualization: vi.fn(),
+  generateDesignVisualization: vi.fn(),
+  generateDesignOptions: vi.fn(),
   isApiConfigured: vi.fn(() => true),
   GeminiApiError: class extends Error {
     code: string;
@@ -30,10 +32,19 @@ vi.mock('../services/edgeCaseHandlers', () => ({
 
 // Import after mocking
 import App from '../App';
-import { analyzeImage, GeminiApiError } from '../services/geminiService';
+import { analyzeImage, generateDesignOptions, GeminiApiError } from '../services/geminiService';
 import { ThemeProvider } from '../components/ThemeContext';
 
 // Helper to render App with required providers
+const mockDesignAnalysis = {
+  roomReading: 'A cozy room with potential',
+  options: [
+    { name: 'Minimalist Zen', mood: 'calm', frameworks: ['wabi-sabi'], palette: ['#fff', '#eee', '#ddd'], keyChanges: ['declutter', 'add plants'], fullPlan: 'Full plan text', visualizationPrompt: 'minimal zen room' },
+    { name: 'Warm Rustic', mood: 'warm', frameworks: ['hygge'], palette: ['#a52', '#b63', '#c74'], keyChanges: ['add wood', 'warm lighting'], fullPlan: 'Rustic plan', visualizationPrompt: 'warm rustic room' },
+    { name: 'Modern Luxe', mood: 'bold', frameworks: ['maximalism'], palette: ['#000', '#gold', '#navy'], keyChanges: ['statement art', 'velvet'], fullPlan: 'Luxe plan', visualizationPrompt: 'modern luxe room' },
+  ] as any,
+};
+
 function renderWithProviders(ui: ReactElement) {
   return render(
     <ThemeProvider>
@@ -84,15 +95,7 @@ describe('App', () => {
     });
 
     it('shows analysis results after successful analysis', async () => {
-      const mockAnalysis = {
-        rawText: '# Room Analysis\n\n**Key Issues**: Clutter on the floor',
-        visualizationPrompt: 'Clean the room',
-        products: [
-          { name: 'Storage Bin', searchTerm: 'storage bin', reason: 'organize items' }
-        ]
-      };
-      
-      (analyzeImage as any).mockResolvedValueOnce(mockAnalysis);
+      (generateDesignOptions as any).mockResolvedValueOnce(mockDesignAnalysis);
       
       renderWithProviders(<App />);
       
@@ -101,9 +104,9 @@ describe('App', () => {
       
       fireEvent.change(input, { target: { files: [file] } });
       
-      // Wait for analysis to complete
+      // Wait for design options generation
       await waitFor(() => {
-        expect(analyzeImage).toHaveBeenCalled();
+        expect(generateDesignOptions).toHaveBeenCalled();
       }, { timeout: 2000 });
     });
   });
@@ -111,7 +114,7 @@ describe('App', () => {
   describe('Error Handling', () => {
     it('handles API errors gracefully', async () => {
       const error = new (GeminiApiError as any)('API Error', 'NETWORK_ERROR', true);
-      (analyzeImage as any).mockRejectedValueOnce(error);
+      (generateDesignOptions as any).mockRejectedValueOnce(error);
       
       renderWithProviders(<App />);
       
@@ -122,20 +125,20 @@ describe('App', () => {
       
       // Should show error state
       await waitFor(() => {
-        // The app should handle the error and show an error message
-        expect(analyzeImage).toHaveBeenCalled();
+        expect(generateDesignOptions).toHaveBeenCalled();
       });
     });
 
     it('allows retry after error', async () => {
-      // First call fails, second succeeds
-      (analyzeImage as any)
-        .mockRejectedValueOnce(new (GeminiApiError as any)('Error', 'NETWORK', true))
-        .mockResolvedValueOnce({
-          rawText: '# Success',
-          visualizationPrompt: 'Clean',
-          products: []
-        });
+      // First call fails
+      (generateDesignOptions as any)
+        .mockRejectedValueOnce(new (GeminiApiError as any)('Error', 'NETWORK', true));
+      // Retry uses analyzeImage path
+      (analyzeImage as any).mockResolvedValueOnce({
+        rawText: '# Success',
+        visualizationPrompt: 'Clean',
+        products: []
+      });
       
       renderWithProviders(<App />);
       
@@ -146,7 +149,7 @@ describe('App', () => {
       fireEvent.change(input, { target: { files: [file] } });
       
       await waitFor(() => {
-        expect(analyzeImage).toHaveBeenCalledTimes(1);
+        expect(generateDesignOptions).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -194,16 +197,7 @@ describe('App States', () => {
 
 describe('Product Suggestions', () => {
   it('displays product suggestions after analysis', async () => {
-    const mockAnalysis = {
-      rawText: '# Analysis',
-      visualizationPrompt: 'Clean',
-      products: [
-        { name: 'Storage Basket', searchTerm: 'woven storage basket', reason: 'Store blankets' },
-        { name: 'Drawer Organizer', searchTerm: 'drawer divider', reason: 'Organize drawers' },
-      ]
-    };
-    
-    (analyzeImage as any).mockResolvedValueOnce(mockAnalysis);
+    (generateDesignOptions as any).mockResolvedValueOnce(mockDesignAnalysis);
     
     renderWithProviders(<App />);
     
@@ -213,7 +207,7 @@ describe('Product Suggestions', () => {
     fireEvent.change(input, { target: { files: [file] } });
     
     await waitFor(() => {
-      expect(analyzeImage).toHaveBeenCalled();
+      expect(generateDesignOptions).toHaveBeenCalled();
     });
   });
 });

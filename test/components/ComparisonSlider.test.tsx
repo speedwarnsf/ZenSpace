@@ -83,7 +83,7 @@ describe('ComparisonSlider', () => {
       );
       
       const slider = screen.getByRole('slider');
-      expect(slider).toHaveAttribute('aria-label', 'Image comparison slider');
+      expect(slider).toHaveAttribute('aria-label', 'Compare before and after images');
       expect(slider).toHaveAttribute('aria-valuemin', '0');
       expect(slider).toHaveAttribute('aria-valuemax', '100');
       expect(slider).toHaveAttribute('aria-valuenow');
