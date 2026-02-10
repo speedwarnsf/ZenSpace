@@ -116,6 +116,16 @@ export interface DesignAnalysis {
 /**
  * Application state machine states
  */
+export type DesignRating = 'never' | 'not-now' | 'like' | 'good' | 'the-one';
+
+export interface LookbookEntry {
+  id: string;
+  option: DesignOption;
+  rating: DesignRating | null;
+  generatedAt: number;
+  batchIndex: number;
+}
+
 export type FlowMode = 'clean' | 'redesign';
 
 export enum AppState {
@@ -127,6 +137,8 @@ export enum AppState {
   MODE_SELECT = 'MODE_SELECT',
   /** Show 3 design options after analysis */
   DESIGN_OPTIONS = 'DESIGN_OPTIONS',
+  /** Lookbook view with drag-to-rate cards */
+  LOOKBOOK = 'LOOKBOOK',
   /** Analysis complete, showing results */
   RESULTS = 'RESULTS',
   /** An error occurred */

@@ -14,6 +14,7 @@ const ShareButton = lazy(() => import('./components/ShareButton').then(m => ({ d
 const DesignOptionsView = lazy(() => import('./components/DesignOptionsView').then(m => ({ default: m.DesignOptionsView })));
 const DesignDetailView = lazy(() => import('./components/DesignOptionsView').then(m => ({ default: m.DesignDetailView })));
 const MyRoomsGallery = lazy(() => import('./components/MyRoomsGallery').then(m => ({ default: m.MyRoomsGallery })));
+const Lookbook = lazy(() => import('./components/Lookbook'));
 import { 
   analyzeImage, 
   createChatSession, 
@@ -31,7 +32,7 @@ import { validateImageFile, preprocessImage } from './services/edgeCaseHandlers'
 import { analytics } from './services/analytics';
 import { getErrorMessage } from './services/errorMessages';
 import { validateChatMessage } from './services/validation';
-import { AnalysisResult, AppState, ChatMessage, AppError, UploadedImage, DesignAnalysis, DesignOption, ShoppingListData, FlowMode } from './types';
+import { AnalysisResult, AppState, ChatMessage, AppError, UploadedImage, DesignAnalysis, DesignOption, ShoppingListData, FlowMode, LookbookEntry, DesignRating } from './types';
 import { generateShoppingList, shoppingListFromProducts } from './services/shoppingListGenerator';
 import { Chat } from '@google/genai';
 import { ModeSelect } from './components/ModeSelect';
@@ -61,6 +62,7 @@ function AppContent() {
   const [isGeneratingVisuals, setIsGeneratingVisuals] = useState(false);
   const [isVisualizingDesign, setIsVisualizingDesign] = useState(false);
   const [shoppingList, setShoppingList] = useState<ShoppingListData | null>(null);
+  const [lookbookEntries, setLookbookEntries] = useState<LookbookEntry[]>([]);
 
   // Error state
   const [error, setError] = useState<AppError | null>(null);
@@ -592,6 +594,78 @@ function AppContent() {
   }, []);
 
   /**
+   * Handle rating a lookbook entry
+   */
+  const handleRate = useCallback((entryId: string, rating: DesignRating) => {
+    setLookbookEntries(prev => prev.map(e =>
+      e.id === entryId ? { ...e, rating } : e
+    ));
+  }, []);
+
+  /**
+   * Generate more designs for the lookbook
+   */
+  const handleGenerateMore = useCallback(async () => {
+    if (!uploadedImage) return;
+    setIsGeneratingVisuals(true);
+    try {
+      const newBatch = await generateDesignOptions(uploadedImage.base64, uploadedImage.mimeType);
+      const batchIndex = Math.max(0, ...lookbookEntries.map(e => e.batchIndex)) + 1;
+      const newEntries: LookbookEntry[] = newBatch.options.map((opt, idx) => ({
+        id: `design-${Date.now()}-${idx}`,
+        option: opt,
+        rating: null,
+        generatedAt: Date.now(),
+        batchIndex,
+      }));
+      setLookbookEntries(prev => [...newEntries, ...prev]);
+      newEntries.forEach((entry) => {
+        generateDesignVisualization(
+          entry.option.visualizationPrompt,
+          uploadedImage.base64,
+          uploadedImage.mimeType
+        ).then(img => {
+          setLookbookEntries(prev => prev.map(e =>
+            e.id === entry.id ? { ...e, option: { ...e.option, visualizationImage: img } } : e
+          ));
+        }).catch(err => console.warn(`Viz failed for ${entry.id}`, err));
+      });
+    } catch (err) {
+      console.error('Generate more failed:', err);
+    } finally {
+      setIsGeneratingVisuals(false);
+    }
+  }, [uploadedImage, lookbookEntries]);
+
+  /**
+   * Go deeper on a lookbook entry — transition to results
+   */
+  const handleSelectForIteration = useCallback((entryId: string) => {
+    const entry = lookbookEntries.find(e => e.id === entryId);
+    if (!entry) return;
+    // Find the index in the design analysis if available, or create one
+    if (designAnalysis) {
+      const idx = designAnalysis.options.findIndex(o => o.name === entry.option.name);
+      if (idx >= 0) {
+        handleSelectDesign(idx);
+        return;
+      }
+    }
+    // Fallback: create ad-hoc analysis result
+    const opt = entry.option;
+    const chat = createChatSession(`Design: ${opt.name}\n\n${opt.fullPlan}`);
+    setChatSession(chat);
+    setAnalysis({
+      rawText: `## ${opt.name}\n\n*${opt.mood}*\n\n${opt.fullPlan}`,
+      visualizationPrompt: opt.visualizationPrompt,
+      products: []
+    });
+    setVisualizationImage(opt.visualizationImage || null);
+    setMessages([]);
+    setAppState(AppState.RESULTS);
+  }, [lookbookEntries, designAnalysis, handleSelectDesign]);
+
+  /**
    * Handle mode selection (Clean vs Redesign)
    */
   const handleModeSelect = useCallback(async (mode: FlowMode) => {
@@ -635,21 +709,35 @@ function AppContent() {
 
         setAnalysisStage('generating');
         setAnalysisProgress(100);
-        setAppState(AppState.DESIGN_OPTIONS);
+
+        // Create lookbook entries from the design options
+        const initialEntries: LookbookEntry[] = designResult.options.map((opt, idx) => ({
+          id: `design-${Date.now()}-${idx}`,
+          option: opt,
+          rating: null,
+          generatedAt: Date.now(),
+          batchIndex: 0,
+        }));
+        setLookbookEntries(initialEntries);
+        setAppState(AppState.LOOKBOOK);
         analytics.trackAnalysisComplete(3);
-        announce('Analysis complete! Choose from 3 design directions.', 'polite');
+        announce('Analysis complete! Rate and explore your design directions.', 'polite');
         playSound('success');
 
         // Fire-and-forget: generate preview images
         setIsGeneratingVisuals(true);
         Promise.allSettled(
-          designResult.options.map(async (opt, idx) => {
+          initialEntries.map(async (entry, idx) => {
             try {
               const img = await generateDesignVisualization(
-                opt.visualizationPrompt,
+                entry.option.visualizationPrompt,
                 uploadedImage.base64,
                 uploadedImage.mimeType
               );
+              // Update both lookbook entries and design analysis
+              setLookbookEntries(prev => prev.map(e =>
+                e.id === entry.id ? { ...e, option: { ...e.option, visualizationImage: img } } : e
+              ));
               setDesignAnalysis(prev => {
                 if (!prev) return prev;
                 const updated = { ...prev, options: [...prev.options] as [DesignOption, DesignOption, DesignOption] };
@@ -746,7 +834,7 @@ function AppContent() {
             </span>
             
             {/* Session Manager - available on home and results */}
-            {(appState === AppState.MODE_SELECT || appState === AppState.DESIGN_OPTIONS) && (
+            {(appState === AppState.MODE_SELECT || appState === AppState.DESIGN_OPTIONS || appState === AppState.LOOKBOOK) && (
               <button 
                 onClick={resetApp}
                 className="text-sm text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded-lg px-2 sm:px-3 py-2 whitespace-nowrap"
@@ -757,7 +845,7 @@ function AppContent() {
               </button>
             )}
             {/* My Rooms gallery button */}
-            {(appState === AppState.HOME || appState === AppState.RESULTS || appState === AppState.MODE_SELECT || appState === AppState.DESIGN_OPTIONS) && (
+            {(appState === AppState.HOME || appState === AppState.RESULTS || appState === AppState.MODE_SELECT || appState === AppState.DESIGN_OPTIONS || appState === AppState.LOOKBOOK) && (
               <button
                 onClick={() => setIsGalleryOpen(true)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
@@ -895,6 +983,20 @@ function AppContent() {
               options={designAnalysis.options}
               onSelectDesign={handleSelectDesign}
               isGeneratingVisuals={isGeneratingVisuals}
+            />
+          </Suspense>
+        )}
+
+        {/* Lookbook State */}
+        {appState === AppState.LOOKBOOK && (
+          <Suspense fallback={<div className="flex items-center justify-center min-h-[40vh]"><AnalysisLoading stage="generating" progress={95} className="max-w-md" /></div>}>
+            <Lookbook
+              entries={lookbookEntries}
+              onRate={handleRate}
+              onSelectForIteration={handleSelectForIteration}
+              onGenerateMore={handleGenerateMore}
+              isGenerating={isGeneratingVisuals}
+              uploadedImageUrl={uploadedImage?.dataUrl || null}
             />
           </Suspense>
         )}
