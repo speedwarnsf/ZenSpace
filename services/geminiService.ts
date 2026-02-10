@@ -584,8 +584,18 @@ const normalizeDesignOption = (raw: any, index: number): DesignOption => {
     : ['Refresh the layout', 'Update lighting', 'Add accent pieces'];
 
   const rawPlan = (typeof raw?.full_plan === 'string' && raw.full_plan.trim()) || `## ${name}\n- ${keyChanges.join('\n- ')}`;
-  // Ensure markdown headings have proper newlines before them (AI sometimes returns inline ### )
-  const fullPlan = rawPlan.replace(/\\n/g, '\n').replace(/([^\n])(#{1,4}\s)/g, '$1\n\n$2');
+  // Sanitize markdown: fix escaped newlines, ensure headings get proper line breaks,
+  // and convert plain-text section headers into proper markdown headings
+  const fullPlan = rawPlan
+    .replace(/\\n/g, '\n')
+    // Ensure existing # headings get newlines before them
+    .replace(/([^\n])(#{1,4}\s)/g, '$1\n\n$2')
+    // Convert bold-only lines like "**The Vision.**" or "**Walls & Drapes**" to ### headings
+    .replace(/^(\*\*[^*\n]{2,50}\*\*\.?)$/gm, (_m: string, p1: string) => `### ${p1.replace(/\*\*/g, '').replace(/\.$/, '')}`)
+    // Convert short standalone lines (2-6 words, ending with period or colon) that look like section headers
+    .replace(/\n\n([A-Z][A-Za-z &,'-]{2,50}[.:])(?=\n)/g, '\n\n### $1')
+    // Convert inline section headers: "Previous text. The Vision. Next text" → split with heading
+    .replace(/\.\s+([A-Z][A-Za-z &'-]{2,40})\.\s+(?=[A-Z])/g, '.\n\n### $1\n\n');
   const visualizationPrompt = (typeof raw?.visualization_prompt === 'string' && raw.visualization_prompt.trim()) || `Redesign this room in a ${name} style: ${keyChanges.join('. ')}.`;
   const frameworkRationale = (typeof raw?.framework_rationale === 'string' && raw.framework_rationale.trim()) || undefined;
 
