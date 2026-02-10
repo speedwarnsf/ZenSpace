@@ -248,7 +248,14 @@ For each direction provide:
 - A "framework_rationale" — 2-3 sentences per framework explaining HOW it specifically shaped decisions in THIS design. Not "we used Biophilic design" but "The Biophilic framework drives the decision to replace the overhead fluorescent with a layered lighting scheme that mimics dappled forest canopy — pendant at 2700K for golden-hour warmth, with a floor lamp creating pools of light that draw the eye toward the window's natural light." Be specific. Cite the principle, then show the move it demanded.
 - A 5-colour hex palette (make them INTERESTING — rich, unexpected combinations)
 - 3-5 key changes (concrete, bold, room-specific)
-- A full design plan in markdown that LEADS with the design principle driving this direction. Structure: ### Design Thesis (1 paragraph: what principle drives this, why it matters for THIS room), ### The Interventions (specific changes, each one tied back to the principle or framework — don't just list furniture, explain WHY each move), ### Material Specification (exact materials with reasoning), ### Rug/Textile Anchor (specific as always). 300-500 words.
+- A full design plan in markdown. STRICT FORMATTING RULES:
+  - Use ### headings for sections (Design Thesis, The Interventions, Materials, Rug/Textile Anchor)
+  - Design Thesis: 2-3 SHORT sentences max. What principle drives this, why it matters for THIS room.
+  - The Interventions: MUST be a bullet list (- prefix). One bullet per change. Each bullet: what + why, 1-2 sentences max. NO long prose paragraphs.
+  - Materials: bullet list of specific materials with reasoning
+  - Rug/Textile Anchor: 2-3 sentences, specific as always
+  - NEVER write paragraphs longer than 3 sentences. Use bullets liberally. White space is your friend.
+  - 200-350 words total. Be concise and scannable.
 - A visualization prompt for an AI image generator (detailed, atmospheric, keep room geometry)
 
 **RESPONSE FORMAT (STRICT JSON, NO MARKDOWN FENCES):**
@@ -262,7 +269,7 @@ For each direction provide:
       "framework_rationale": "**Phenomenological:** This room's tall ceilings and existing wood tones have a latent character as a contemplative retreat — we're amplifying that. Every material (aged leather, unlacquered brass, wool) is chosen for multi-sensory resonance: how it smells, warms under touch, absorbs sound. The space should feel like it has a soul, not just a style. **Aesthetic Order:** The existing picture rail becomes a compositional horizon line — cream above, deep navy below — creating classical proportion that makes the ceiling feel taller and gives the room architectural integrity it currently lacks.",
       "palette": ["#1A1A2E", "#8B6914", "#C4956A", "#E8DCC8", "#2D1B00"],
       "key_changes": ["Paint below picture rail deep navy (Phenomenological: jewel-box enclosure)", "Add unlacquered brass reading lamp (sensory: will develop patina)", "Layer vintage wool textiles (Aesthetic Order: texture rhythm)"],
-      "full_plan": "### Design Thesis\\nThis room's existing architecture — the picture rail, the ceiling height — is an underused asset...",
+      "full_plan": "### Design Thesis\\nThis room's picture rail and ceiling height are underused assets. We're turning them into the main event.\\n\\n### The Interventions\\n- **Deep navy below the picture rail** — creates a jewel-box enclosure that makes the ceiling feel twice as tall\\n- **Unlacquered brass reading lamp** — will develop patina over years, getting more beautiful with use\\n- **Vintage wool textiles layered on sofa** — adds warmth and acoustic softness\\n\\n### Materials\\n- Farrow & Ball Hague Blue (No.30) — matte estate emulsion\\n- Solid brass lamp, unlacquered to age naturally\\n- Hand-loomed Welsh wool throw\\n\\n### Rug/Textile Anchor\\nA hand-knotted wool rug in deep indigo with subtle tonal variation, 8x10, anchoring the seating area.",
       "visualization_prompt": "Transform this room into a moody library retreat: deep navy accent wall..."
     },
     { ... },
