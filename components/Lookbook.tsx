@@ -370,15 +370,15 @@ function FullScreenCard({
               <div className="max-w-none">
                 <ReactMarkdown
                   components={{
-                    h1: ({ children }) => <h2 className="font-serif text-xl font-bold text-slate-800 dark:text-slate-100 mt-10 mb-2 pb-2 border-b border-slate-200 dark:border-slate-700">{children}</h2>,
-                    h2: ({ children }) => <h2 className="font-serif text-xl font-bold text-slate-800 dark:text-slate-100 mt-10 mb-2 pb-2 border-b border-slate-200 dark:border-slate-700">{children}</h2>,
+                    h1: ({ children }) => <h3 className="text-lg font-semibold tracking-normal text-slate-500 dark:text-slate-400 mt-8 mb-3">{children}</h3>,
+                    h2: ({ children }) => <h3 className="text-lg font-semibold tracking-normal text-slate-500 dark:text-slate-400 mt-8 mb-3">{children}</h3>,
                     h3: ({ children }) => <h3 className="text-lg font-semibold tracking-normal text-slate-500 dark:text-slate-400 mt-8 mb-3">{children}</h3>,
-                    h4: ({ children }) => <h4 className="text-sm font-bold text-slate-700 dark:text-slate-200 mt-5 mb-1">{children}</h4>,
+                    h4: ({ children }) => <h4 className="text-sm font-semibold text-slate-500 dark:text-slate-400 mt-5 mb-1">{children}</h4>,
                     p: ({ children }) => <p className="text-[13px] leading-[1.75] text-slate-600 dark:text-slate-300 mb-3">{children}</p>,
                     strong: ({ children }) => <strong className="font-semibold text-slate-800 dark:text-slate-100">{children}</strong>,
-                    ul: ({ children }) => <ul className="mt-1.5 mb-4 space-y-2.5 list-disc list-inside">{children}</ul>,
-                    ol: ({ children }) => <ol className="mt-1.5 mb-4 space-y-2.5 list-decimal list-inside">{children}</ol>,
-                    li: ({ children }) => <li className="text-[13px] leading-[1.75] text-slate-600 dark:text-slate-300">{children}</li>,
+                    ul: ({ children }) => <ul className="mt-1.5 mb-4 space-y-2.5 list-disc list-outside pl-5">{children}</ul>,
+                    ol: ({ children }) => <ol className="mt-1.5 mb-4 space-y-2.5 list-decimal list-outside pl-5">{children}</ol>,
+                    li: ({ children }) => <li className="text-[13px] leading-[1.75] text-slate-600 dark:text-slate-300 pl-1">{children}</li>,
                   }}
                 >{entry.option.fullPlan.replace(/([^\n])(#{1,4}\s)/g, '$1\n\n$2').replace(/\\n/g, '\n')}</ReactMarkdown>
               </div>
