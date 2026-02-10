@@ -82,8 +82,34 @@ Return ONLY the JSON object with the fields above.`;
  * Design-theory-grounded room analysis that produces 3 distinct design directions.
  * References: DESIGN-THEORY.md (5 academic frameworks)
  */
+// Rotation pools to prevent repetitive design cycles
+const DESIGN_SEEDS = [
+  { era: '1920s Art Deco revival', ref: 'Dorothy Draper, Émile-Jacques Ruhlmann', rug: 'geometric Deco wool rug with gold thread' },
+  { era: '1970s California bohemian', ref: 'Malibu canyon houses, Laurel Canyon', rug: 'vintage overdyed Turkish kilim in faded coral' },
+  { era: 'Tokyo minimalism meets craft', ref: 'Jasper Morrison, Naoto Fukasawa, Muji', rug: 'hand-loomed Japanese jute with indigo accent stripe' },
+  { era: 'Milanese maximalism', ref: 'Gio Ponti, Fornasetti, Dimorestudio', rug: 'bold geometric Italian wool in emerald and terracotta' },
+  { era: 'Scandinavian brutalism', ref: 'Juul\'s House, Vipp, Menu', rug: 'undyed Icelandic sheepskin layered over concrete' },
+  { era: 'Moroccan riad modernism', ref: 'Berber craft meets Studio KO', rug: 'hand-knotted Beni Ourain with asymmetric diamond pattern' },
+  { era: 'Brazilian tropical modernism', ref: 'Oscar Niemeyer, Sergio Rodrigues, Campana Brothers', rug: 'hand-woven sisal with tropical hardwood border inlay' },
+  { era: 'Georgian meets punk', ref: 'Max Lamb, Faye Toogood, Martino Gamper', rug: 'reclaimed antique Persian runner, artfully faded' },
+  { era: 'Desert Southwest contemporary', ref: 'Georgia O\'Keeffe palette, Navajo weaving traditions', rug: 'hand-spun Navajo-inspired wool in ochre and bone' },
+  { era: 'Nordic noir', ref: 'dark Scandinavian interiors, Norm Architects', rug: 'charcoal bouclé wool with subtle tonal stripe' },
+  { era: 'South Asian contemporary', ref: 'Nuru Karim, Ashiesh Shah, Indian textile heritage', rug: 'hand-knotted silk-wool blend with abstracted paisley in deep indigo' },
+  { era: 'Bauhaus revival', ref: 'Anni Albers textiles, Marcel Breuer, Gunta Stölzl', rug: 'flat-weave geometric in primary blocks, Bauhaus-inspired' },
+  { era: 'Coastal Mediterranean', ref: 'Greek island whites, terrazzo, Santorini', rug: 'handwoven cotton dhurrie in sea glass and chalk' },
+  { era: 'Industrial loft romantic', ref: 'Tribeca raw spaces, BDDW furniture', rug: 'distressed vintage Oushak in muted rose and sage' },
+  { era: 'Parisian salon noir', ref: 'Joseph Dirand, dark Haussmann apartments', rug: 'black and gold hand-tufted abstract art rug' },
+];
+
+function getDesignSeed(): { era: string; ref: string; rug: string }[] {
+  // Pick 3 random non-overlapping seeds for this generation
+  const shuffled = [...DESIGN_SEEDS].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, 3);
+}
+
 export function createDesignAnalysisPrompt(context: PromptContext = {}): string {
   const { roomType = 'room' } = context;
+  const seeds = getDesignSeed();
 
   return `You are ZenSpace AI, a bold and opinionated interior design expert. You don't do boring. You create spaces people screenshot and send to friends.
 
@@ -114,9 +140,20 @@ Analyze this ${roomType} photo honestly. What's working? What's killing the vibe
 STEP 2 — THREE DRAMATICALLY DIFFERENT DESIGN DIRECTIONS
 Generate 3 options that are BOLDLY distinct from each other. Not three flavors of "modern minimalist."
 
-Think: one could channel Axel Vervoordt's wabi-sabi stillness, another Kelly Wearstler's maximalist drama, another India Mahdavi's joyful color play. Or brutalist-luxe à la De Cotiis vs. tactile Faye Toogood vs. Memphis Group irreverence. SURPRISE the user. Pull from the design thinkers above — name-drop them in the mood descriptions when relevant.
+FOR THIS SPECIFIC GENERATION, draw inspiration from these three creative seeds (but don't be literal — use them as springboards):
+- Option 1 seed: ${seeds[0].era} (references: ${seeds[0].ref})
+- Option 2 seed: ${seeds[1].era} (references: ${seeds[1].ref})
+- Option 3 seed: ${seeds[2].era} (references: ${seeds[2].ref})
+
+Also channel the design thinkers listed above — name-drop them in mood descriptions when relevant. The seeds above are STARTING POINTS, not constraints. Mash them up, subvert them, make them your own.
 
 CREATIVE DIRECTION RULES:
+
+**RUGS & TEXTILES ARE KEY.** Every design MUST specify a rug or floor textile that's high-end and specific. NOT "add a rug" or "area rug." Think:
+- "${seeds[0].rug}"
+- "${seeds[1].rug}"  
+- "${seeds[2].rug}"
+Rugs are the anchor of a room. Be specific about material, weave, origin, pattern, and color. Think Architectural Digest, not HomeGoods.
 - Each option must have a COMPLETELY different color story (not just warm vs. cool vs. neutral)
 - At least one option should be unexpected or daring — something they wouldn't have thought of
 - Names should be evocative and specific (not generic like "Modern Comfort" — think "Midnight Library" or "Desert Bloom" or "Tokyo Dawn")

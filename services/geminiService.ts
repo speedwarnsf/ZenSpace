@@ -705,6 +705,7 @@ STYLE DIRECTION:
 - This should look like something from Architectural Digest or Dwell magazine
 - Add atmospheric lighting (warm pools of light, shadows, depth)
 - Include tactile materials (velvet, wood grain, woven textiles, metal patina)
+- RUGS AND FLOOR TEXTILES must look premium and specific — hand-knotted, vintage, artisan-quality. Show visible texture, weave pattern, and material richness. No generic flat carpets.
 
 RULES:
 - SAME room, SAME angle — must be recognizable as the same space
