@@ -28,6 +28,7 @@ import { compressImage } from './services/imageCompression';
 import { rateLimiter } from './services/rateLimiter';
 import { saveSession, SavedSession } from './services/sessionStorage';
 import { saveRoom, SavedRoom, getRoomCount } from './services/roomStorage';
+import { saveLookbook, loadLookbook, clearLookbook, saveRoomImage, loadRoomImage } from './services/lookbookStorage';
 import { validateImageFile, preprocessImage } from './services/edgeCaseHandlers';
 import { analytics } from './services/analytics';
 import { getErrorMessage } from './services/errorMessages';
@@ -103,6 +104,23 @@ function AppContent() {
       console.warn('ZenSpace: Gemini API key not configured');
     }
   }, []);
+
+  // Restore lookbook from localStorage on mount
+  const [hasSavedLookbook, setHasSavedLookbook] = useState(false);
+  useEffect(() => {
+    const saved = loadLookbook();
+    if (saved && saved.length > 0) {
+      setHasSavedLookbook(true);
+    }
+  }, []);
+
+  // Persist lookbook entries to localStorage
+  useEffect(() => {
+    if (lookbookEntries.length > 0) {
+      saveLookbook(lookbookEntries);
+      setHasSavedLookbook(true);
+    }
+  }, [lookbookEntries]);
 
   /**
    * Parse a data URL into its components
@@ -409,6 +427,8 @@ function AppContent() {
     setSelectedDesignIndex(null);
     setShoppingList(null);
     setCurrentRoomId(undefined);
+    setLookbookEntries([]);
+    clearLookbook();
   }, []);
 
   /**
@@ -719,6 +739,7 @@ function AppContent() {
           batchIndex: 0,
         }));
         setLookbookEntries(initialEntries);
+        if (uploadedImage) saveRoomImage(uploadedImage.dataUrl);
         setAppState(AppState.LOOKBOOK);
         analytics.trackAnalysisComplete(3);
         announce('Analysis complete! Rate and explore your design directions.', 'polite');
@@ -798,6 +819,30 @@ function AppContent() {
       setIsVisualizingDesign(false);
     }
   }, [selectedDesignIndex, designAnalysis, uploadedImage]);
+
+  /**
+   * Resume a saved lookbook from localStorage
+   */
+  const handleResumeLookbook = useCallback(() => {
+    const saved = loadLookbook();
+    if (saved && saved.length > 0) {
+      setLookbookEntries(saved);
+      // Try to restore the room image
+      const roomImg = loadRoomImage();
+      if (roomImg) {
+        const parsed = parseDataUrl(roomImg);
+        if (parsed) {
+          setUploadedImage({
+            dataUrl: roomImg,
+            base64: parsed.base64,
+            mimeType: parsed.mimeType,
+            fileName: 'room.jpg',
+          });
+        }
+      }
+      setAppState(AppState.LOOKBOOK);
+    }
+  }, [parseDataUrl]);
 
   const errorInfo = error ? getErrorMessage(error.code) : null;
   const errorTitle = error?.title ?? errorInfo?.title ?? 'Something Went Wrong';
@@ -934,6 +979,15 @@ function AppContent() {
             </p>
             <UploadZone onImageSelected={handleImageSelected} isAnalyzing={isAnalyzing} />
             
+            {hasSavedLookbook && (
+              <button
+                onClick={handleResumeLookbook}
+                className="mt-6 px-6 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-sm font-medium flex items-center gap-2"
+              >
+                <LayoutGrid className="w-4 h-4 text-emerald-500" />
+                You have saved designs. Resume your lookbook?
+              </button>
+            )}
             <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-center opacity-80">
               <div>
                 <div className="font-bold text-slate-800 dark:text-slate-200 mb-2">Snap</div>

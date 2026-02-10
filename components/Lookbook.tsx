@@ -1,6 +1,7 @@
-import { useState, useCallback, useMemo, memo } from 'react';
+import { useState, useCallback, useMemo, useRef, memo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { Sparkles, Loader2, Eye, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, Loader2, Eye, ChevronDown, ChevronUp, X } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import type { LookbookEntry, DesignRating } from '../types';
 
 interface LookbookProps {
@@ -30,12 +31,15 @@ const LookbookCard = memo(function LookbookCard({
   entry,
   onRate,
   onSelectForIteration,
+  onExpand,
 }: {
   entry: LookbookEntry;
   onRate: (id: string, rating: DesignRating) => void;
   onSelectForIteration: (id: string) => void;
+  onExpand: (entry: LookbookEntry) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const dragDistRef = useRef(0);
   const x = useMotionValue(0);
   const redOpacity = useTransform(x, [-DRAG_THRESHOLD, 0], [0.5, 0]);
   const goldOpacity = useTransform(x, [0, DRAG_THRESHOLD], [0, 0.5]);
@@ -78,7 +82,9 @@ const LookbookCard = memo(function LookbookCard({
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.7}
+      onDrag={(_: any, info: { offset: { x: number } }) => { dragDistRef.current = Math.abs(info.offset.x); }}
       onDragEnd={handleDragEnd}
+      onClick={() => { if (dragDistRef.current < 5) onExpand(entry); dragDistRef.current = 0; }}
       className={`relative bg-white dark:bg-slate-800 rounded-2xl shadow-sm overflow-hidden cursor-grab active:cursor-grabbing ${borderClass} select-none`}
     >
       {/* Drag overlays */}
@@ -211,8 +217,158 @@ const LookbookCard = memo(function LookbookCard({
   );
 });
 
+function FullScreenCard({
+  entry,
+  onRate,
+  onSelectForIteration,
+  onClose,
+}: {
+  entry: LookbookEntry;
+  onRate: (id: string, rating: DesignRating) => void;
+  onSelectForIteration: (id: string) => void;
+  onClose: () => void;
+}) {
+  const isGood = entry.rating === 'good';
+  const isTheOne = entry.rating === 'the-one';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/60 backdrop-blur-sm p-4 sm:p-8"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 30 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 30 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-2xl w-full my-4 overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        {/* Image */}
+        <div className="aspect-[16/10] bg-slate-100 dark:bg-slate-700 overflow-hidden">
+          {entry.option.visualizationImage ? (
+            <img
+              src={`data:image/png;base64,${entry.option.visualizationImage}`}
+              alt={entry.option.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">
+              Preview not yet generated
+            </div>
+          )}
+        </div>
+
+        <div className="p-6 space-y-5">
+          {/* Name */}
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-slate-800 dark:text-slate-100">
+            {entry.option.name}
+          </h2>
+
+          {/* Mood */}
+          <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+            {entry.option.mood}
+          </p>
+
+          {/* Palette */}
+          <div className="flex gap-2">
+            {entry.option.palette.map((color, i) => (
+              <div key={i} className="flex flex-col items-center gap-1">
+                <div
+                  className="w-8 h-8 rounded-full border-2 border-slate-200 dark:border-slate-600"
+                  style={{ backgroundColor: color }}
+                />
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{color}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Frameworks */}
+          {entry.option.frameworks.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {entry.option.frameworks.map((fw, i) => (
+                <span
+                  key={i}
+                  className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300"
+                >
+                  {fw}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Key Changes */}
+          <div>
+            <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Key Changes</h4>
+            <ul className="space-y-1">
+              {entry.option.keyChanges.map((change, i) => (
+                <li key={i} className="text-sm text-slate-600 dark:text-slate-400 flex items-start gap-2">
+                  <span className="text-emerald-500 mt-0.5">•</span>
+                  {change}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Full Plan */}
+          {entry.option.fullPlan && (
+            <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+              <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Full Design Plan</h4>
+              <div className="prose prose-sm dark:prose-invert max-w-none text-slate-600 dark:text-slate-300">
+                <ReactMarkdown>{entry.option.fullPlan}</ReactMarkdown>
+              </div>
+            </div>
+          )}
+
+          {/* Rating buttons */}
+          <div className="flex gap-1.5 pt-2">
+            {RATINGS.map(r => (
+              <button
+                key={r.value}
+                onClick={() => onRate(entry.id, r.value)}
+                className={`flex-1 text-center py-2 rounded-xl text-xl transition-all ${
+                  entry.rating === r.value
+                    ? 'bg-slate-100 dark:bg-slate-700 scale-110 ring-2 ring-emerald-400'
+                    : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                }`}
+                title={r.label}
+              >
+                {r.emoji}
+              </button>
+            ))}
+          </div>
+
+          {/* Go Deeper */}
+          {(isGood || isTheOne) && (
+            <button
+              onClick={() => { onSelectForIteration(entry.id); onClose(); }}
+              className="w-full py-3 rounded-xl text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white transition-colors flex items-center justify-center gap-2"
+            >
+              <Eye className="w-4 h-4" />
+              Go Deeper →
+            </button>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore, isGenerating, uploadedImageUrl }: LookbookProps) {
   const [filter, setFilter] = useState<FilterTab>('all');
+  const [expandedEntry, setExpandedEntry] = useState<LookbookEntry | null>(null);
 
   const counts = useMemo(() => ({
     all: entries.filter(e => !e.rating || e.rating === 'like' || e.rating === 'good' || e.rating === 'the-one').length,
@@ -313,6 +469,7 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
                 entry={entry}
                 onRate={onRate}
                 onSelectForIteration={onSelectForIteration}
+                onExpand={setExpandedEntry}
               />
             </div>
           ))}
@@ -325,6 +482,18 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
           <p className="text-sm mt-1">Try switching tabs or generating more</p>
         </div>
       )}
+
+      {/* Full-screen card modal */}
+      <AnimatePresence>
+        {expandedEntry && (
+          <FullScreenCard
+            entry={entries.find(e => e.id === expandedEntry.id) || expandedEntry}
+            onRate={(id, rating) => { onRate(id, rating); }}
+            onSelectForIteration={onSelectForIteration}
+            onClose={() => setExpandedEntry(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
