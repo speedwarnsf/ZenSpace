@@ -257,9 +257,10 @@ For each direction provide:
 - A short evocative name (2-4 words, make it vivid)
 - A 1-2 sentence mood/vibe that sells the vision emotionally
 - Which frameworks primarily drive it (2-3, by exact name: "Aesthetic Order", "Human-Centric", "Universal Design", "Biophilic", "Phenomenological")
+- A "framework_rationale" — 2-3 sentences per framework explaining HOW it specifically shaped decisions in THIS design. Not "we used Biophilic design" but "The Biophilic framework drives the decision to replace the overhead fluorescent with a layered lighting scheme that mimics dappled forest canopy — pendant at 2700K for golden-hour warmth, with a floor lamp creating pools of light that draw the eye toward the window's natural light." Be specific. Cite the principle, then show the move it demanded.
 - A 5-colour hex palette (make them INTERESTING — rich, unexpected combinations)
 - 3-5 key changes (concrete, bold, room-specific)
-- A full design plan in markdown (## headings, bullets, 200-400 words)
+- A full design plan in markdown that LEADS with the design principle driving this direction. Structure: ### Design Thesis (1 paragraph: what principle drives this, why it matters for THIS room), ### The Interventions (specific changes, each one tied back to the principle or framework — don't just list furniture, explain WHY each move), ### Material Specification (exact materials with reasoning), ### Rug/Textile Anchor (specific as always). 300-500 words.
 - A visualization prompt for an AI image generator (detailed, atmospheric, keep room geometry)
 
 **RESPONSE FORMAT (STRICT JSON, NO MARKDOWN FENCES):**
@@ -270,9 +271,10 @@ For each direction provide:
       "name": "Midnight Library",
       "mood": "Deep, moody, intellectual — like falling asleep in a velvet armchair surrounded by old books and amber light.",
       "frameworks": ["Phenomenological", "Aesthetic Order"],
+      "framework_rationale": "**Phenomenological:** The genius loci of this room — its tall ceilings and existing wood tones — demands we amplify its latent character as a contemplative retreat. Every material choice (aged leather, unlacquered brass, wool) is selected for multi-sensory resonance: how it smells, how it warms under touch, how it absorbs sound. **Aesthetic Order:** The Wharton principle of architectural integrity drives the decision to use the existing picture rail as a compositional horizon line — cream above, deep navy below — creating classical proportion (roughly golden ratio) that makes the ceiling feel taller.",
       "palette": ["#1A1A2E", "#8B6914", "#C4956A", "#E8DCC8", "#2D1B00"],
-      "key_changes": ["Paint accent wall deep navy", "Add warm brass reading lamp", "Layer vintage textiles"],
-      "full_plan": "## Midnight Library\\n### The Vision\\n- ...",
+      "key_changes": ["Paint below picture rail deep navy (Phenomenological: jewel-box enclosure)", "Add unlacquered brass reading lamp (sensory: will develop patina)", "Layer vintage wool textiles (Aesthetic Order: texture rhythm)"],
+      "full_plan": "### Design Thesis\\nThis room's existing architecture — the picture rail, the ceiling height — is an underused asset...",
       "visualization_prompt": "Transform this room into a moody library retreat: deep navy accent wall..."
     },
     { ... },

@@ -340,6 +340,16 @@ function FullScreenCard({
             </div>
           )}
 
+          {/* Framework Rationale */}
+          {entry.option.frameworkRationale && (
+            <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4 border border-slate-200 dark:border-slate-600">
+              <h4 className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-3">Design Reasoning</h4>
+              <div className="text-[13px] leading-[1.75] text-slate-600 dark:text-slate-300">
+                <ReactMarkdown>{entry.option.frameworkRationale}</ReactMarkdown>
+              </div>
+            </div>
+          )}
+
           {/* Key Changes */}
           <div>
             <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Key Changes</h4>

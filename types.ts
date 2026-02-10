@@ -91,6 +91,8 @@ export interface DesignOption {
   mood: string;
   /** Which theory frameworks primarily inform this direction */
   frameworks: DesignFramework[];
+  /** How each framework specifically shaped decisions in this design */
+  frameworkRationale?: string;
   /** 5 hex colour strings representing the palette */
   palette: string[];
   /** Bullet-point key changes (3-5 items) */

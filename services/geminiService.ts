@@ -585,8 +585,9 @@ const normalizeDesignOption = (raw: any, index: number): DesignOption => {
 
   const fullPlan = (typeof raw?.full_plan === 'string' && raw.full_plan.trim()) || `## ${name}\n- ${keyChanges.join('\n- ')}`;
   const visualizationPrompt = (typeof raw?.visualization_prompt === 'string' && raw.visualization_prompt.trim()) || `Redesign this room in a ${name} style: ${keyChanges.join('. ')}.`;
+  const frameworkRationale = (typeof raw?.framework_rationale === 'string' && raw.framework_rationale.trim()) || undefined;
 
-  return { name, mood, frameworks, palette, keyChanges, fullPlan, visualizationPrompt };
+  return { name, mood, frameworks, frameworkRationale, palette, keyChanges, fullPlan, visualizationPrompt };
 };
 
 /**
@@ -629,12 +630,13 @@ export const generateDesignOptions = async (
                   name: { type: Type.STRING },
                   mood: { type: Type.STRING },
                   frameworks: { type: Type.ARRAY, items: { type: Type.STRING } },
+                  framework_rationale: { type: Type.STRING },
                   palette: { type: Type.ARRAY, items: { type: Type.STRING } },
                   key_changes: { type: Type.ARRAY, items: { type: Type.STRING } },
                   full_plan: { type: Type.STRING },
                   visualization_prompt: { type: Type.STRING }
                 },
-                required: ['name', 'mood', 'frameworks', 'palette', 'key_changes', 'full_plan', 'visualization_prompt']
+                required: ['name', 'mood', 'frameworks', 'framework_rationale', 'palette', 'key_changes', 'full_plan', 'visualization_prompt']
               }
             }
           },
