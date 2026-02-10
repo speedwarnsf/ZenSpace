@@ -101,10 +101,23 @@ const DESIGN_SEEDS = [
   { era: 'Parisian salon noir', ref: 'Joseph Dirand, dark Haussmann apartments', rug: 'black and gold hand-tufted abstract art rug' },
 ];
 
+// Group seeds by mood/temperature to guarantee diversity within each batch
+const SEED_BUCKETS: Record<string, number[]> = {
+  warm_bold:    [0, 3, 6, 11],  // Art Deco, Milanese maximalism, Brazilian tropical, Bauhaus
+  cool_moody:   [4, 9, 14],      // Scandinavian brutalism, Nordic noir, Parisian salon noir
+  earthy_craft: [5, 7, 8, 10],   // Moroccan riad, Georgian punk, Desert SW, South Asian
+  light_airy:   [1, 2, 12, 13],  // 70s California, Tokyo minimal, Coastal Med, Industrial romantic
+};
+
 function getDesignSeed(): { era: string; ref: string; rug: string }[] {
-  // Pick 3 random non-overlapping seeds for this generation
-  const shuffled = [...DESIGN_SEEDS].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, 3);
+  // Pick 3 seeds from 3 DIFFERENT mood buckets — guarantees variety
+  const bucketKeys = Object.keys(SEED_BUCKETS).sort(() => Math.random() - 0.5);
+  const pickedBuckets = bucketKeys.slice(0, 3);
+  return pickedBuckets.map(key => {
+    const indices = SEED_BUCKETS[key];
+    const idx = indices[Math.floor(Math.random() * indices.length)];
+    return DESIGN_SEEDS[idx];
+  });
 }
 
 export function createDesignAnalysisPrompt(context: PromptContext & { previousDesigns?: string[] } = {}): string {
