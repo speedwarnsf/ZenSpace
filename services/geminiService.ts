@@ -583,7 +583,9 @@ const normalizeDesignOption = (raw: any, index: number): DesignOption => {
     ? raw.key_changes.filter((s: any) => typeof s === 'string').slice(0, 5)
     : ['Refresh the layout', 'Update lighting', 'Add accent pieces'];
 
-  const fullPlan = (typeof raw?.full_plan === 'string' && raw.full_plan.trim()) || `## ${name}\n- ${keyChanges.join('\n- ')}`;
+  const rawPlan = (typeof raw?.full_plan === 'string' && raw.full_plan.trim()) || `## ${name}\n- ${keyChanges.join('\n- ')}`;
+  // Ensure markdown headings have proper newlines before them (AI sometimes returns inline ### )
+  const fullPlan = rawPlan.replace(/\\n/g, '\n').replace(/([^\n])(#{1,4}\s)/g, '$1\n\n$2');
   const visualizationPrompt = (typeof raw?.visualization_prompt === 'string' && raw.visualization_prompt.trim()) || `Redesign this room in a ${name} style: ${keyChanges.join('. ')}.`;
   const frameworkRationale = (typeof raw?.framework_rationale === 'string' && raw.framework_rationale.trim()) || undefined;
 

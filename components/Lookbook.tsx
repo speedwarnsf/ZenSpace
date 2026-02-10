@@ -380,7 +380,7 @@ function FullScreenCard({
                     ol: ({ children }) => <ol className="mt-1.5 mb-4 space-y-2.5 list-decimal list-inside">{children}</ol>,
                     li: ({ children }) => <li className="text-[13px] leading-[1.75] text-slate-600 dark:text-slate-300">{children}</li>,
                   }}
-                >{entry.option.fullPlan}</ReactMarkdown>
+                >{entry.option.fullPlan.replace(/([^\n])(#{1,4}\s)/g, '$1\n\n$2').replace(/\\n/g, '\n')}</ReactMarkdown>
               </div>
             </div>
           )}
