@@ -28,7 +28,7 @@ import { compressImage } from './services/imageCompression';
 import { rateLimiter } from './services/rateLimiter';
 import { saveSession, SavedSession } from './services/sessionStorage';
 import { saveRoom, SavedRoom, getRoomCount } from './services/roomStorage';
-import { saveLookbook, loadLookbook, clearLookbook, saveRoomImage, loadRoomImage } from './services/lookbookStorage';
+import { saveLookbook, loadLookbook, clearLookbook, saveRoomImage, loadRoomImage, saveVisualizationImage, loadAllVisualizationImages } from './services/lookbookStorage';
 import { validateImageFile, preprocessImage } from './services/edgeCaseHandlers';
 import { analytics } from './services/analytics';
 import { getErrorMessage } from './services/errorMessages';
@@ -114,12 +114,21 @@ function AppContent() {
     }
   }, []);
 
-  // Persist lookbook entries to localStorage
+  // Persist lookbook entries to localStorage (metadata only)
   useEffect(() => {
     if (lookbookEntries.length > 0) {
       saveLookbook(lookbookEntries);
       setHasSavedLookbook(true);
     }
+  }, [lookbookEntries]);
+
+  // Persist visualization images to IndexedDB
+  useEffect(() => {
+    lookbookEntries.forEach(entry => {
+      if (entry.option.visualizationImage) {
+        saveVisualizationImage(entry.id, entry.option.visualizationImage);
+      }
+    });
   }, [lookbookEntries]);
 
   /**
@@ -824,12 +833,21 @@ function AppContent() {
   /**
    * Resume a saved lookbook from localStorage
    */
-  const handleResumeLookbook = useCallback(() => {
+  const handleResumeLookbook = useCallback(async () => {
     const saved = loadLookbook();
     if (saved && saved.length > 0) {
-      setLookbookEntries(saved);
-      // Try to restore the room image
-      const roomImg = loadRoomImage();
+      // Hydrate entries with visualization images from IndexedDB
+      const imageMap = await loadAllVisualizationImages(saved.map(e => e.id));
+      const hydrated = saved.map(entry => ({
+        ...entry,
+        option: {
+          ...entry.option,
+          visualizationImage: imageMap.get(entry.id) || entry.option.visualizationImage || undefined,
+        },
+      }));
+      setLookbookEntries(hydrated);
+      // Try to restore the room image from IndexedDB
+      const roomImg = await loadRoomImage();
       if (roomImg) {
         const parsed = parseDataUrl(roomImg);
         if (parsed) {
