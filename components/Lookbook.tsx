@@ -357,15 +357,15 @@ function FullScreenCard({
           {entry.option.fullPlan && (
             <div className="border-t border-slate-200 dark:border-slate-700 pt-6 mt-2">
               <h4 className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-6">Full Design Plan</h4>
-              <div className="prose prose-slate dark:prose-invert max-w-none
+              <div className="prose prose-sm prose-slate dark:prose-invert max-w-none
                 prose-headings:font-serif prose-headings:tracking-tight
-                prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-3 prose-h2:text-slate-800 dark:prose-h2:text-slate-100
-                prose-h3:text-lg prose-h3:font-semibold prose-h3:mt-6 prose-h3:mb-2 prose-h3:text-slate-700 dark:prose-h3:text-slate-200
-                prose-h4:text-base prose-h4:font-semibold prose-h4:mt-5 prose-h4:mb-1.5 prose-h4:text-slate-700 dark:prose-h4:text-slate-200
-                prose-p:text-[15px] prose-p:leading-relaxed prose-p:mb-4 prose-p:text-slate-600 dark:prose-p:text-slate-300
+                prose-h2:text-xl prose-h2:font-bold prose-h2:mt-10 prose-h2:mb-1 prose-h2:text-slate-800 dark:prose-h2:text-slate-100 prose-h2:border-b prose-h2:border-slate-200 dark:prose-h2:border-slate-700 prose-h2:pb-2
+                prose-h3:text-base prose-h3:font-semibold prose-h3:mt-8 prose-h3:mb-1 prose-h3:text-slate-500 dark:prose-h3:text-slate-400 prose-h3:uppercase prose-h3:tracking-wider prose-h3:text-xs
+                prose-h4:text-sm prose-h4:font-bold prose-h4:mt-6 prose-h4:mb-1 prose-h4:text-slate-700 dark:prose-h4:text-slate-200
+                prose-p:text-[13px] prose-p:leading-[1.7] prose-p:mb-3 prose-p:text-slate-600 dark:prose-p:text-slate-300
                 prose-strong:text-slate-800 dark:prose-strong:text-slate-100 prose-strong:font-semibold
-                prose-li:text-[15px] prose-li:leading-relaxed prose-li:mb-1
-                prose-ul:mt-2 prose-ul:mb-4
+                prose-li:text-[13px] prose-li:leading-[1.7] prose-li:mb-0.5
+                prose-ul:mt-1.5 prose-ul:mb-3
               ">
                 <ReactMarkdown>{entry.option.fullPlan}</ReactMarkdown>
               </div>
