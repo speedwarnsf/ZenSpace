@@ -1,6 +1,8 @@
 import { useState, useCallback, useMemo, useRef, memo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { Sparkles, Loader2, Eye, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { Sparkles, Loader2, Eye, ChevronDown, ChevronUp, X, Share2 } from 'lucide-react';
+import { ShareableCard } from './ShareableCard';
+import { captureCardAsImage, shareCard } from '../services/shareService';
 import ReactMarkdown from 'react-markdown';
 import type { LookbookEntry, DesignRating } from '../types';
 
@@ -32,11 +34,15 @@ const LookbookCard = memo(function LookbookCard({
   onRate,
   onSelectForIteration,
   onExpand,
+  onShare,
+  isSharing,
 }: {
   entry: LookbookEntry;
   onRate: (id: string, rating: DesignRating) => void;
   onSelectForIteration: (id: string) => void;
   onExpand: (entry: LookbookEntry) => void;
+  onShare: (entry: LookbookEntry) => void;
+  isSharing: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const dragDistRef = useRef(0);
@@ -85,7 +91,7 @@ const LookbookCard = memo(function LookbookCard({
       onDrag={(_: any, info: { offset: { x: number } }) => { dragDistRef.current = Math.abs(info.offset.x); }}
       onDragEnd={handleDragEnd}
       onClick={() => { if (dragDistRef.current < 5) onExpand(entry); dragDistRef.current = 0; }}
-      className={`relative bg-white dark:bg-slate-800 rounded-2xl shadow-sm overflow-hidden cursor-grab active:cursor-grabbing ${borderClass} select-none`}
+      className={`relative group bg-white dark:bg-slate-800 rounded-2xl shadow-sm overflow-hidden cursor-grab active:cursor-grabbing ${borderClass} select-none`}
     >
       {/* Drag overlays */}
       <motion.div
@@ -112,6 +118,15 @@ const LookbookCard = memo(function LookbookCard({
           <span className="text-3xl">⭐</span>
         </motion.div>
       )}
+
+      {/* Share button (top-right, visible on hover) */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onShare(entry); }}
+        className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+        title="Share"
+      >
+        {isSharing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Share2 className="w-4 h-4" />}
+      </button>
 
       {/* Image */}
       <div className="aspect-[4/3] bg-slate-100 dark:bg-slate-700 overflow-hidden">
@@ -222,11 +237,15 @@ function FullScreenCard({
   onRate,
   onSelectForIteration,
   onClose,
+  onShare,
+  isSharing,
 }: {
   entry: LookbookEntry;
   onRate: (id: string, rating: DesignRating) => void;
   onSelectForIteration: (id: string) => void;
   onClose: () => void;
+  onShare: (entry: LookbookEntry) => void;
+  isSharing: boolean;
 }) {
   const isGood = entry.rating === 'good';
   const isTheOne = entry.rating === 'the-one';
@@ -332,8 +351,8 @@ function FullScreenCard({
             </div>
           )}
 
-          {/* Rating buttons */}
-          <div className="flex gap-1.5 pt-2">
+          {/* Rating + Share buttons */}
+          <div className="flex gap-1.5 pt-2 items-center">
             {RATINGS.map(r => (
               <button
                 key={r.value}
@@ -348,6 +367,14 @@ function FullScreenCard({
                 {r.emoji}
               </button>
             ))}
+            <button
+              onClick={() => onShare(entry)}
+              disabled={isSharing}
+              className="flex-1 text-center py-2 rounded-xl transition-all hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center justify-center"
+              title="Share"
+            >
+              {isSharing ? <Loader2 className="w-5 h-5 animate-spin text-slate-400" /> : <Share2 className="w-5 h-5 text-slate-500" />}
+            </button>
           </div>
 
           {/* Go Deeper */}
@@ -369,6 +396,22 @@ function FullScreenCard({
 export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore, isGenerating, uploadedImageUrl }: LookbookProps) {
   const [filter, setFilter] = useState<FilterTab>('all');
   const [expandedEntry, setExpandedEntry] = useState<LookbookEntry | null>(null);
+  const [sharingEntryId, setSharingEntryId] = useState<string | null>(null);
+  const shareCardRef = useRef<HTMLDivElement>(null);
+
+  const handleShare = useCallback(async (entry: LookbookEntry) => {
+    setSharingEntryId(entry.id);
+    await new Promise(r => setTimeout(r, 200));
+    if (shareCardRef.current) {
+      try {
+        const blob = await captureCardAsImage(shareCardRef.current);
+        await shareCard(blob, entry.option.name);
+      } catch (err) {
+        console.error('Share failed:', err);
+      }
+    }
+    setSharingEntryId(null);
+  }, []);
 
   const counts = useMemo(() => ({
     all: entries.filter(e => !e.rating || e.rating === 'like' || e.rating === 'good' || e.rating === 'the-one').length,
@@ -470,6 +513,8 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
                 onRate={onRate}
                 onSelectForIteration={onSelectForIteration}
                 onExpand={setExpandedEntry}
+                onShare={handleShare}
+                isSharing={sharingEntryId === entry.id}
               />
             </div>
           ))}
@@ -483,6 +528,15 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
         </div>
       )}
 
+      {/* Hidden shareable card renderer */}
+      {sharingEntryId && (
+        <div style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+          <div ref={shareCardRef}>
+            <ShareableCard entry={entries.find(e => e.id === sharingEntryId)!} />
+          </div>
+        </div>
+      )}
+
       {/* Full-screen card modal */}
       <AnimatePresence>
         {expandedEntry && (
@@ -491,6 +545,8 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
             onRate={(id, rating) => { onRate(id, rating); }}
             onSelectForIteration={onSelectForIteration}
             onClose={() => setExpandedEntry(null)}
+            onShare={handleShare}
+            isSharing={sharingEntryId === expandedEntry.id}
           />
         )}
       </AnimatePresence>
