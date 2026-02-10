@@ -169,6 +169,8 @@ Also channel the design thinkers listed above — name-drop them in mood descrip
 
 If your 3 options could be described with similar adjectives, START OVER. They should feel like they come from 3 different planets.
 
+**THE RADICAL SLOT:** One of the 3 designs (rotate which one) should be genuinely radical — not "edgy minimalism" but something that makes someone do a double-take. Think: a living room reimagined as a Yayoi Kusama infinity room. A bedroom that channels a 1970s Pierre Cardin spaceship. A kitchen inspired by a Portuguese fisherman's cottage. A den that feels like the back room of a Tokyo vinyl bar. Brutalist concrete meets Frida Kahlo. A room where the ceiling is the statement piece. Go somewhere no sane interior designer would suggest — and make it work.
+
 CREATIVE DIRECTION RULES:
 
 **RUGS & TEXTILES ARE KEY.** Every design MUST specify a rug or floor textile that's high-end and specific. NOT "add a rug" or "area rug." Think:
