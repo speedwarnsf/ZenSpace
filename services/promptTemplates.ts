@@ -82,47 +82,108 @@ Return ONLY the JSON object with the fields above.`;
  * Design-theory-grounded room analysis that produces 3 distinct design directions.
  * References: DESIGN-THEORY.md (5 academic frameworks)
  */
-// Rotation pools to prevent repetitive design cycles
-const DESIGN_SEEDS = [
-  { era: '1920s Art Deco revival', ref: 'Dorothy Draper, Émile-Jacques Ruhlmann', rug: 'geometric Deco wool rug with gold thread' },
-  { era: '1970s California bohemian', ref: 'Malibu canyon houses, Laurel Canyon', rug: 'vintage overdyed Turkish kilim in faded coral' },
-  { era: 'Tokyo minimalism meets craft', ref: 'Jasper Morrison, Naoto Fukasawa, Muji', rug: 'hand-loomed Japanese jute with indigo accent stripe' },
-  { era: 'Milanese maximalism', ref: 'Gio Ponti, Fornasetti, Dimorestudio', rug: 'bold geometric Italian wool in emerald and terracotta' },
-  { era: 'Scandinavian brutalism', ref: 'Juul\'s House, Vipp, Menu', rug: 'undyed Icelandic sheepskin layered over concrete' },
-  { era: 'Moroccan riad modernism', ref: 'Berber craft meets Studio KO', rug: 'hand-knotted Beni Ourain with asymmetric diamond pattern' },
-  { era: 'Brazilian tropical modernism', ref: 'Oscar Niemeyer, Sergio Rodrigues, Campana Brothers', rug: 'hand-woven sisal with tropical hardwood border inlay' },
-  { era: 'Georgian meets punk', ref: 'Max Lamb, Faye Toogood, Martino Gamper', rug: 'reclaimed antique Persian runner, artfully faded' },
-  { era: 'Desert Southwest contemporary', ref: 'Georgia O\'Keeffe palette, Navajo weaving traditions', rug: 'hand-spun Navajo-inspired wool in ochre and bone' },
-  { era: 'Nordic noir', ref: 'dark Scandinavian interiors, Norm Architects', rug: 'charcoal bouclé wool with subtle tonal stripe' },
-  { era: 'South Asian contemporary', ref: 'Nuru Karim, Ashiesh Shah, Indian textile heritage', rug: 'hand-knotted silk-wool blend with abstracted paisley in deep indigo' },
-  { era: 'Bauhaus revival', ref: 'Anni Albers textiles, Marcel Breuer, Gunta Stölzl', rug: 'flat-weave geometric in primary blocks, Bauhaus-inspired' },
-  { era: 'Coastal Mediterranean', ref: 'Greek island whites, terrazzo, Santorini', rug: 'handwoven cotton dhurrie in sea glass and chalk' },
-  { era: 'Industrial loft romantic', ref: 'Tribeca raw spaces, BDDW furniture', rug: 'distressed vintage Oushak in muted rose and sage' },
-  { era: 'Parisian salon noir', ref: 'Joseph Dirand, dark Haussmann apartments', rug: 'black and gold hand-tufted abstract art rug' },
+// Design seeds grounded in interior design PRINCIPLES, not cultural geography
+interface DesignSeed {
+  principle: string;   // The core design idea driving this direction
+  approach: string;    // How to apply it
+  thinkers: string;    // Designers/theorists who embody this thinking
+  rug: string;         // Specific textile anchor
+}
+
+const DESIGN_SEEDS: DesignSeed[] = [
+  // --- SPATIAL & STRUCTURAL ---
+  { principle: 'Compression and release — manipulate ceiling height, narrowness, and openness to create emotional rhythm through a room',
+    approach: 'Use color, lighting, and furniture scale to make parts of the room feel intimate and others expansive',
+    thinkers: 'Frank Lloyd Wright (prairie compression), Luis Barragán (color volumes), Peter Zumthor (atmospheric density)',
+    rug: 'deep-pile wool runner that defines the "release" zone, pulling the eye toward openness' },
+  { principle: 'Asymmetric balance — reject mirror symmetry for dynamic visual tension that still feels resolved',
+    approach: 'Off-center focal points, unequal but balanced masses, deliberate visual weight distribution',
+    thinkers: 'Eileen Gray (asymmetric screens), Charlotte Perriand (sculptural arrangement), Isamu Noguchi (balanced tension)',
+    rug: 'asymmetrically patterned hand-knotted wool — one side dense, the other sparse, creating visual pull' },
+  { principle: 'Scale disruption — use one dramatically oversized or undersized element to reframe everything else',
+    approach: 'A monumental light fixture, a tiny chair, an enormous mirror — break expected proportions to create wonder',
+    thinkers: 'Gaetano Pesce (oversized resin), Faye Toogood (chunky sculptural scale), Claes Oldenburg (the power of wrong scale)',
+    rug: 'an unexpectedly massive rug that climbs 6 inches up the walls, blurring floor and wall boundaries' },
+
+  // --- MATERIAL & TEXTURE ---
+  { principle: 'Material honesty meets material contrast — celebrate what things are made of by placing opposites together',
+    approach: 'Raw against refined, soft against hard, matte against gloss — every surface tells a story through juxtaposition',
+    thinkers: 'Vincenzo De Cotiis (oxidized metal + marble), Axel Vervoordt (raw plaster + aged wood), John Pawson (stone purity)',
+    rug: 'hand-felted wool with visible fiber structure, undyed, next to polished concrete or stone floor' },
+  { principle: 'Patina as design — age, wear, and imperfection as deliberate aesthetic choices, not flaws to hide',
+    approach: 'Specify materials that develop character over time — unlacquered brass, saddle leather, limewash, living finishes',
+    thinkers: 'Wabi-sabi philosophy, Axel Vervoordt, Bijoy Jain / Studio Mumbai (handcraft + time)',
+    rug: 'antique hand-repaired textile — visible mending as design feature, silk-wool blend with natural patina' },
+  { principle: 'Textile architecture — fabric and fiber as structural, spatial elements, not just soft accessories',
+    approach: 'Draped canopies, fabric room dividers, upholstered walls, woven screens — textiles that define space',
+    thinkers: 'Anni Albers (textile as art), Christo (wrapped environments), Ilse Crawford (sensory richness)',
+    rug: 'hand-tufted sculptural rug with 3 different pile heights creating a topographic landscape underfoot' },
+
+  // --- LIGHT & COLOR ---
+  { principle: 'Light as the primary material — design the room around how light enters, bounces, pools, and retreats',
+    approach: 'Layer natural and artificial light deliberately — washing, spotlighting, backlighting, candlelight as architecture',
+    thinkers: 'James Turrell (light as medium), Tadao Ando (light cuts), Olafur Eliasson (color-spectrum light)',
+    rug: 'light-reflective silk-cotton blend in pale champagne — designed to catch and amplify ambient light' },
+  { principle: 'Chromatic boldness — use saturated, unexpected color as the primary design move, not an accent',
+    approach: 'Full-wall color drenching, tonal rooms (all one hue at different saturations), color blocking as spatial definition',
+    thinkers: 'India Mahdavi (joyful color), Luis Barragán (emotional color planes), Pierre Yovanovitch (moody palettes)',
+    rug: 'saturated solid-color hand-tufted wool — one bold hue that anchors the entire room\'s palette' },
+  { principle: 'Tonal restraint — a single color family explored in maximum depth, creating richness through subtlety',
+    approach: 'Monochromatic or near-monochromatic, with variety through texture, sheen, and material rather than hue shifts',
+    thinkers: 'Joseph Dirand (tonal Paris), Vincent Van Duysen (Belgian warmth), John Pawson (monastic minimalism)',
+    rug: 'tone-on-tone hand-loomed wool in three closely related values — visible only up close, felt from across the room' },
+
+  // --- SENSORY & EXPERIENTIAL ---
+  { principle: 'Multi-sensory design — design for touch, smell, sound, and temperature, not just sight',
+    approach: 'Acoustic textures, scented materials (cedar, leather, beeswax), thermal variety (cool stone near warm textiles)',
+    thinkers: 'Ilse Crawford (humanistic design), Peter Zumthor (thermal baths as architecture), Juhani Pallasmaa (eyes of the skin)',
+    rug: 'deep hand-knotted Moroccan wool — thick enough to muffle footsteps, warm enough to sit on' },
+  { principle: 'Prospect and refuge — create spaces that balance openness (seeing out) with enclosure (feeling protected)',
+    approach: 'Reading nooks within open plans, canopy beds, high-backed settees, rooms within rooms',
+    thinkers: 'Christopher Alexander (pattern language), Frank Lloyd Wright (inglenook), Ilse Crawford (nesting instinct)',
+    rug: 'round hand-woven rug defining a "refuge" zone — like a campfire circle within the larger room' },
+  { principle: 'Biophilic immersion — not just "add a plant" but fundamentally connect the room to living systems and natural pattern',
+    approach: 'Fractal patterns, water features, living walls, natural materials at every touch point, views framed as landscape',
+    thinkers: 'Kengo Kuma (organic structure), Bijoy Jain (earth + craft), Stephen Kellert (biophilic theory)',
+    rug: 'hand-woven jute and seagrass with irregular organic edge — no straight lines, mimicking natural growth patterns' },
+
+  // --- CONCEPTUAL & PROVOCATIVE ---
+  { principle: 'Narrative space — design the room as if it tells a story or belongs to a fictional character',
+    approach: 'Every object implies a life lived — collected, curated, eccentric. The room as autobiography, not catalog',
+    thinkers: 'Kelly Wearstler (fearless curation), Jacques Garcia (theatrical), Tony Duquette (fantasy environments)',
+    rug: 'vintage overdyed Persian — a rug with history, possibly mismatched with everything else, but that\'s the point' },
+  { principle: 'Anti-decoration — strip away everything decorative and find beauty in pure function, structure, and void',
+    approach: 'Remove, reduce, reveal. Expose structure, eliminate ornament, let negative space do the heavy lifting',
+    thinkers: 'Donald Judd (Marfa minimalism), Tadao Ando (concrete poetry), Pawson (less is enough)',
+    rug: 'a single sheepskin on raw concrete — the refusal to fill space IS the design statement' },
+  { principle: 'Playful subversion — break the "rules" of good taste deliberately, with confidence and humor',
+    approach: 'Clashing patterns that work, furniture in wrong rooms, high-low mixing (plastic chairs + marble table), irreverence as style',
+    thinkers: 'Memphis Group / Sottsass (design as provocation), Gaetano Pesce (anti-perfection), India Mahdavi (serious play)',
+    rug: 'a deliberately "ugly" bold-patterned rug that somehow becomes the most magnetic thing in the room' },
 ];
 
-// Group seeds by mood/temperature to guarantee diversity within each batch
+// Group seeds by design axis to guarantee diversity within each batch
 const SEED_BUCKETS: Record<string, number[]> = {
-  warm_bold:    [0, 3, 6, 11],  // Art Deco, Milanese maximalism, Brazilian tropical, Bauhaus
-  cool_moody:   [4, 9, 14],      // Scandinavian brutalism, Nordic noir, Parisian salon noir
-  earthy_craft: [5, 7, 8, 10],   // Moroccan riad, Georgian punk, Desert SW, South Asian
-  light_airy:   [1, 2, 12, 13],  // 70s California, Tokyo minimal, Coastal Med, Industrial romantic
+  spatial_structural:       [0, 1, 2],    // compression/release, asymmetric balance, scale disruption
+  material_texture:         [3, 4, 5],    // material contrast, patina, textile architecture
+  light_color:              [6, 7, 8],    // light as material, chromatic boldness, tonal restraint
+  sensory_experiential:     [9, 10, 11],  // multi-sensory, prospect/refuge, biophilic immersion
+  conceptual_provocative:   [12, 13, 14], // narrative space, anti-decoration, playful subversion
 };
 
-function getDesignSeed(): { era: string; ref: string; rug: string }[] {
-  // Pick 3 seeds from 3 DIFFERENT mood buckets — guarantees variety
+function getDesignSeed(): DesignSeed[] {
   const bucketKeys = Object.keys(SEED_BUCKETS).sort(() => Math.random() - 0.5);
   const pickedBuckets = bucketKeys.slice(0, 3);
   return pickedBuckets.map(key => {
-    const indices = SEED_BUCKETS[key];
-    const idx = indices[Math.floor(Math.random() * indices.length)];
-    return DESIGN_SEEDS[idx];
+    const indices = SEED_BUCKETS[key]!;
+    const idx = indices[Math.floor(Math.random() * indices.length)]!;
+    return DESIGN_SEEDS[idx]!;
   });
 }
 
 export function createDesignAnalysisPrompt(context: PromptContext & { previousDesigns?: string[] } = {}): string {
   const { roomType = 'room', previousDesigns = [] } = context;
-  const seeds = getDesignSeed();
+  const seeds = getDesignSeed() as [DesignSeed, DesignSeed, DesignSeed];
 
   return `You are ZenSpace AI, a bold and opinionated interior design expert. You don't do boring. You create spaces people screenshot and send to friends.
 
@@ -153,12 +214,19 @@ Analyze this ${roomType} photo honestly. What's working? What's killing the vibe
 STEP 2 — THREE DRAMATICALLY DIFFERENT DESIGN DIRECTIONS
 Generate 3 options that are BOLDLY distinct from each other. Not three flavors of "modern minimalist."
 
-FOR THIS SPECIFIC GENERATION, draw inspiration from these three creative seeds (but don't be literal — use them as springboards):
-- Option 1 seed: ${seeds[0].era} (references: ${seeds[0].ref})
-- Option 2 seed: ${seeds[1].era} (references: ${seeds[1].ref})
-- Option 3 seed: ${seeds[2].era} (references: ${seeds[2].ref})
+FOR THIS SPECIFIC GENERATION, each option is driven by a core DESIGN PRINCIPLE (not a cultural style):
 
-Also channel the design thinkers listed above — name-drop them in mood descriptions when relevant. The seeds above are STARTING POINTS, not constraints. Mash them up, subvert them, make them your own.
+- Option 1 PRINCIPLE: ${seeds[0].principle}
+  Approach: ${seeds[0].approach}
+  Think like: ${seeds[0].thinkers}
+- Option 2 PRINCIPLE: ${seeds[1].principle}
+  Approach: ${seeds[1].approach}
+  Think like: ${seeds[1].thinkers}
+- Option 3 PRINCIPLE: ${seeds[2].principle}
+  Approach: ${seeds[2].approach}
+  Think like: ${seeds[2].thinkers}
+
+These are DESIGN IDEAS, not style labels. Apply them to THIS specific room. The result should feel like a design thesis, not a Pinterest board.
 
 **MANDATORY DIVERSITY CHECK — THE 3 OPTIONS MUST DIFFER ON ALL OF THESE AXES:**
 1. **Color temperature**: one warm (ambers, terracottas, golds), one cool (blues, greens, silvers), one wild card (unexpected combos — pinks, yellows, black+neon, etc.)
@@ -174,9 +242,9 @@ If your 3 options could be described with similar adjectives, START OVER. They s
 CREATIVE DIRECTION RULES:
 
 **RUGS & TEXTILES ARE KEY.** Every design MUST specify a rug or floor textile that's high-end and specific. NOT "add a rug" or "area rug." Think:
-- "${seeds[0].rug}"
-- "${seeds[1].rug}"  
-- "${seeds[2].rug}"
+- "${seeds[0].rug}" (for the ${seeds[0].principle.split(' — ')[0]} direction)
+- "${seeds[1].rug}" (for the ${seeds[1].principle.split(' — ')[0]} direction)
+- "${seeds[2].rug}" (for the ${seeds[2].principle.split(' — ')[0]} direction)
 Rugs are the anchor of a room. Be specific about material, weave, origin, pattern, and color. Think Architectural Digest, not HomeGoods.
 - Each option must have a COMPLETELY different color story (not just warm vs. cool vs. neutral)
 - At least one option should be unexpected or daring — something they wouldn't have thought of
