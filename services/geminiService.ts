@@ -594,7 +594,8 @@ const normalizeDesignOption = (raw: any, index: number): DesignOption => {
  */
 export const generateDesignOptions = async (
   base64Image: string,
-  mimeType: string
+  mimeType: string,
+  previousDesigns: string[] = []
 ): Promise<DesignAnalysis> => {
   if (!base64Image || !mimeType?.startsWith('image/')) {
     throw new GeminiApiError('Invalid image data', 'INVALID_INPUT', false);
@@ -602,7 +603,7 @@ export const generateDesignOptions = async (
 
   try {
     const { withTimeout } = createTimeoutHandler(60000); // 60s for richer prompt
-    const promptText = createDesignAnalysisPrompt({ roomType: 'room' });
+    const promptText = createDesignAnalysisPrompt({ roomType: 'room', previousDesigns });
 
     const response = await withTimeout(ai.models.generateContent({
       model: ANALYSIS_MODEL,

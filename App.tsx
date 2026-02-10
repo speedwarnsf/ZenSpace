@@ -629,7 +629,8 @@ function AppContent() {
     if (!uploadedImage) return;
     setIsGeneratingVisuals(true);
     try {
-      const newBatch = await generateDesignOptions(uploadedImage.base64, uploadedImage.mimeType);
+      const previousNames = lookbookEntries.map(e => `${e.option.name}: ${e.option.mood}`);
+      const newBatch = await generateDesignOptions(uploadedImage.base64, uploadedImage.mimeType, previousNames);
       const batchIndex = Math.max(0, ...lookbookEntries.map(e => e.batchIndex)) + 1;
       const newEntries: LookbookEntry[] = newBatch.options.map((opt, idx) => ({
         id: `design-${Date.now()}-${idx}`,

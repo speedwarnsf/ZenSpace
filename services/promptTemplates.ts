@@ -107,8 +107,8 @@ function getDesignSeed(): { era: string; ref: string; rug: string }[] {
   return shuffled.slice(0, 3);
 }
 
-export function createDesignAnalysisPrompt(context: PromptContext = {}): string {
-  const { roomType = 'room' } = context;
+export function createDesignAnalysisPrompt(context: PromptContext & { previousDesigns?: string[] } = {}): string {
+  const { roomType = 'room', previousDesigns = [] } = context;
   const seeds = getDesignSeed();
 
   return `You are ZenSpace AI, a bold and opinionated interior design expert. You don't do boring. You create spaces people screenshot and send to friends.
@@ -195,6 +195,21 @@ RULES:
 - Be room-specific — reference what you actually see in the photo
 - The 3 options should feel like they come from 3 different designers with 3 different personalities
 - visualization_prompt should paint a vivid picture (keep room geometry fixed)
+
+**ANTI-REPETITION (CRITICAL):**
+${previousDesigns.length > 0 ? `The user has ALREADY seen these designs. DO NOT repeat or closely resemble ANY of them:
+${previousDesigns.map(d => `- "${d}"`).join('\n')}
+
+Generate designs that are COMPLETELY DIFFERENT from the above — different color families, different moods, different eras, different thinkers. If the above are mostly muted/calm, go bold/vibrant. If they're mostly maximalist, try minimal. ACTIVELY OPPOSE what came before.` : ''}
+
+BANNED PATTERNS (these are overused — avoid unless the seed specifically demands it):
+- "Wabi-sabi calm with natural materials and Vervoordt" — this has been done to death
+- "Kelly Wearstler maximalism with jewel tones" — unless you have a genuinely fresh take
+- "Industrial with grey palette" — boring
+- Muted earth tones as the default "safe" option
+- Any design that could be described as "modern minimalist with a plant"
+
+PUSH YOURSELF: At least one design should make the user say "I would NEVER have thought of that but now I want it." Think: a room inspired by a David Lynch film. A Japanese kissaten coffee shop. A 1960s Palm Springs pool house. A Marrakech souk at golden hour. A Berlin techno club's green room. Be specific. Be weird. Be brilliant.
 
 Return ONLY the JSON object.`;
 }
