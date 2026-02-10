@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useRef, memo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { Sparkles, Loader2, Eye, ChevronDown, ChevronUp, X, Share2 } from 'lucide-react';
+import { Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { SoIcon } from './SoIcon';
 import { ShareableCard } from './ShareableCard';
 import { captureCardAsImage, shareCard } from '../services/shareService';
 import ReactMarkdown from 'react-markdown';
@@ -17,12 +18,20 @@ interface LookbookProps {
 
 type FilterTab = 'all' | 'good' | 'hidden';
 
-const RATINGS: { value: DesignRating; emoji: string; label: string }[] = [
-  { value: 'never', emoji: '🚫', label: 'Never Again' },
-  { value: 'not-now', emoji: '🤷', label: 'Not Now' },
-  { value: 'like', emoji: '👍', label: 'I Like This' },
-  { value: 'good', emoji: '🔥', label: 'This Is Good' },
-  { value: 'the-one', emoji: '⭐', label: 'THE ONE' },
+const RATING_ICONS: Record<DesignRating, string> = {
+  'never': 'close-circle',
+  'not-now': 'eye-off',
+  'like': 'like',
+  'good': 'love',
+  'the-one': 'stars',
+};
+
+const RATINGS: { value: DesignRating; icon: string; label: string }[] = [
+  { value: 'never', icon: 'close-circle', label: 'Never Again' },
+  { value: 'not-now', icon: 'eye-off', label: 'Not Now' },
+  { value: 'like', icon: 'like', label: 'I Like This' },
+  { value: 'good', icon: 'love', label: 'This Is Good' },
+  { value: 'the-one', icon: 'stars', label: 'THE ONE' },
 ];
 
 const DRAG_THRESHOLD = 120;
@@ -98,13 +107,13 @@ const LookbookCard = memo(function LookbookCard({
         className="absolute inset-0 bg-red-500 rounded-2xl z-10 pointer-events-none flex items-center justify-center"
         style={{ opacity: redOpacity }}
       >
-        <span className="text-white text-4xl">🚫</span>
+        <SoIcon name="close-circle" size={48} style={{ filter: 'brightness(0) invert(1)' }} />
       </motion.div>
       <motion.div
         className="absolute inset-0 bg-yellow-400 rounded-2xl z-10 pointer-events-none flex items-center justify-center"
         style={{ opacity: goldOpacity }}
       >
-        <span className="text-white text-4xl">⭐</span>
+        <SoIcon name="stars" size={48} style={{ filter: 'brightness(0) invert(1)' }} />
       </motion.div>
 
       {/* THE ONE star burst */}
@@ -115,7 +124,7 @@ const LookbookCard = memo(function LookbookCard({
           animate={{ scale: 1, rotate: 0 }}
           transition={{ type: 'spring', stiffness: 400, damping: 15 }}
         >
-          <span className="text-3xl">⭐</span>
+          <SoIcon name="stars" size={32} />
         </motion.div>
       )}
 
@@ -125,7 +134,7 @@ const LookbookCard = memo(function LookbookCard({
         className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
         title="Share"
       >
-        {isSharing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Share2 className="w-4 h-4" />}
+        {isSharing ? <Loader2 className="w-4 h-4 animate-spin" /> : <SoIcon name="share" size={16} style={{ filter: 'brightness(0) invert(1)' }} />}
       </button>
 
       {/* Image */}
@@ -152,8 +161,8 @@ const LookbookCard = memo(function LookbookCard({
             {entry.option.name}
           </h3>
           {entry.rating && (
-            <span className="text-lg flex-shrink-0" title={RATINGS.find(r => r.value === entry.rating)?.label}>
-              {RATINGS.find(r => r.value === entry.rating)?.emoji}
+            <span className="flex-shrink-0" title={RATINGS.find(r => r.value === entry.rating)?.label}>
+              <SoIcon name={RATING_ICONS[entry.rating] as any} size={20} />
             </span>
           )}
         </div>
@@ -210,7 +219,7 @@ const LookbookCard = memo(function LookbookCard({
               }`}
               title={r.label}
             >
-              {r.emoji}
+              <SoIcon name={r.icon as any} size={22} />
             </button>
           ))}
         </div>
@@ -223,7 +232,7 @@ const LookbookCard = memo(function LookbookCard({
             onClick={(e) => { e.stopPropagation(); onSelectForIteration(entry.id); }}
             className="w-full py-2 rounded-xl text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white transition-colors flex items-center justify-center gap-2"
           >
-            <Eye className="w-4 h-4" />
+            <SoIcon name="eye" size={16} style={{ filter: 'brightness(0) invert(1)' }} />
             Go Deeper
           </motion.button>
         )}
@@ -272,7 +281,7 @@ function FullScreenCard({
           onClick={onClose}
           className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-colors"
         >
-          <X className="w-4 h-4" />
+          <SoIcon name="shrink-content" size={16} style={{ filter: 'brightness(0) invert(1)' }} />
         </button>
 
         {/* Image */}
@@ -364,7 +373,7 @@ function FullScreenCard({
                 }`}
                 title={r.label}
               >
-                {r.emoji}
+                <SoIcon name={r.icon as any} size={24} />
               </button>
             ))}
             <button
@@ -373,7 +382,7 @@ function FullScreenCard({
               className="flex-1 text-center py-2 rounded-xl transition-all hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center justify-center"
               title="Share"
             >
-              {isSharing ? <Loader2 className="w-5 h-5 animate-spin text-slate-400" /> : <Share2 className="w-5 h-5 text-slate-500" />}
+              {isSharing ? <Loader2 className="w-5 h-5 animate-spin text-slate-400" /> : <SoIcon name="share" size={20} />}
             </button>
           </div>
 
@@ -383,7 +392,7 @@ function FullScreenCard({
               onClick={() => { onSelectForIteration(entry.id); onClose(); }}
               className="w-full py-3 rounded-xl text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white transition-colors flex items-center justify-center gap-2"
             >
-              <Eye className="w-4 h-4" />
+              <SoIcon name="eye" size={16} style={{ filter: 'brightness(0) invert(1)' }} />
               Go Deeper →
             </button>
           )}
@@ -439,10 +448,10 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
     });
   }, [entries, filter]);
 
-  const tabs: { key: FilterTab; label: string; count: number }[] = [
+  const tabs: { key: FilterTab; label: string; count: number; icon?: string }[] = [
     { key: 'all', label: 'All', count: counts.all },
-    { key: 'good', label: '🔥 Good+', count: counts.good },
-    { key: 'hidden', label: '🚫 Hidden', count: counts.hidden },
+    { key: 'good', label: 'Good+', count: counts.good, icon: 'love' as const },
+    { key: 'hidden', label: 'Hidden', count: counts.hidden, icon: 'eye-off' as const },
   ];
 
   return (
@@ -453,7 +462,7 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
           Your Design Lookbook
         </h2>
         <p className="text-slate-500 dark:text-slate-400 text-sm">
-          Swipe right to love, left to dismiss — or tap the emojis to rate
+          Swipe right to love, left to dismiss — or tap to rate
         </p>
       </div>
 
@@ -471,8 +480,8 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
             </>
           ) : (
             <>
-              <Sparkles className="w-5 h-5" />
-              Generate More Designs ✨
+              <SoIcon name="add-circle" size={20} style={{ filter: 'brightness(0) invert(1)' }} />
+              Generate More Designs
             </>
           )}
         </button>
@@ -490,7 +499,10 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
                 : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
             }`}
           >
-            {tab.label}
+            <span className="flex items-center gap-1">
+              {tab.icon && <SoIcon name={tab.icon as any} size={14} />}
+              {tab.label}
+            </span>
             {tab.count > 0 && (
               <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 rounded-full text-xs bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200">
                 {tab.count}
