@@ -31,9 +31,10 @@ import { validateImageFile, preprocessImage } from './services/edgeCaseHandlers'
 import { analytics } from './services/analytics';
 import { getErrorMessage } from './services/errorMessages';
 import { validateChatMessage } from './services/validation';
-import { AnalysisResult, AppState, ChatMessage, AppError, UploadedImage, DesignAnalysis, DesignOption, ShoppingListData } from './types';
+import { AnalysisResult, AppState, ChatMessage, AppError, UploadedImage, DesignAnalysis, DesignOption, ShoppingListData, FlowMode } from './types';
 import { generateShoppingList, shoppingListFromProducts } from './services/shoppingListGenerator';
 import { Chat } from '@google/genai';
+import { ModeSelect } from './components/ModeSelect';
 import { LayoutGrid, ArrowLeft, AlertCircle, RefreshCw, WifiOff, Clock, Home } from 'lucide-react';
 
 /**
@@ -230,68 +231,17 @@ function AppContent() {
             fileName: processedFile.name
           });
 
-          // Stage 4: Design Theory Analysis (V2 flow)
-          setAnalysisStage('analyzing');
-          setAnalysisProgress(60);
-          analytics.trackAnalysisStart();
-          announce('Analyzing room through design theory frameworks', 'polite');
-
-          const designResult = await generateDesignOptions(parsed.base64, parsed.mimeType);
-          
-          setAnalysisProgress(80);
-          setDesignAnalysis(designResult);
-          setSelectedDesignIndex(null);
-          
-          // Stage 5: Generate visualization thumbnails for all 3 options (in background)
-          setAnalysisStage('generating');
-          setAnalysisProgress(95);
-
-          // Complete — show design options
+          // Go to mode selection — no AI call yet
           setAnalysisProgress(100);
-          setAppState(AppState.DESIGN_OPTIONS);
-          
-          analytics.trackAnalysisComplete(3);
-          announce('Analysis complete! Choose from 3 design directions.', 'polite');
+          setAppState(AppState.MODE_SELECT);
+          announce('Photo ready! Choose how to transform your space.', 'polite');
           playSound('success');
           
-          // Fire-and-forget: generate preview images for all 3 cards
-          setIsGeneratingVisuals(true);
-          Promise.allSettled(
-            designResult.options.map(async (opt, idx) => {
-              try {
-                const img = await generateDesignVisualization(
-                  opt.visualizationPrompt,
-                  parsed.base64,
-                  parsed.mimeType
-                );
-                setDesignAnalysis(prev => {
-                  if (!prev) return prev;
-                  const updated = { ...prev, options: [...prev.options] as [DesignOption, DesignOption, DesignOption] };
-                  updated.options[idx] = Object.assign({}, updated.options[idx], { visualizationImage: img }) as DesignOption;
-                  return updated;
-                });
-              } catch (e) {
-                console.warn(`Visualization for option ${idx} failed`, e);
-              }
-            })
-          ).finally(() => setIsGeneratingVisuals(false));
-          
-        } catch (apiError) {
-          console.error('Analysis error:', apiError);
-          
-          analytics.track('analysis_failed', {
-            stage: 'analyzing',
-            error: apiError instanceof GeminiApiError ? apiError.code : 'UNKNOWN',
-            isRetryable: apiError instanceof GeminiApiError ? apiError.isRetryable : false
-          });
-          
-          if (apiError instanceof GeminiApiError) {
-            setError(buildAppError(apiError.code, apiError.message, apiError.isRetryable));
-          } else {
-            setError(buildAppError('UNKNOWN', 'An unexpected error occurred. Please try again.', true));
-          }
+        } catch (readError) {
+          console.error('Image processing error:', readError);
+          setError(buildAppError('UNKNOWN', 'An unexpected error occurred. Please try again.', true));
           setAppState(AppState.ERROR);
-          announce(`Analysis failed: ${apiError instanceof Error ? apiError.message : 'Unknown error'}`, 'assertive');
+          announce('Failed to process image', 'assertive');
           playSound('error');
         } finally {
           setIsAnalyzing(false);
@@ -642,6 +592,98 @@ function AppContent() {
   }, []);
 
   /**
+   * Handle mode selection (Clean vs Redesign)
+   */
+  const handleModeSelect = useCallback(async (mode: FlowMode) => {
+    if (!uploadedImage) return;
+
+    setAppState(AppState.ANALYZING);
+    setIsAnalyzing(true);
+    setError(null);
+
+    try {
+      if (mode === 'clean') {
+        setAnalysisStage('analyzing');
+        setAnalysisProgress(50);
+        analytics.trackAnalysisStart();
+        announce('Analyzing your space for decluttering...', 'polite');
+
+        const result = await analyzeImage(uploadedImage.base64, uploadedImage.mimeType);
+        setAnalysis(result);
+        const chat = createChatSession(result.rawText);
+        setChatSession(chat);
+        setAppState(AppState.RESULTS);
+        analytics.trackAnalysisComplete(1);
+        announce('Analysis complete! Here is your decluttering plan.', 'polite');
+        playSound('success');
+
+        if (result.products?.length) {
+          const sid = currentSessionId || `session-${Date.now()}`;
+          setShoppingList(shoppingListFromProducts(result.products, sid));
+        }
+      } else {
+        // Redesign flow
+        setAnalysisStage('analyzing');
+        setAnalysisProgress(50);
+        analytics.trackAnalysisStart();
+        announce('Analyzing room through design theory frameworks', 'polite');
+
+        const designResult = await generateDesignOptions(uploadedImage.base64, uploadedImage.mimeType);
+        setAnalysisProgress(80);
+        setDesignAnalysis(designResult);
+        setSelectedDesignIndex(null);
+
+        setAnalysisStage('generating');
+        setAnalysisProgress(100);
+        setAppState(AppState.DESIGN_OPTIONS);
+        analytics.trackAnalysisComplete(3);
+        announce('Analysis complete! Choose from 3 design directions.', 'polite');
+        playSound('success');
+
+        // Fire-and-forget: generate preview images
+        setIsGeneratingVisuals(true);
+        Promise.allSettled(
+          designResult.options.map(async (opt, idx) => {
+            try {
+              const img = await generateDesignVisualization(
+                opt.visualizationPrompt,
+                uploadedImage.base64,
+                uploadedImage.mimeType
+              );
+              setDesignAnalysis(prev => {
+                if (!prev) return prev;
+                const updated = { ...prev, options: [...prev.options] as [DesignOption, DesignOption, DesignOption] };
+                updated.options[idx] = Object.assign({}, updated.options[idx], { visualizationImage: img }) as DesignOption;
+                return updated;
+              });
+            } catch (e) {
+              console.warn(`Visualization for option ${idx} failed`, e);
+            }
+          })
+        ).finally(() => setIsGeneratingVisuals(false));
+      }
+    } catch (apiError) {
+      console.error('Analysis error:', apiError);
+      analytics.track('analysis_failed', {
+        stage: 'analyzing',
+        error: apiError instanceof GeminiApiError ? apiError.code : 'UNKNOWN',
+        isRetryable: apiError instanceof GeminiApiError ? apiError.isRetryable : false
+      });
+      if (apiError instanceof GeminiApiError) {
+        setError(buildAppError(apiError.code, apiError.message, apiError.isRetryable));
+      } else {
+        setError(buildAppError('UNKNOWN', 'An unexpected error occurred. Please try again.', true));
+      }
+      setAppState(AppState.ERROR);
+      announce(`Analysis failed: ${apiError instanceof Error ? apiError.message : 'Unknown error'}`, 'assertive');
+      playSound('error');
+    } finally {
+      setIsAnalyzing(false);
+      setAnalysisProgress(0);
+    }
+  }, [uploadedImage, announce, playSound, buildAppError, currentSessionId]);
+
+  /**
    * Generate visualization for a specific design option on the detail page
    */
   const handleVisualizeDesign = useCallback(async () => {
@@ -704,7 +746,7 @@ function AppContent() {
             </span>
             
             {/* Session Manager - available on home and results */}
-            {(appState === AppState.DESIGN_OPTIONS) && (
+            {(appState === AppState.MODE_SELECT || appState === AppState.DESIGN_OPTIONS) && (
               <button 
                 onClick={resetApp}
                 className="text-sm text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded-lg px-2 sm:px-3 py-2 whitespace-nowrap"
@@ -715,7 +757,7 @@ function AppContent() {
               </button>
             )}
             {/* My Rooms gallery button */}
-            {(appState === AppState.HOME || appState === AppState.RESULTS || appState === AppState.DESIGN_OPTIONS) && (
+            {(appState === AppState.HOME || appState === AppState.RESULTS || appState === AppState.MODE_SELECT || appState === AppState.DESIGN_OPTIONS) && (
               <button
                 onClick={() => setIsGalleryOpen(true)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
@@ -800,22 +842,22 @@ function AppContent() {
               From Chaos to Calm.
             </h1>
             <p className="text-lg text-slate-600 dark:text-slate-400 text-center max-w-xl mb-12 leading-relaxed">
-              Upload a photo of any messy room. Our AI will analyze it, give you a step-by-step decluttering plan, and answer your organization questions.
+              Upload a photo of any room. Choose to declutter and organize — or get bold redesign concepts from world-class design thinkers.
             </p>
             <UploadZone onImageSelected={handleImageSelected} isAnalyzing={isAnalyzing} />
             
             <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-center opacity-80">
               <div>
                 <div className="font-bold text-slate-800 dark:text-slate-200 mb-2">Snap</div>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Take a photo of your clutter</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Take a photo of your room</p>
               </div>
               <div>
-                <div className="font-bold text-slate-800 dark:text-slate-200 mb-2">Analyze</div>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Get a personalized plan</p>
+                <div className="font-bold text-slate-800 dark:text-slate-200 mb-2">Choose</div>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Clean it up or redesign it</p>
               </div>
               <div>
-                <div className="font-bold text-slate-800 dark:text-slate-200 mb-2">Organize</div>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Chat for specific tips</p>
+                <div className="font-bold text-slate-800 dark:text-slate-200 mb-2">Transform</div>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Get your personalized plan</p>
               </div>
             </div>
           </div>
@@ -835,6 +877,14 @@ function AppContent() {
               className="max-w-md"
             />
           </div>
+        )}
+
+        {/* Mode Selection State */}
+        {appState === AppState.MODE_SELECT && (
+          <ModeSelect
+            onSelectMode={handleModeSelect}
+            uploadedImage={uploadedImage?.dataUrl ?? null}
+          />
         )}
 
         {/* Design Options State (V2 — 3 cards) */}

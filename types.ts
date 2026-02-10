@@ -116,11 +116,15 @@ export interface DesignAnalysis {
 /**
  * Application state machine states
  */
+export type FlowMode = 'clean' | 'redesign';
+
 export enum AppState {
   /** Initial state - waiting for image upload */
   HOME = 'HOME',
   /** Image is being analyzed by AI */
   ANALYZING = 'ANALYZING',
+  /** User chooses between Clean and Redesign flows */
+  MODE_SELECT = 'MODE_SELECT',
   /** Show 3 design options after analysis */
   DESIGN_OPTIONS = 'DESIGN_OPTIONS',
   /** Analysis complete, showing results */
