@@ -362,7 +362,7 @@ function FullScreenCard({
                   components={{
                     h1: ({ children }) => <h2 className="font-serif text-xl font-bold text-slate-800 dark:text-slate-100 mt-10 mb-2 pb-2 border-b border-slate-200 dark:border-slate-700">{children}</h2>,
                     h2: ({ children }) => <h2 className="font-serif text-xl font-bold text-slate-800 dark:text-slate-100 mt-10 mb-2 pb-2 border-b border-slate-200 dark:border-slate-700">{children}</h2>,
-                    h3: ({ children }) => <h3 className="text-sm font-bold tracking-[0.08em] text-slate-400 dark:text-slate-500 mt-8 mb-2">{children}</h3>,
+                    h3: ({ children }) => <h3 className="text-lg font-semibold tracking-normal text-slate-500 dark:text-slate-400 mt-8 mb-3">{children}</h3>,
                     h4: ({ children }) => <h4 className="text-sm font-bold text-slate-700 dark:text-slate-200 mt-5 mb-1">{children}</h4>,
                     p: ({ children }) => <p className="text-[13px] leading-[1.75] text-slate-600 dark:text-slate-300 mb-3">{children}</p>,
                     strong: ({ children }) => <strong className="font-semibold text-slate-800 dark:text-slate-100">{children}</strong>,
