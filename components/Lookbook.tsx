@@ -148,8 +148,11 @@ const LookbookCard = memo(function LookbookCard({
             draggable={false}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-slate-400 dark:text-slate-500">
-            <Loader2 className="w-8 h-8 animate-spin" />
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800">
+            <div className="text-center text-slate-400 dark:text-slate-500">
+              <SoIcon name="eye" size={28} className="mx-auto mb-1 opacity-50" />
+              <span className="text-xs">Preview pending</span>
+            </div>
           </div>
         )}
       </div>
