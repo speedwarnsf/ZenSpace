@@ -2,12 +2,10 @@ import html2canvas from 'html2canvas';
 
 export async function captureCardAsImage(element: HTMLElement): Promise<Blob> {
   const canvas = await html2canvas(element, {
-    backgroundColor: '#0f172a',
+    backgroundColor: null,
     scale: 2,
     useCORS: true,
     logging: false,
-    width: 1080,
-    windowWidth: 1080,
   });
   return new Promise((resolve, reject) => {
     canvas.toBlob(blob => {

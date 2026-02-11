@@ -2,7 +2,6 @@ import { useState, useCallback, useMemo, useRef, memo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { SoIcon } from './SoIcon';
-import { ShareableCard } from './ShareableCard';
 import { captureCardAsImage, shareCard } from '../services/shareService';
 import ReactMarkdown from 'react-markdown';
 import type { LookbookEntry, DesignRating } from '../types';
@@ -432,18 +431,17 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
   const [filter, setFilter] = useState<FilterTab>('all');
   const [expandedEntry, setExpandedEntry] = useState<LookbookEntry | null>(null);
   const [sharingEntryId, setSharingEntryId] = useState<string | null>(null);
-  const shareCardRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   const handleShare = useCallback(async (entry: LookbookEntry) => {
+    const cardEl = cardRefs.current.get(entry.id);
+    if (!cardEl) return;
     setSharingEntryId(entry.id);
-    await new Promise(r => setTimeout(r, 200));
-    if (shareCardRef.current) {
-      try {
-        const blob = await captureCardAsImage(shareCardRef.current);
-        await shareCard(blob, entry.option.name);
-      } catch (err) {
-        console.error('Share failed:', err);
-      }
+    try {
+      const blob = await captureCardAsImage(cardEl);
+      await shareCard(blob, entry.option.name);
+    } catch (err) {
+      console.error('Share failed:', err);
     }
     setSharingEntryId(null);
   }, []);
@@ -545,7 +543,7 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
       >
         <AnimatePresence mode="popLayout">
           {sortedEntries.map(entry => (
-            <div key={entry.id} className="break-inside-avoid">
+            <div key={entry.id} className="break-inside-avoid" ref={(el) => { if (el) cardRefs.current.set(entry.id, el); }}>
               <LookbookCard
                 entry={entry}
                 onRate={onRate}
@@ -563,15 +561,6 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
         <div className="text-center py-16 text-slate-400 dark:text-slate-500">
           <p className="text-lg">No designs in this view</p>
           <p className="text-sm mt-1">Try switching tabs or generating more</p>
-        </div>
-      )}
-
-      {/* Hidden shareable card renderer */}
-      {sharingEntryId && (
-        <div style={{ position: 'fixed', left: '-9999px', top: 0, width: 1080 }}>
-          <div ref={shareCardRef}>
-            <ShareableCard entry={entries.find(e => e.id === sharingEntryId)!} />
-          </div>
         </div>
       )}
 
