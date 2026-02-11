@@ -213,11 +213,11 @@ WRITING RULES:
 - Name materials and finishes specifically: "limewashed plaster, chalky to the touch"
 - Banned words: embracing, evoking, channeling, curated, sophisticated, elevating, creating a sense of, a nod to, steeped in, imbued with, pays homage to
 - Never repeat a phrase within the response
-- Mood: 2 sentences max. What it feels like + one unforgettable detail.
+- Mood: 2-3 sentences. What it feels like to stand in the room, one unforgettable sensory detail, and why it works for this space.
 
 Each design MUST include a specific high-end rug (material, weave, pattern — not just "add a rug").
 
-PER OPTION: name (2-4 vivid words), mood (2 sentences), frameworks (2-3), palette (5 hex), key_changes (3-5 bullets), full_plan (markdown with ### headings, bullet lists, 200-300 words), visualization_prompt (detailed, keep room geometry).
+PER OPTION: name (2-4 vivid words), mood (2-3 sentences), frameworks (2-3), palette (5 hex), key_changes (3-5 bullets — specific enough to act on, with material/finish details), full_plan (markdown with ### headings, bullet lists, 250-400 words), visualization_prompt (detailed, keep room geometry).
 
 Full plan structure: ### Design Thesis (2-3 sentences) → ### Interventions (bullet list) → ### Materials (bullet list) → ### Rug (2-3 sentences). No prose paragraphs longer than 3 sentences.
 ${previousDesigns.length > 0 ? `\nALREADY SEEN (avoid these): ${previousDesigns.map(d => `"${d}"`).join(', ')}` : ''}
