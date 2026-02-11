@@ -26,25 +26,16 @@ export function UserMenu({ onOpenPricing, onOpenAuth }: UserMenuProps) {
 
   if (!user) {
     return (
-      <div className="flex items-center gap-2">
-        <button
-          onClick={onOpenPricing}
-          className="px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium hover:bg-emerald-500/20 transition-colors flex items-center gap-1.5"
-        >
-          <Crown className="w-3 h-3" />
-          Pro
-        </button>
-        <button
-          onClick={() => {
-            if (onOpenAuth) onOpenAuth();
-            else onOpenPricing();
-          }}
-          className="px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-medium hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex items-center gap-1.5"
-        >
-          <UserIcon className="w-3 h-3" />
-          Sign in
-        </button>
-      </div>
+      <button
+        onClick={() => {
+          if (onOpenAuth) onOpenAuth();
+          else onOpenPricing();
+        }}
+        className="w-8 h-8 rounded-full border border-slate-300 dark:border-slate-600 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:border-slate-400 dark:hover:border-slate-400 transition-colors"
+        aria-label="Sign in"
+      >
+        <UserIcon className="w-4 h-4" />
+      </button>
     );
   }
 
