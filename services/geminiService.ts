@@ -1,6 +1,6 @@
 import { Type, Modality } from "@google/genai";
 import { AnalysisResult, ProductSuggestion, DesignAnalysis, DesignOption, DesignFramework } from '../types';
-import { createAnalysisPrompt, createChatContextPrompt, createDesignAnalysisPrompt } from './promptTemplates';
+import { createAnalysisPrompt, createChatContextPrompt, createDesignAnalysisPrompt, createIterationPrompt } from './promptTemplates';
 import { createTimeoutHandler } from './edgeCaseHandlers';
 
 // API calls go through our server-side proxy to keep the key safe
@@ -767,5 +767,100 @@ RULES:
   } catch (error) {
     if (error instanceof GeminiApiError) throw error;
     throw new GeminiApiError('Visualization failed', 'VISUALIZATION_FAILED', true);
+  }
+};
+
+/**
+ * Iterate on an existing design — send original photo + current design + user request to get an evolved design
+ */
+export const iterateDesign = async (
+  originalImageBase64: string,
+  originalImageMimeType: string,
+  currentDesign: DesignOption,
+  iterationPrompt: string
+): Promise<DesignOption> => {
+  if (!originalImageBase64 || !originalImageMimeType?.startsWith('image/')) {
+    throw new GeminiApiError('Original image required for iteration', 'INVALID_INPUT', false);
+  }
+  if (!iterationPrompt?.trim()) {
+    throw new GeminiApiError('Iteration prompt is empty', 'INVALID_INPUT', false);
+  }
+
+  try {
+    const { withTimeout } = createTimeoutHandler(60000);
+    const promptText = createIterationPrompt(currentDesign, iterationPrompt);
+
+    const response = await withTimeout(ai.models.generateContent({
+      model: ANALYSIS_MODEL,
+      contents: {
+        parts: [
+          { inlineData: { mimeType: originalImageMimeType, data: originalImageBase64 } },
+          { text: promptText }
+        ]
+      },
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            name: { type: Type.STRING },
+            mood: { type: Type.STRING },
+            frameworks: { type: Type.ARRAY, items: { type: Type.STRING } },
+            palette: { type: Type.ARRAY, items: { type: Type.STRING } },
+            key_changes: { type: Type.ARRAY, items: { type: Type.STRING } },
+            full_plan: { type: Type.STRING },
+            visualization_prompt: { type: Type.STRING },
+            products: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  name: { type: Type.STRING },
+                  brand: { type: Type.STRING },
+                  category: { type: Type.STRING },
+                  price_range: { type: Type.STRING },
+                  description: { type: Type.STRING },
+                  search_query: { type: Type.STRING }
+                },
+                required: ['name', 'brand', 'category', 'price_range', 'description', 'search_query']
+              }
+            }
+          },
+          required: ['name', 'mood', 'frameworks', 'palette', 'key_changes', 'full_plan', 'visualization_prompt', 'products']
+        }
+      }
+    }));
+
+    const responseText = (
+      response.text?.trim() ||
+      response.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
+      ''
+    );
+
+    if (!responseText) {
+      throw new GeminiApiError('Empty iteration response', 'EMPTY_RESPONSE', true);
+    }
+
+    const jsonText = extractJsonFromText(responseText);
+    if (!jsonText) {
+      throw new GeminiApiError('Could not parse iteration response', 'PARSE_ERROR', true);
+    }
+
+    const parsed = JSON.parse(jsonText);
+    const designOption = normalizeDesignOption(parsed, 0);
+
+    // Generate visualization for the iterated design
+    const vizImage = await generateDesignVisualization(
+      designOption.visualizationPrompt,
+      originalImageBase64,
+      originalImageMimeType
+    );
+    designOption.visualizationImage = vizImage;
+
+    return designOption;
+  } catch (error) {
+    if (error instanceof GeminiApiError) throw error;
+    const msg = error instanceof Error ? error.message : String(error);
+    throw new GeminiApiError(`Iteration failed: ${msg.slice(0, 200)}`, 'UNKNOWN', true);
   }
 };

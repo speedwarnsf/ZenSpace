@@ -1084,6 +1084,21 @@ function AppContent() {
             <DesignStudio
               entry={studioEntry}
               onBack={() => setAppState(AppState.LOOKBOOK)}
+              sourceImage={uploadedImage ? { base64: uploadedImage.base64, mimeType: uploadedImage.mimeType } : undefined}
+              onIterate={async (prompt: string) => {
+                if (!uploadedImage || !studioEntry) return;
+                const { iterateDesign } = await import('./services/geminiService');
+                const newDesign = await iterateDesign(
+                  uploadedImage.base64,
+                  uploadedImage.mimeType,
+                  studioEntry.option,
+                  prompt
+                );
+                const updatedEntry = { ...studioEntry, option: newDesign, generatedAt: Date.now() };
+                setStudioEntry(updatedEntry);
+                // Also update in lookbook entries
+                setLookbookEntries(prev => prev.map(e => e.id === updatedEntry.id ? updatedEntry : e));
+              }}
             />
           </Suspense>
         )}

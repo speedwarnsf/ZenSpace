@@ -522,6 +522,41 @@ export const promptVariants = {
   }
 };
 
+/**
+ * Iteration prompt — evolve an existing design based on user feedback
+ */
+export function createIterationPrompt(
+  currentDesign: import('../types').DesignOption,
+  iterationRequest: string
+): string {
+  const keyChangeSummary = currentDesign.keyChanges.slice(0, 3).join('; ');
+  return `You are evolving an existing interior design direction — not starting from scratch.
+
+CURRENT DESIGN: "${currentDesign.name}"
+MOOD: ${currentDesign.mood}
+KEY MOVES: ${keyChangeSummary}
+PALETTE: ${currentDesign.palette.join(', ')}
+
+THE USER WANTS THIS VARIATION: "${iterationRequest}"
+
+Keep the core identity of "${currentDesign.name}" but modify it according to the request. This is an evolution, not a revolution.
+
+RULES:
+- Return ONE complete design option (same schema as before)
+- Name: 2-3 words. Evolve from "${currentDesign.name}" — keep some DNA but reflect the change. No filler words (sanctuary, haven, retreat, essence, ethereal).
+- Mood: 2-3 sentences reflecting the updated direction
+- Palette: 5 hex colors — shift them to match the variation request
+- Key changes: 3-5 specific, actionable bullets with material/finish details
+- Full plan: markdown with ### headings, 250-400 words
+- Visualization prompt: detailed, keep room geometry, describe the EVOLVED room
+- Products: 5-8 REAL products from real brands (DWR, RH, CB2, Article, West Elm, Flos, HAY, etc.)
+- Frameworks: 2-3 from [Aesthetic Order, Human-Centric, Universal Design, Biophilic, Phenomenological]
+
+WRITING RULES: Short sentences. Punchy. One adjective per noun max. No banned words (embracing, evoking, channeling, curated, sophisticated, elevating).
+
+Return ONLY valid JSON: { "name": "...", "mood": "...", "frameworks": [...], "palette": [...], "key_changes": [...], "full_plan": "...", "visualization_prompt": "...", "products": [{ "name", "brand", "category", "price_range", "description", "search_query" }, ...] }`;
+}
+
 export default {
   createAnalysisPrompt,
   createVisualizationPrompt,

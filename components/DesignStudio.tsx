@@ -9,15 +9,17 @@ import type { LookbookEntry } from '../types';
 interface DesignStudioProps {
   entry: LookbookEntry;
   onBack: () => void;
+  onIterate?: (prompt: string) => Promise<void>;
+  sourceImage?: { base64: string; mimeType: string };
 }
 
 const ITERATION_PROMPTS = [
-  { label: 'Warmer palette', icon: 'sun' },
-  { label: 'More minimal', icon: 'minus-circle' },
-  { label: 'Bolder materials', icon: 'layer' },
-  { label: 'Show me at night', icon: 'moon' },
-  { label: 'More dramatic', icon: 'flash' },
-  { label: 'More subtle', icon: 'water' },
+  { label: 'Warmer palette', icon: 'like' },
+  { label: 'More minimal', icon: 'shrink-content' },
+  { label: 'Bolder materials', icon: 'expand-content' },
+  { label: 'Show me at night', icon: 'eye' },
+  { label: 'More dramatic', icon: 'stars' },
+  { label: 'More subtle', icon: 'filter' },
 ];
 
 function RevealSection({ children, className = '' }: { children: React.ReactNode; className?: string }) {
@@ -95,9 +97,29 @@ function saveVisualization(entry: LookbookEntry) {
   }
 }
 
-export function DesignStudio({ entry, onBack }: DesignStudioProps) {
+export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignStudioProps) {
   const [customPrompt, setCustomPrompt] = useState('');
   const [sharing, setSharing] = useState(false);
+  const [isIterating, setIsIterating] = useState(false);
+  const [activeIterationLabel, setActiveIterationLabel] = useState<string | null>(null);
+  const studioTopRef = useRef<HTMLDivElement>(null);
+
+  const handleIterate = useCallback(async (prompt: string) => {
+    if (!onIterate || isIterating || !prompt.trim()) return;
+    setIsIterating(true);
+    setActiveIterationLabel(prompt);
+    try {
+      await onIterate(prompt);
+      setCustomPrompt('');
+      // Scroll to top after iteration completes
+      studioTopRef.current?.scrollIntoView({ behavior: 'smooth' });
+    } catch (err) {
+      console.error('Iteration failed:', err);
+    } finally {
+      setIsIterating(false);
+      setActiveIterationLabel(null);
+    }
+  }, [onIterate, isIterating]);
   const heroRef = useRef<HTMLDivElement>(null);
   // heroCardRef removed — share now uses base64 directly
 
@@ -172,7 +194,26 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
   }, [entry]);
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 selection:bg-neutral-700" id="design-studio-content">
+    <div ref={studioTopRef} className="min-h-screen bg-neutral-950 text-neutral-100 selection:bg-neutral-700" id="design-studio-content">
+      {/* Iteration loading overlay */}
+      {isIterating && (
+        <div className="fixed inset-0 z-[60] pointer-events-none">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-neutral-800 overflow-hidden">
+            <motion.div
+              className="h-full bg-white/60"
+              initial={{ x: '-100%' }}
+              animate={{ x: '100%' }}
+              transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
+              style={{ width: '40%' }}
+            />
+          </div>
+          <div className="absolute top-16 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-xl border border-white/10 rounded-full px-5 py-2.5 flex items-center gap-3 pointer-events-auto">
+            <Loader2 size={16} className="animate-spin text-white" />
+            <span className="text-sm text-neutral-200">Iterating…</span>
+          </div>
+        </div>
+      )}
+
       {/* Fixed Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 sm:px-8 py-4">
         <button
@@ -418,15 +459,30 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
             </p>
 
             <div className="flex flex-wrap gap-3 mb-8">
-              {ITERATION_PROMPTS.map(({ label, icon }) => (
-                <button
-                  key={label}
-                  className="px-5 py-2.5 rounded-full border border-neutral-800 text-[13px] text-neutral-400 hover:bg-neutral-900 hover:border-neutral-600 hover:text-neutral-200 transition-all duration-300 flex items-center gap-2.5"
-                >
-                  <SoIcon name={icon as any} size={14} style={{ filter: 'brightness(0) invert(0.5)' }} />
-                  {label}
-                </button>
-              ))}
+              {ITERATION_PROMPTS.map(({ label, icon }) => {
+                const isActive = isIterating && activeIterationLabel === label;
+                return (
+                  <button
+                    key={label}
+                    disabled={isIterating || !onIterate}
+                    onClick={() => handleIterate(label)}
+                    className={`px-5 py-2.5 rounded-full border text-[13px] transition-all duration-300 flex items-center gap-2.5 ${
+                      isActive
+                        ? 'border-white/30 bg-white/10 text-white'
+                        : isIterating
+                          ? 'border-neutral-800/50 text-neutral-600 cursor-not-allowed'
+                          : 'border-neutral-800 text-neutral-400 hover:bg-neutral-900 hover:border-neutral-600 hover:text-neutral-200'
+                    }`}
+                  >
+                    {isActive ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <SoIcon name={icon as any} size={14} style={{ filter: `brightness(0) invert(${isIterating ? '0.3' : '0.5'})` }} />
+                    )}
+                    {label}
+                  </button>
+                );
+              })}
             </div>
 
             <div className="flex gap-3">
@@ -434,14 +490,22 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
                 type="text"
                 value={customPrompt}
                 onChange={(e) => setCustomPrompt(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter' && customPrompt.trim()) handleIterate(customPrompt); }}
                 placeholder="Or describe your own variation…"
-                className="flex-1 bg-transparent border-b border-neutral-800 px-1 py-3 text-sm text-neutral-200 placeholder-neutral-700 focus:outline-none focus:border-neutral-500 transition-colors"
+                disabled={isIterating}
+                className="flex-1 bg-transparent border-b border-neutral-800 px-1 py-3 text-sm text-neutral-200 placeholder-neutral-700 focus:outline-none focus:border-neutral-500 transition-colors disabled:opacity-40"
                 style={{ fontFamily: 'Georgia, serif' }}
               />
               <button
-                className="px-6 py-2.5 text-sm font-medium transition-all duration-300 border-b border-neutral-100 text-neutral-100 hover:text-white hover:border-white"
+                disabled={isIterating || !customPrompt.trim() || !onIterate}
+                onClick={() => handleIterate(customPrompt)}
+                className="px-6 py-2.5 text-sm font-medium transition-all duration-300 border-b border-neutral-100 text-neutral-100 hover:text-white hover:border-white disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                Generate
+                {isIterating && activeIterationLabel === customPrompt ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  'Generate'
+                )}
               </button>
             </div>
           </div>
