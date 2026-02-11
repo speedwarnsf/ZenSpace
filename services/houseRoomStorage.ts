@@ -37,6 +37,8 @@ function persistHouse(house: House): void {
           option: {
             ...d.option,
             visualizationImage: undefined,
+            // Keep the thumbnail — it's small enough for localStorage
+            visualizationThumb: d.option.visualizationThumb,
           },
         })),
       })),
@@ -134,13 +136,24 @@ export function deleteRoom(id: string): void {
   persistHouse(house);
 }
 
-export function saveDesignToRoom(roomId: string, entry: LookbookEntry): void {
+export async function saveDesignToRoom(roomId: string, entry: LookbookEntry): Promise<void> {
   const house = getHouse();
   const room = house.rooms.find(r => r.id === roomId);
   if (!room) return;
   // Avoid duplicates
   if (!room.designs.find(d => d.id === entry.id)) {
-    room.designs.push(entry);
+    // Generate a thumbnail from the visualization image before it gets stripped
+    const vizImage = entry.option.visualizationImage;
+    const entryWithThumb = {
+      ...entry,
+      option: {
+        ...entry.option,
+        visualizationThumb: vizImage
+          ? await generateThumb(`data:image/png;base64,${vizImage}`)
+          : undefined,
+      },
+    };
+    room.designs.push(entryWithThumb);
   }
   room.updatedAt = Date.now();
   persistHouse(house);

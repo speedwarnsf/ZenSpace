@@ -121,6 +121,7 @@ export interface DesignOption {
   visualizationPrompt: string;
   /** Base64 image data once generated */
   visualizationImage?: string;
+  visualizationThumb?: string; // Small JPEG thumbnail for room gallery persistence
   /** Curated product recommendations for this design */
   products?: ProductRecommendation[];
 }
