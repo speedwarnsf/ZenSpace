@@ -2,7 +2,7 @@ import { useState, useRef, useMemo, useCallback } from 'react';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { SoIcon } from './SoIcon';
-import { captureCardAsImage, shareCard, downloadCard } from '../services/shareService';
+// Share uses direct base64→blob conversion, no external capture needed
 import type { LookbookEntry } from '../types';
 
 interface DesignStudioProps {
@@ -44,30 +44,18 @@ function useAccentColor(palette: string[]): string {
 }
 
 /** Generate a PDF of the design studio content */
-async function generatePDF(entry: LookbookEntry) {
+/** Save the visualization image as a downloadable PNG */
+function saveVisualization(entry: LookbookEntry) {
   const { option } = entry;
-  // Dynamic import to keep bundle small
-  const { default: html2canvas } = await import('html2canvas');
-  const studioEl = document.getElementById('design-studio-content');
-  if (!studioEl) return;
-
+  if (!option.visualizationImage) return;
+  
   try {
-    // Capture the full page as canvas
-    const canvas = await html2canvas(studioEl, {
-      backgroundColor: '#0a0a0a',
-      scale: 2,
-      useCORS: true,
-      logging: false,
-    });
-
-    // Convert to PDF using canvas dimensions
-    // Simple approach: download as high-res PNG (universal, no extra lib needed)
     const link = document.createElement('a');
-    link.download = `${option.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}-design-brief.png`;
-    link.href = canvas.toDataURL('image/png');
+    link.download = `${option.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}-visualization.png`;
+    link.href = `data:image/png;base64,${option.visualizationImage}`;
     link.click();
   } catch (err) {
-    console.error('PDF generation failed:', err);
+    console.error('Save failed:', err);
   }
 }
 
@@ -75,7 +63,7 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
   const [customPrompt, setCustomPrompt] = useState('');
   const [sharing, setSharing] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
-  const heroCardRef = useRef<HTMLDivElement>(null);
+  // heroCardRef removed — share now uses base64 directly
 
   // Scroll-linked parallax: image zooms + fades, title stays visible longer
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
@@ -98,24 +86,40 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
   const categoryLabel = option.frameworks?.[0] || '';
 
   const handleShare = useCallback(async () => {
-    if (!heroCardRef.current) return;
+    if (!option.visualizationImage) return;
     setSharing(true);
     try {
-      const blob = await captureCardAsImage(heroCardRef.current);
+      // Convert base64 to blob
+      const byteString = atob(option.visualizationImage);
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+      const blob = new Blob([ab], { type: 'image/png' });
+      
       if (navigator.share) {
-        await shareCard(blob, option.name);
+        const file = new File([blob], `${option.name}.png`, { type: 'image/png' });
+        await navigator.share({
+          title: option.name,
+          text: option.mood,
+          files: [file],
+        });
       } else {
-        await downloadCard(blob, option.name);
+        // Desktop fallback — download
+        const link = document.createElement('a');
+        link.download = `${option.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}.png`;
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        URL.revokeObjectURL(link.href);
       }
     } catch (err) {
       console.error('Share failed:', err);
     } finally {
       setSharing(false);
     }
-  }, [option.name]);
+  }, [option.name, option.mood, option.visualizationImage]);
 
-  const handlePDF = useCallback(() => {
-    generatePDF(entry);
+  const handleSave = useCallback(() => {
+    saveVisualization(entry);
   }, [entry]);
 
   return (
@@ -131,7 +135,7 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
         </button>
         <div className="flex items-center gap-3">
           <button
-            onClick={handlePDF}
+            onClick={handleSave}
             className="h-10 px-4 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center gap-2 hover:bg-black/70 transition-colors text-xs uppercase tracking-widest text-neutral-300"
             aria-label="Download PDF"
           >
@@ -156,7 +160,7 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
           <motion.div
             className="absolute inset-0"
             style={{ y: imageY }}
-            ref={heroCardRef}
+            
           >
             <motion.img
               src={imgSrc}
@@ -166,7 +170,7 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
             />
           </motion.div>
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-950" ref={heroCardRef} />
+          <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-950"  />
         )}
 
         {/* Subtle bottom gradient only — let the photo breathe */}
@@ -390,7 +394,7 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
               {sharing ? 'Sharing…' : 'Share This Design'}
             </button>
             <button
-              onClick={handlePDF}
+              onClick={handleSave}
               className="w-full sm:w-auto px-8 py-3 rounded-full border border-neutral-700 text-sm text-neutral-300 hover:bg-neutral-900 hover:border-neutral-500 transition-all flex items-center justify-center gap-2"
             >
               <SoIcon name="download" size={16} style={{ filter: 'brightness(0) invert(0.7)' }} />
