@@ -6,6 +6,8 @@ export async function captureCardAsImage(element: HTMLElement): Promise<Blob> {
     scale: 2,
     useCORS: true,
     logging: false,
+    width: 1080,
+    windowWidth: 1080,
   });
   return new Promise((resolve, reject) => {
     canvas.toBlob(blob => {

@@ -568,7 +568,7 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
 
       {/* Hidden shareable card renderer */}
       {sharingEntryId && (
-        <div style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+        <div style={{ position: 'fixed', left: '-9999px', top: 0, width: 1080 }}>
           <div ref={shareCardRef}>
             <ShareableCard entry={entries.find(e => e.id === sharingEntryId)!} />
           </div>
