@@ -590,9 +590,12 @@ const normalizeDesignOption = (raw: any, index: number): DesignOption => {
     .replace(/\\n/g, '\n')
     // Ensure existing # headings get newlines before them
     .replace(/([^\n])(#{1,4}\s)/g, '$1\n\n$2')
-    // Convert bold-only lines that are short (2-5 words, no colons in content) into ### headings
-    // Only match lines that look like actual section titles, not material descriptions
-    .replace(/^(\*\*[A-Za-z &'-]{2,35}\*\*\.?)$/gm, (_m: string, p1: string) => `### ${p1.replace(/\*\*/g, '').replace(/\.$/, '')}`);
+    // Convert bold-only lines into ### headings ONLY if they match known section titles
+    .replace(/^(\*\*([A-Za-z]+(?: [A-Za-z]+){0,3})\*\*\.?)$/gm, (_m: string, _p1: string, inner: string) => {
+      const SECTIONS = /^(key changes|color palette|materials|lighting|furniture|layout|overview|summary|the plan|design plan|mood|atmosphere|finishing touches|final notes|getting started|rug|textiles|hardware|surfaces|walls|ceiling|floor)$/i;
+      if (SECTIONS.test(inner.trim())) return `### ${inner.trim()}`;
+      return _p1; // not a section — leave bold text as-is
+    });
   const visualizationPrompt = (typeof raw?.visualization_prompt === 'string' && raw.visualization_prompt.trim()) || `Redesign this room in a ${name} style: ${keyChanges.join('. ')}.`;
   const frameworkRationale = (typeof raw?.framework_rationale === 'string' && raw.framework_rationale.trim()) || undefined;
 
