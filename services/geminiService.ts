@@ -640,7 +640,6 @@ export const generateDesignOptions = async (
                   name: { type: Type.STRING },
                   mood: { type: Type.STRING },
                   frameworks: { type: Type.ARRAY, items: { type: Type.STRING } },
-                  framework_rationale: { type: Type.STRING },
                   palette: { type: Type.ARRAY, items: { type: Type.STRING } },
                   key_changes: { type: Type.ARRAY, items: { type: Type.STRING } },
                   full_plan: { type: Type.STRING },
