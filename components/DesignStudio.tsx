@@ -1,8 +1,8 @@
 import { useState, useRef, useMemo, useCallback } from 'react';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+import { ArrowLeft, Download, Share2, Loader2 } from 'lucide-react';
 import { SoIcon } from './SoIcon';
-// Share uses direct base64→blob conversion, no external capture needed
 import type { LookbookEntry } from '../types';
 
 interface DesignStudioProps {
@@ -38,12 +38,47 @@ function RevealSection({ children, className = '' }: { children: React.ReactNode
 function useAccentColor(palette: string[]): string {
   return useMemo(() => {
     if (!palette.length) return '#a3a3a3';
-    const mid = palette[Math.floor(palette.length / 2)];
-    return mid || palette[0];
+    const mid = palette[Math.floor(palette.length / 2)] ?? palette[0];
+    return mid ?? '#a3a3a3';
   }, [palette]);
 }
 
-/** Generate a PDF of the design studio content */
+/** Generate a PDF of the full design studio editorial layout */
+async function generatePDF(entry: LookbookEntry) {
+  const { option } = entry;
+  const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+    import('jspdf'),
+    import('html2canvas'),
+  ]);
+
+  const el = document.getElementById('design-studio-content');
+  if (!el) return;
+
+  // Capture full scrollable content
+  const canvas = await html2canvas(el, {
+    backgroundColor: '#0a0a0a',
+    scale: 2,
+    useCORS: true,
+    logging: false,
+    scrollY: -window.scrollY,
+    windowHeight: el.scrollHeight,
+    height: el.scrollHeight,
+  });
+
+  const imgData = canvas.toDataURL('image/jpeg', 0.92);
+  const pdfWidth = 210; // A4 mm
+  const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+  const pdf = new jsPDF({
+    orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
+    unit: 'mm',
+    format: [pdfWidth, Math.min(pdfHeight, 297 * 3)], // cap at ~3 pages
+  });
+
+  pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+  pdf.save(`${option.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}-zenspace.pdf`);
+}
+
 /** Save the visualization image as a downloadable PNG */
 function saveVisualization(entry: LookbookEntry) {
   const { option } = entry;
@@ -118,8 +153,21 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
     }
   }, [option.name, option.mood, option.visualizationImage]);
 
+  const [savingPdf, setSavingPdf] = useState(false);
+
   const handleSave = useCallback(() => {
     saveVisualization(entry);
+  }, [entry]);
+
+  const handlePDF = useCallback(async () => {
+    setSavingPdf(true);
+    try {
+      await generatePDF(entry);
+    } catch (err) {
+      console.error('PDF generation failed:', err);
+    } finally {
+      setSavingPdf(false);
+    }
   }, [entry]);
 
   return (
@@ -131,7 +179,7 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
           className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-black/70 transition-colors"
           aria-label="Back to lookbook"
         >
-          <SoIcon name="arrow-left" size={18} style={{ filter: 'brightness(0) invert(1)' }} />
+          <ArrowLeft size={18} className="text-white" />
         </button>
         <div className="flex items-center gap-3">
           <button
@@ -139,8 +187,17 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
             className="h-10 px-4 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center gap-2 hover:bg-black/70 transition-colors text-xs uppercase tracking-widest text-neutral-300"
             aria-label="Download PDF"
           >
-            <SoIcon name="download" size={16} style={{ filter: 'brightness(0) invert(0.8)' }} />
-            <span className="hidden sm:inline">Save</span>
+            <Download size={16} className="text-neutral-300" />
+            <span className="hidden sm:inline">Image</span>
+          </button>
+          <button
+            onClick={handlePDF}
+            disabled={savingPdf}
+            className="h-10 px-4 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center gap-2 hover:bg-black/70 transition-colors text-xs uppercase tracking-widest text-neutral-300"
+            aria-label="Export PDF"
+          >
+            {savingPdf ? <Loader2 size={16} className="animate-spin text-neutral-300" /> : <Download size={16} className="text-neutral-300" />}
+            <span className="hidden sm:inline">PDF</span>
           </button>
           <button
             onClick={handleShare}
@@ -397,8 +454,16 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
               onClick={handleSave}
               className="w-full sm:w-auto px-8 py-3 rounded-full border border-neutral-700 text-sm text-neutral-300 hover:bg-neutral-900 hover:border-neutral-500 transition-all flex items-center justify-center gap-2"
             >
-              <SoIcon name="download" size={16} style={{ filter: 'brightness(0) invert(0.7)' }} />
-              Save as Image
+              <Download size={16} className="text-neutral-400" />
+              Save Image
+            </button>
+            <button
+              onClick={handlePDF}
+              disabled={savingPdf}
+              className="w-full sm:w-auto px-8 py-3 rounded-full border border-neutral-700 text-sm text-neutral-300 hover:bg-neutral-900 hover:border-neutral-500 transition-all flex items-center justify-center gap-2"
+            >
+              {savingPdf ? <Loader2 size={16} className="animate-spin text-neutral-400" /> : <Download size={16} className="text-neutral-400" />}
+              {savingPdf ? 'Generating PDF…' : 'Export PDF'}
             </button>
           </div>
         </RevealSection>

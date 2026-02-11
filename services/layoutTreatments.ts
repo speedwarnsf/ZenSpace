@@ -155,9 +155,9 @@ function avgLuminance(palette: string[]): number {
 /** Pick a mid-range accent from the palette (not darkest, not lightest). */
 function pickAccent(palette: string[]): string {
   if (!palette.length) return '#a3a3a3';
-  if (palette.length <= 2) return palette[0];
+  if (palette.length <= 2) return palette[0]!;
   const sorted = [...palette].sort((a, b) => luminance(a) - luminance(b));
-  return sorted[Math.floor(sorted.length / 2)];
+  return sorted[Math.floor(sorted.length / 2)] ?? sorted[0]!;
 }
 
 /** Keyword sets for mood/framework heuristics. */
@@ -188,28 +188,30 @@ export function detectTreatment(option: DesignOption): LayoutTreatment {
     'minimal-refined': 0,
   };
 
+  const bump = (key: string, pts: number) => { scores[key] = (scores[key] ?? 0) + pts; };
+
   // 1. Palette luminance
   const lum = avgLuminance(option.palette);
-  if (lum < 0.15) scores['bold-dark'] += 4;
-  else if (lum < 0.3) scores['bold-dark'] += 2;
-  else if (lum > 0.7) scores['airy-light'] += 3;
-  else if (lum > 0.55) scores['minimal-refined'] += 2;
-  else scores['warm-organic'] += 1;
+  if (lum < 0.15) bump('bold-dark', 4);
+  else if (lum < 0.3) bump('bold-dark', 2);
+  else if (lum > 0.7) bump('airy-light', 3);
+  else if (lum > 0.55) bump('minimal-refined', 2);
+  else bump('warm-organic', 1);
 
   // 2. Mood text
   const moodText = `${option.name} ${option.mood}`;
-  if (MOOD_DARK.test(moodText)) scores['bold-dark'] += 3;
-  if (MOOD_AIRY.test(moodText)) scores['airy-light'] += 3;
-  if (MOOD_WARM.test(moodText)) scores['warm-organic'] += 3;
-  if (MOOD_PLAYFUL.test(moodText)) scores['eclectic-playful'] += 3;
-  if (MOOD_MINIMAL.test(moodText)) scores['minimal-refined'] += 3;
+  if (MOOD_DARK.test(moodText)) bump('bold-dark', 3);
+  if (MOOD_AIRY.test(moodText)) bump('airy-light', 3);
+  if (MOOD_WARM.test(moodText)) bump('warm-organic', 3);
+  if (MOOD_PLAYFUL.test(moodText)) bump('eclectic-playful', 3);
+  if (MOOD_MINIMAL.test(moodText)) bump('minimal-refined', 3);
 
   // 3. Framework tags
   for (const fw of option.frameworks) {
     const mapping = FRAMEWORK_SCORES[fw];
     if (mapping) {
       for (const [id, pts] of Object.entries(mapping)) {
-        scores[id] += pts;
+        bump(id, pts);
       }
     }
   }
@@ -224,8 +226,8 @@ export function detectTreatment(option: DesignOption): LayoutTreatment {
     }
   }
 
-  const base = TREATMENTS_BY_ID[bestId];
+  const base = TREATMENTS_BY_ID[bestId] ?? TREATMENTS[0]!;
   const accent = pickAccent(option.palette);
 
-  return { ...base, accentColor: accent };
+  return { ...base, accentColor: accent } as LayoutTreatment;
 }
