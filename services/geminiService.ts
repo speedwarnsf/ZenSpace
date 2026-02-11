@@ -648,7 +648,7 @@ export const generateDesignOptions = async (
                   full_plan: { type: Type.STRING },
                   visualization_prompt: { type: Type.STRING }
                 },
-                required: ['name', 'mood', 'frameworks', 'framework_rationale', 'palette', 'key_changes', 'full_plan', 'visualization_prompt']
+                required: ['name', 'mood', 'frameworks', 'palette', 'key_changes', 'full_plan', 'visualization_prompt']
               }
             }
           },
