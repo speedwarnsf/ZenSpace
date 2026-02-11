@@ -5,6 +5,10 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { NetworkStatus, useNetworkStatus } from './components/NetworkStatus';
 import { AnalysisLoading } from './components/EnhancedLoadingSkeleton';
 import { AccessibilityProvider, AccessibilityToolbar, SkipNavigation, useAccessibility } from './components/AccessibilityFeatures';
+import { AuthProvider, useAuth } from './components/AuthProvider';
+import { UserMenu } from './components/UserMenu';
+import { canGenerate, canIterate, canAccessStudio, canSaveRoom, canExport, getGateMessage } from './services/gating';
+import { incrementFreeUsage } from './services/subscription';
 
 // Lazy-loaded components (code splitting)
 const AnalysisDisplay = lazy(() => import('./components/AnalysisDisplay').then(m => ({ default: m.AnalysisDisplay })));
@@ -17,6 +21,9 @@ const MyRoomsGallery = lazy(() => import('./components/MyRoomsGallery').then(m =
 const Lookbook = lazy(() => import('./components/Lookbook'));
 const DesignStudio = lazy(() => import('./components/DesignStudio'));
 const RoomManager = lazy(() => import('./components/RoomManager'));
+const UpgradePrompt = lazy(() => import('./components/UpgradePrompt').then(m => ({ default: m.UpgradePrompt })));
+const PricingPage = lazy(() => import('./components/PricingPage').then(m => ({ default: m.PricingPage })));
+const AuthGate = lazy(() => import('./components/AuthGate').then(m => ({ default: m.AuthGate })));
 import { 
   analyzeImage, 
   createChatSession, 
@@ -80,6 +87,12 @@ function AppContent() {
   // Enhanced state for production features
   const [analysisStage, setAnalysisStage] = useState<'uploading' | 'processing' | 'analyzing' | 'generating' | 'visualizing'>('uploading');
   const [analysisProgress, setAnalysisProgress] = useState(0);
+
+  // Auth & gating state
+  const { user, userTier, refreshTier } = useAuth();
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState<string | null>(null);
+  const [showPricing, setShowPricing] = useState(false);
+  const [showAuthGate, setShowAuthGate] = useState(false);
 
   // Network and accessibility hooks
   const networkStatus = useNetworkStatus();
@@ -674,17 +687,27 @@ function AppContent() {
    * Go deeper on a lookbook entry — transition to Design Studio
    */
   const handleSelectForIteration = useCallback((entryId: string) => {
+    if (!canAccessStudio(userTier)) {
+      setShowUpgradePrompt('studio');
+      return;
+    }
     const entry = lookbookEntries.find(e => e.id === entryId);
     if (!entry) return;
     setStudioEntry(entry);
     setAppState(AppState.DESIGN_STUDIO);
-  }, [lookbookEntries]);
+  }, [lookbookEntries, userTier]);
 
   /**
    * Handle mode selection (Clean vs Redesign)
    */
   const handleModeSelect = useCallback(async (mode: FlowMode) => {
     if (!uploadedImage) return;
+
+    // Gate check: can generate?
+    if (!canGenerate(userTier)) {
+      setShowUpgradePrompt('generate');
+      return;
+    }
 
     setAppState(AppState.ANALYZING);
     setIsAnalyzing(true);
@@ -705,6 +728,10 @@ function AppContent() {
         analytics.trackAnalysisComplete(1);
         announce('Analysis complete! Here is your decluttering plan.', 'polite');
         playSound('success');
+
+        // Track usage
+        incrementFreeUsage().catch(() => {});
+        refreshTier().catch(() => {});
 
         if (result.products?.length) {
           const sid = currentSessionId || `session-${Date.now()}`;
@@ -773,6 +800,10 @@ function AppContent() {
         analytics.trackAnalysisComplete(3);
         announce('Your lookbook is ready.', 'polite');
         playSound('success');
+
+        // Track usage
+        incrementFreeUsage().catch(() => {});
+        refreshTier().catch(() => {});
       }
     } catch (apiError) {
       console.error('Analysis error:', apiError);
@@ -938,6 +969,7 @@ function AppContent() {
                 <span className="hidden sm:inline">{currentRoomId ? 'Update' : 'Save Room'}</span>
               </button>
             )}
+            <UserMenu onOpenPricing={() => setShowPricing(true)} />
             {(appState === AppState.HOME || appState === AppState.RESULTS) && (
               <Suspense fallback={null}>
                 <SessionManager
@@ -1249,6 +1281,37 @@ function AppContent() {
         </footer>
       )}
 
+      {/* Upgrade Prompt Modal */}
+      {showUpgradePrompt && (
+        <Suspense fallback={null}>
+          <UpgradePrompt
+            message={getGateMessage(showUpgradePrompt)}
+            onUpgrade={() => { setShowUpgradePrompt(null); setShowPricing(true); }}
+            onDismiss={() => setShowUpgradePrompt(null)}
+          />
+        </Suspense>
+      )}
+
+      {/* Pricing Page Modal */}
+      {showPricing && (
+        <Suspense fallback={null}>
+          <PricingPage
+            onClose={() => setShowPricing(false)}
+            onNeedAuth={() => { setShowPricing(false); setShowAuthGate(true); }}
+          />
+        </Suspense>
+      )}
+
+      {/* Auth Gate Modal */}
+      {showAuthGate && (
+        <Suspense fallback={null}>
+          <AuthGate
+            onClose={() => setShowAuthGate(false)}
+            message="Sign in to upgrade to Pro"
+          />
+        </Suspense>
+      )}
+
       {/* My Rooms Gallery Modal */}
       <Suspense fallback={null}>
         <MyRoomsGallery
@@ -1267,11 +1330,13 @@ function AppContent() {
 export default function App() {
   return (
     <ErrorBoundary>
-      <AccessibilityProvider>
-        <SkipNavigation />
-        <AppContent />
-        <AccessibilityToolbar />
-      </AccessibilityProvider>
+      <AuthProvider>
+        <AccessibilityProvider>
+          <SkipNavigation />
+          <AppContent />
+          <AccessibilityToolbar />
+        </AccessibilityProvider>
+      </AuthProvider>
     </ErrorBoundary>
   );
 }

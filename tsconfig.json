@@ -47,6 +47,7 @@
     "node_modules",
     "dist",
     "test",
+    "api",
     "**/*.test.ts",
     "**/*.test.tsx"
   ]
