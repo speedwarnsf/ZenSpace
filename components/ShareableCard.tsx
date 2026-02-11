@@ -38,10 +38,10 @@ export function ShareableCard({ entry, onReady }: ShareableCardProps) {
       <div
         style={{
           width: 1080,
-          height: 700,
+          maxHeight: 720,
           overflow: 'hidden',
           position: 'relative',
-          background: option.visualizationImage ? '#0f172a' : gradientBg,
+          background: '#0f172a',
         }}
       >
         {option.visualizationImage ? (
@@ -50,8 +50,7 @@ export function ShareableCard({ entry, onReady }: ShareableCardProps) {
             alt={option.name}
             style={{
               width: '100%',
-              height: '100%',
-              objectFit: 'cover',
+              height: 'auto',
               display: 'block',
             }}
             crossOrigin="anonymous"
