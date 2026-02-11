@@ -38,7 +38,7 @@ export function ShareableCard({ entry, onReady }: ShareableCardProps) {
       <div
         style={{
           width: 1080,
-          maxHeight: 720,
+          height: 720,
           overflow: 'hidden',
           position: 'relative',
           background: '#0f172a',
@@ -50,7 +50,9 @@ export function ShareableCard({ entry, onReady }: ShareableCardProps) {
             alt={option.name}
             style={{
               width: '100%',
-              height: 'auto',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center',
               display: 'block',
             }}
             crossOrigin="anonymous"
