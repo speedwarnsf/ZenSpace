@@ -66,7 +66,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ onAddRoom, onOpenDesig
             </button>
           )}
           <Home className="w-6 h-6 text-emerald-500" />
-          <h2 className="font-serif text-2xl font-bold text-slate-800 dark:text-slate-100">
+          <h2 style={{ fontFamily: "'Playfair Display', serif" }} className="text-2xl font-bold text-slate-800 dark:text-slate-100">
             {selectedRoom ? selectedRoom.name : 'My Rooms'}
           </h2>
         </div>
@@ -233,7 +233,7 @@ const RoomDesigns: React.FC<{
                 )}
               </div>
               <div>
-                <h3 className="font-serif text-lg font-bold text-slate-800 dark:text-slate-100">{chosen.option.name}</h3>
+                <h3 style={{ fontFamily: "'Playfair Display', serif" }} className="text-lg font-bold text-slate-800 dark:text-slate-100">{chosen.option.name}</h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">{chosen.option.mood}</p>
                 <div className="flex gap-1 mt-2">
                   {chosen.option.palette.map((c, i) => (

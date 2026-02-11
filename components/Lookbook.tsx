@@ -165,7 +165,7 @@ const LookbookCard = memo(function LookbookCard({
       {/* Content */}
       <div className="p-4 space-y-3">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-serif text-lg font-bold text-slate-800 dark:text-slate-100 leading-tight">
+          <h3 style={{ fontFamily: "'Playfair Display', serif" }} className="text-lg font-bold text-slate-800 dark:text-slate-100 leading-tight">
             {entry.option.name}
           </h3>
           {entry.rating && (
@@ -324,7 +324,7 @@ function FullScreenCard({
 
         <div className="p-6 space-y-5">
           {/* Name */}
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-slate-800 dark:text-slate-100">
+          <h2 style={{ fontFamily: "'Playfair Display', serif" }} className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-slate-100">
             {entry.option.name}
           </h2>
 
@@ -390,10 +390,10 @@ function FullScreenCard({
               <div className="max-w-none">
                 <ReactMarkdown
                   components={{
-                    h1: ({ children }) => <h3 className="font-serif text-lg font-semibold tracking-normal text-slate-500 dark:text-slate-400 mt-8 mb-3">{children}</h3>,
-                    h2: ({ children }) => <h3 className="font-serif text-lg font-semibold tracking-normal text-slate-500 dark:text-slate-400 mt-8 mb-3">{children}</h3>,
-                    h3: ({ children }) => <h3 className="font-serif text-lg font-semibold tracking-normal text-slate-500 dark:text-slate-400 mt-8 mb-3">{children}</h3>,
-                    h4: ({ children }) => <h4 className="font-serif text-sm font-semibold text-slate-500 dark:text-slate-400 mt-5 mb-1">{children}</h4>,
+                    h1: ({ children }) => <h3 style={{ fontFamily: "'Playfair Display', serif" }} className="text-lg font-semibold tracking-normal text-slate-500 dark:text-slate-400 mt-8 mb-3">{children}</h3>,
+                    h2: ({ children }) => <h3 style={{ fontFamily: "'Playfair Display', serif" }} className="text-lg font-semibold tracking-normal text-slate-500 dark:text-slate-400 mt-8 mb-3">{children}</h3>,
+                    h3: ({ children }) => <h3 style={{ fontFamily: "'Playfair Display', serif" }} className="text-lg font-semibold tracking-normal text-slate-500 dark:text-slate-400 mt-8 mb-3">{children}</h3>,
+                    h4: ({ children }) => <h4 style={{ fontFamily: "'Playfair Display', serif" }} className="text-sm font-semibold text-slate-500 dark:text-slate-400 mt-5 mb-1">{children}</h4>,
                     hr: () => <div className="mt-6" />,
                     p: ({ children }) => <p className="text-[13px] leading-[1.75] text-slate-600 dark:text-slate-300 mb-3">{children}</p>,
                     strong: ({ children }) => <strong className="font-semibold text-slate-800 dark:text-slate-100">{children}</strong>,
@@ -562,7 +562,7 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h2 className="font-serif text-3xl font-bold text-slate-800 dark:text-slate-100">
+        <h2 style={{ fontFamily: "'Playfair Display', serif" }} className="text-3xl font-bold text-slate-800 dark:text-slate-100">
           Your Lookbook
         </h2>
         <p className="text-slate-500 dark:text-slate-400 text-sm">
