@@ -969,7 +969,7 @@ function AppContent() {
                 <span className="hidden sm:inline">{currentRoomId ? 'Update' : 'Save Room'}</span>
               </button>
             )}
-            <UserMenu onOpenPricing={() => setShowPricing(true)} />
+            <UserMenu onOpenPricing={() => setShowPricing(true)} onOpenAuth={() => setShowAuthGate(true)} />
             {(appState === AppState.HOME || appState === AppState.RESULTS) && (
               <Suspense fallback={null}>
                 <SessionManager

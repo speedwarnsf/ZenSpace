@@ -8,9 +8,10 @@ import { LogOut, Crown, User as UserIcon } from 'lucide-react';
 
 interface UserMenuProps {
   onOpenPricing: () => void;
+  onOpenAuth?: () => void;
 }
 
-export function UserMenu({ onOpenPricing }: UserMenuProps) {
+export function UserMenu({ onOpenPricing, onOpenAuth }: UserMenuProps) {
   const { user, userTier, signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -24,7 +25,27 @@ export function UserMenu({ onOpenPricing }: UserMenuProps) {
   }, []);
 
   if (!user) {
-    return null;
+    return (
+      <div className="flex items-center gap-2">
+        <button
+          onClick={onOpenPricing}
+          className="px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium hover:bg-emerald-500/20 transition-colors flex items-center gap-1.5"
+        >
+          <Crown className="w-3 h-3" />
+          Pro
+        </button>
+        <button
+          onClick={() => {
+            if (onOpenAuth) onOpenAuth();
+            else onOpenPricing();
+          }}
+          className="px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-medium hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex items-center gap-1.5"
+        >
+          <UserIcon className="w-3 h-3" />
+          Sign in
+        </button>
+      </div>
+    );
   }
 
   const initials = (user.user_metadata?.full_name || user.email || '?')
