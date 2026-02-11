@@ -714,7 +714,7 @@ STYLE DIRECTION:
 - This should look like something from Architectural Digest or Dwell magazine
 - Add atmospheric lighting (warm pools of light, shadows, depth)
 - Include tactile materials (velvet, wood grain, woven textiles, metal patina)
-- RUGS AND FLOOR TEXTILES must look premium and specific — hand-knotted, vintage, artisan-quality. Show visible texture, weave pattern, and material richness. No generic flat carpets.
+- THE RUG IS CRITICAL: Follow the rug description in the design vision EXACTLY. If it says "jute herringbone," show a jute herringbone rug — NOT a Persian rug. If it says "Persian," show a Persian rug. The rug type, material, pattern, and color must match the text description precisely. This is the most common error — do not improvise the rug.
 
 RULES:
 - SAME room, SAME angle — must be recognizable as the same space
