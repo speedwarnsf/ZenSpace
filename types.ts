@@ -130,6 +130,30 @@ export interface LookbookEntry {
 
 export type FlowMode = 'clean' | 'redesign';
 
+/**
+ * A saved room with its design history
+ */
+export interface Room {
+  id: string;
+  name: string;
+  sourceImage?: string;
+  sourceImageThumb?: string;
+  designs: LookbookEntry[];
+  selectedDesignId?: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+/**
+ * A house containing multiple rooms
+ */
+export interface House {
+  id: string;
+  name: string;
+  rooms: Room[];
+  createdAt: number;
+}
+
 export enum AppState {
   /** Initial state - waiting for image upload */
   HOME = 'HOME',
@@ -141,6 +165,8 @@ export enum AppState {
   DESIGN_OPTIONS = 'DESIGN_OPTIONS',
   /** Lookbook view with drag-to-rate cards */
   LOOKBOOK = 'LOOKBOOK',
+  /** Room management view */
+  ROOMS = 'ROOMS',
   /** Analysis complete, showing results */
   RESULTS = 'RESULTS',
   /** Deep-dive editorial view for a single design */

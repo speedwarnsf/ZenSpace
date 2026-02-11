@@ -16,6 +16,7 @@ const DesignDetailView = lazy(() => import('./components/DesignOptionsView').the
 const MyRoomsGallery = lazy(() => import('./components/MyRoomsGallery').then(m => ({ default: m.MyRoomsGallery })));
 const Lookbook = lazy(() => import('./components/Lookbook'));
 const DesignStudio = lazy(() => import('./components/DesignStudio'));
+const RoomManager = lazy(() => import('./components/RoomManager'));
 import { 
   analyzeImage, 
   createChatSession, 
@@ -900,15 +901,26 @@ function AppContent() {
                 <span className="hidden sm:inline">Start Over</span>
               </button>
             )}
-            {/* My Rooms gallery button */}
+            {/* My Rooms button — navigates to room manager */}
             {(appState === AppState.HOME || appState === AppState.RESULTS || appState === AppState.MODE_SELECT || appState === AppState.DESIGN_OPTIONS || appState === AppState.LOOKBOOK) && (
               <button
-                onClick={() => setIsGalleryOpen(true)}
+                onClick={() => setAppState(AppState.ROOMS)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                 title="My Rooms"
               >
                 <Home className="w-4 h-4" />
                 <span className="hidden sm:inline">My Rooms</span>
+              </button>
+            )}
+            {/* Legacy rooms gallery button (from results) */}
+            {appState === AppState.RESULTS && (
+              <button
+                onClick={() => setIsGalleryOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                title="Saved Projects"
+              >
+                <Home className="w-4 h-4" />
+                <span className="hidden sm:inline">Projects</span>
               </button>
             )}
             {/* Save Room button */}
@@ -1072,6 +1084,20 @@ function AppContent() {
             <DesignStudio
               entry={studioEntry}
               onBack={() => setAppState(AppState.LOOKBOOK)}
+            />
+          </Suspense>
+        )}
+
+        {/* Rooms State */}
+        {appState === AppState.ROOMS && (
+          <Suspense fallback={null}>
+            <RoomManager
+              onAddRoom={resetApp}
+              onOpenDesign={(entry, _room) => {
+                setStudioEntry(entry);
+                setAppState(AppState.DESIGN_STUDIO);
+              }}
+              onBack={() => setAppState(AppState.HOME)}
             />
           </Suspense>
         )}

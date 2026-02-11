@@ -1,11 +1,12 @@
 import { useState, useCallback, useMemo, useRef, memo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Loader2, ChevronDown, ChevronUp, Home } from 'lucide-react';
 import { SoIcon } from './SoIcon';
 import { captureShareableCard, shareCard, downloadCard } from '../services/shareService';
 import { createRoot } from 'react-dom/client';
 import { ShareableCard } from './ShareableCard';
 import ReactMarkdown from 'react-markdown';
+import { SaveToRoomPicker } from './SaveToRoomPicker';
 import type { LookbookEntry, DesignRating } from '../types';
 
 interface LookbookProps {
@@ -46,6 +47,7 @@ const LookbookCard = memo(function LookbookCard({
   onExpand,
   onShare,
   isSharing,
+  onSaveToRoom,
 }: {
   entry: LookbookEntry;
   onRate: (id: string, rating: DesignRating) => void;
@@ -53,6 +55,7 @@ const LookbookCard = memo(function LookbookCard({
   onExpand: (entry: LookbookEntry) => void;
   onShare: (entry: LookbookEntry) => void;
   isSharing: boolean;
+  onSaveToRoom: (entry: LookbookEntry) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const dragDistRef = useRef(0);
@@ -228,6 +231,15 @@ const LookbookCard = memo(function LookbookCard({
           ))}
         </div>
 
+        {/* Save to Room */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onSaveToRoom(entry); }}
+          className="w-full py-1.5 rounded-lg text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors flex items-center justify-center gap-1"
+        >
+          <Home className="w-3 h-3" />
+          Save to Room
+        </button>
+
         {/* Go Deeper button for good+ */}
         {(isGood || isTheOne) && (
           <motion.button
@@ -254,6 +266,7 @@ function FullScreenCard({
   onDownload,
   isSharing,
   isDownloading,
+  onSaveToRoom,
 }: {
   entry: LookbookEntry;
   onRate: (id: string, rating: DesignRating) => void;
@@ -263,6 +276,7 @@ function FullScreenCard({
   onDownload: (entry: LookbookEntry) => void;
   isSharing: boolean;
   isDownloading: boolean;
+  onSaveToRoom: (entry: LookbookEntry) => void;
 }) {
   const isGood = entry.rating === 'good';
   const isTheOne = entry.rating === 'the-one';
@@ -431,6 +445,15 @@ function FullScreenCard({
             </button>
           </div>
 
+          {/* Save to Room */}
+          <button
+            onClick={() => onSaveToRoom(entry)}
+            className="w-full py-2.5 rounded-xl text-sm font-medium border border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors flex items-center justify-center gap-2"
+          >
+            <Home className="w-4 h-4" />
+            Save to Room
+          </button>
+
           {/* Go Deeper */}
           {(isGood || isTheOne) && (
             <button
@@ -452,6 +475,7 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
   const [expandedEntry, setExpandedEntry] = useState<LookbookEntry | null>(null);
   const [sharingEntryId, setSharingEntryId] = useState<string | null>(null);
   const [downloadingEntryId, setDownloadingEntryId] = useState<string | null>(null);
+  const [saveToRoomEntry, setSaveToRoomEntry] = useState<LookbookEntry | null>(null);
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   const handleShare = useCallback(async (entry: LookbookEntry) => {
@@ -599,6 +623,7 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
                 onExpand={setExpandedEntry}
                 onShare={handleShare}
                 isSharing={sharingEntryId === entry.id}
+                onSaveToRoom={setSaveToRoomEntry}
               />
             </div>
           ))}
@@ -624,9 +649,20 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
             onDownload={handleDownload}
             isSharing={sharingEntryId === expandedEntry.id}
             isDownloading={downloadingEntryId === expandedEntry.id}
+            onSaveToRoom={(entry) => { setSaveToRoomEntry(entry); setExpandedEntry(null); }}
           />
         )}
       </AnimatePresence>
+
+      {/* Save to Room Picker */}
+      {saveToRoomEntry && (
+        <SaveToRoomPicker
+          entry={saveToRoomEntry}
+          sourceImage={uploadedImageUrl || undefined}
+          onClose={() => setSaveToRoomEntry(null)}
+          onSaved={() => setSaveToRoomEntry(null)}
+        />
+      )}
     </div>
   );
 }
