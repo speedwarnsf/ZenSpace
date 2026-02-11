@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo, useRef, memo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { SoIcon } from './SoIcon';
-import { captureShareableCard, shareCard } from '../services/shareService';
+import { captureShareableCard, shareCard, downloadCard } from '../services/shareService';
 import { createRoot } from 'react-dom/client';
 import { ShareableCard } from './ShareableCard';
 import ReactMarkdown from 'react-markdown';
@@ -251,14 +251,18 @@ function FullScreenCard({
   onSelectForIteration,
   onClose,
   onShare,
+  onDownload,
   isSharing,
+  isDownloading,
 }: {
   entry: LookbookEntry;
   onRate: (id: string, rating: DesignRating) => void;
   onSelectForIteration: (id: string) => void;
   onClose: () => void;
   onShare: (entry: LookbookEntry) => void;
+  onDownload: (entry: LookbookEntry) => void;
   isSharing: boolean;
+  isDownloading: boolean;
 }) {
   const isGood = entry.rating === 'good';
   const isTheOne = entry.rating === 'the-one';
@@ -387,7 +391,7 @@ function FullScreenCard({
             </div>
           )}
 
-          {/* Rating + Share buttons */}
+          {/* Rating buttons */}
           <div className="flex gap-1.5 pt-2 items-center">
             {RATINGS.map(r => (
               <button
@@ -403,13 +407,27 @@ function FullScreenCard({
                 <SoIcon name={r.icon as any} size={24} />
               </button>
             ))}
+          </div>
+
+          {/* Save & Share buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => onDownload(entry)}
+              disabled={isDownloading}
+              className="flex-1 py-2.5 rounded-xl text-sm font-medium border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors flex items-center justify-center gap-2"
+              title="Save Image"
+            >
+              {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <SoIcon name="save" size={16} />}
+              Save Image
+            </button>
             <button
               onClick={() => onShare(entry)}
               disabled={isSharing}
-              className="flex-1 text-center py-2 rounded-xl transition-all hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center justify-center"
+              className="flex-1 py-2.5 rounded-xl text-sm font-medium border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors flex items-center justify-center gap-2"
               title="Share"
             >
-              {isSharing ? <Loader2 className="w-5 h-5 animate-spin text-slate-400" /> : <SoIcon name="share" size={20} />}
+              {isSharing ? <Loader2 className="w-4 h-4 animate-spin" /> : <SoIcon name="share" size={16} />}
+              Share
             </button>
           </div>
 
@@ -433,6 +451,7 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
   const [filter, setFilter] = useState<FilterTab>('all');
   const [expandedEntry, setExpandedEntry] = useState<LookbookEntry | null>(null);
   const [sharingEntryId, setSharingEntryId] = useState<string | null>(null);
+  const [downloadingEntryId, setDownloadingEntryId] = useState<string | null>(null);
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   const handleShare = useCallback(async (entry: LookbookEntry) => {
@@ -453,6 +472,26 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
       console.error('Share failed:', err);
     }
     setSharingEntryId(null);
+  }, []);
+
+  const handleDownload = useCallback(async (entry: LookbookEntry) => {
+    setDownloadingEntryId(entry.id);
+    let root: ReturnType<typeof createRoot> | null = null;
+    try {
+      const blob = await captureShareableCard(
+        (container) => {
+          root = createRoot(container);
+          root.render(<ShareableCard entry={entry} />);
+        },
+        () => {
+          root?.unmount();
+        },
+      );
+      await downloadCard(blob, entry.option.name);
+    } catch (err) {
+      console.error('Download failed:', err);
+    }
+    setDownloadingEntryId(null);
   }, []);
 
   const counts = useMemo(() => ({
@@ -582,7 +621,9 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
             onSelectForIteration={onSelectForIteration}
             onClose={() => setExpandedEntry(null)}
             onShare={handleShare}
+            onDownload={handleDownload}
             isSharing={sharingEntryId === expandedEntry.id}
+            isDownloading={downloadingEntryId === expandedEntry.id}
           />
         )}
       </AnimatePresence>

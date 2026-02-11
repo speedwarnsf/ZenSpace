@@ -217,7 +217,15 @@ WRITING RULES:
 
 Each design MUST include a specific high-end rug (material, weave, pattern — not just "add a rug").
 
-PER OPTION: name (2-4 vivid words), mood (2-3 sentences), frameworks (2-3), palette (5 hex), key_changes (3-5 bullets — specific enough to act on, with material/finish details), full_plan (markdown with ### headings, bullet lists, 250-400 words), visualization_prompt (detailed, keep room geometry).
+NAMING RULES (CRITICAL):
+- Names must be exactly 2-3 words. No more.
+- Concrete and evocative. Think magazine headline, not poetry.
+- No repeating ANY word across the 3 option names.
+- GOOD names: "Brass & Shadow", "Velvet Archive", "Raw Linen", "Smoked Oak", "Salt & Iron", "Warm Void", "Tangerine Dusk"
+- BAD names (DO NOT do this): "Cocooned Horizon Slumber", "Ethereal Woven Sanctuary", "Luminous Organic Retreat", "Serene Botanical Haven", "Tranquil Whisper Abode"
+- No abstract filler words: sanctuary, haven, retreat, embrace, whisper, harmony, essence, serenity, oasis, cocoon, ethereal, luminous
+
+PER OPTION: name (2-3 punchy words — see rules above), mood (2-3 sentences), frameworks (2-3), palette (5 hex), key_changes (3-5 bullets — specific enough to act on, with material/finish details), full_plan (markdown with ### headings, bullet lists, 250-400 words), visualization_prompt (detailed, keep room geometry).
 
 Full plan structure: ### Design Thesis (2-3 sentences) → ### Interventions (bullet list) → ### Materials (bullet list) → ### Rug (2-3 sentences). No prose paragraphs longer than 3 sentences.
 ${previousDesigns.length > 0 ? `\nALREADY SEEN (avoid these): ${previousDesigns.map(d => `"${d}"`).join(', ')}` : ''}
