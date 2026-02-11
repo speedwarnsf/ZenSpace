@@ -84,9 +84,7 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   // Image moves up slower than scroll (parallax)
   const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '15%']);
-  // Title fades much slower — stays readable longer over the photo
-  const titleOpacity = useTransform(scrollYProgress, [0, 0.7, 1], [1, 1, 0]);
-  const titleY = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  // (title is now below photo, not overlaid)
 
   const { option } = entry;
   const imgSrc = option.visualizationImage
@@ -171,71 +169,65 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
           <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-950" ref={heroCardRef} />
         )}
 
-        {/* Gradient overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/30 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-neutral-950/40 to-transparent" />
+        {/* Subtle bottom gradient only — let the photo breathe */}
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-neutral-950 to-transparent" />
 
-        {/* Title lockup — fades slower than image, stays readable longer */}
+        {/* Scroll indicator — minimal, bottom center */}
         <motion.div
-          className="absolute bottom-0 left-0 right-0 px-6 sm:px-12 lg:px-20 pb-16 sm:pb-20"
-          style={{ opacity: titleOpacity, y: titleY }}
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
         >
-            {/* Category label */}
-            {categoryLabel && (
-              <motion.span
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="block text-[11px] sm:text-xs uppercase tracking-[0.25em] mb-4"
-                style={{ color: accent }}
-              >
-                {categoryLabel}
-              </motion.span>
-            )}
-
-            {/* Design name — big serif with drop cap */}
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="leading-[0.88] max-w-5xl mb-6"
-              style={{ fontFamily: 'Georgia, "Times New Roman", "Playfair Display", serif' }}
-            >
-              <span className="text-7xl sm:text-[120px] lg:text-[160px] font-bold tracking-[-0.03em]">
-                {firstLetter}
-              </span>
-              <span className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-[-0.02em]">
-                {restOfName}
-              </span>
-            </motion.h1>
-
-            {/* Mood as italic lede */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.7, duration: 0.8 }}
-              className="text-lg sm:text-xl lg:text-2xl text-neutral-300 max-w-2xl leading-relaxed italic"
-              style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
-            >
-              {option.mood}
-            </motion.p>
-
-            {/* Scroll hint */}
-            <motion.div
-              className="mt-10 flex items-center gap-3 text-neutral-500"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.5 }}
-            >
-              <motion.div
-                animate={{ y: [0, 4, 0] }}
-                transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
-              >
-                <div className="w-[1px] h-6 bg-gradient-to-b from-neutral-500 to-transparent" />
-              </motion.div>
-              <span className="text-[10px] uppercase tracking-[0.3em]">Scroll to explore</span>
-            </motion.div>
+          <motion.div
+            animate={{ y: [0, 6, 0] }}
+            transition={{ repeat: Infinity, duration: 2.5, ease: 'easeInOut' }}
+            className="w-[1px] h-8 bg-gradient-to-b from-white/50 to-transparent"
+          />
         </motion.div>
+      </div>
+
+      {/* ═══════════════ TITLE SECTION — Below the photo ═══════════════ */}
+      <div className="bg-neutral-950 px-6 sm:px-12 lg:px-20 pt-12 sm:pt-16 pb-8 sm:pb-12">
+        {/* Category label */}
+        {categoryLabel && (
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="block text-[11px] sm:text-xs uppercase tracking-[0.25em] mb-4"
+            style={{ color: accent }}
+          >
+            {categoryLabel}
+          </motion.span>
+        )}
+
+        {/* Design name — big serif with drop cap */}
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          className="leading-[0.88] max-w-5xl mb-6"
+          style={{ fontFamily: 'Georgia, "Times New Roman", "Playfair Display", serif' }}
+        >
+          <span className="text-7xl sm:text-[120px] lg:text-[160px] font-bold tracking-[-0.03em]">
+            {firstLetter}
+          </span>
+          <span className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-[-0.02em]">
+            {restOfName}
+          </span>
+        </motion.h1>
+
+        {/* Mood as italic lede */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7, duration: 0.8 }}
+          className="text-lg sm:text-xl lg:text-2xl text-neutral-300 max-w-2xl leading-relaxed italic"
+          style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
+        >
+          {option.mood}
+        </motion.p>
       </div>
 
       {/* ═══════════════ EDITORIAL BRIEF ═══════════════ */}
