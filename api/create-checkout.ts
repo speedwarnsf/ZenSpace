@@ -19,8 +19,8 @@ const supabaseAdmin = createClient(
 
 // These should be created in Stripe Dashboard and stored as env vars
 const PRICE_IDS: Record<string, string> = {
-  monthly: process.env.STRIPE_PRICE_MONTHLY || 'price_monthly_placeholder',
-  annual: process.env.STRIPE_PRICE_ANNUAL || 'price_annual_placeholder',
+  monthly: process.env.STRIPE_PRICE_MONTHLY || 'price_1SzX4lKjTATVIGPiNlld66wS',
+  annual: process.env.STRIPE_PRICE_ANNUAL || 'price_1SzX4pKjTATVIGPixyI8o1Ua',
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
