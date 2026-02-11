@@ -1,7 +1,8 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useCallback } from 'react';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { SoIcon } from './SoIcon';
+import { captureCardAsImage, shareCard, downloadCard } from '../services/shareService';
 import type { LookbookEntry } from '../types';
 
 interface DesignStudioProps {
@@ -34,23 +35,54 @@ function RevealSection({ children, className = '' }: { children: React.ReactNode
   );
 }
 
-/** Extract the primary accent color from the palette for editorial highlights */
 function useAccentColor(palette: string[]): string {
   return useMemo(() => {
     if (!palette.length) return '#a3a3a3';
-    // Pick a mid-range color that isn't too dark or too light
     const mid = palette[Math.floor(palette.length / 2)];
     return mid || palette[0];
   }, [palette]);
 }
 
+/** Generate a PDF of the design studio content */
+async function generatePDF(entry: LookbookEntry) {
+  const { option } = entry;
+  // Dynamic import to keep bundle small
+  const { default: html2canvas } = await import('html2canvas');
+  const studioEl = document.getElementById('design-studio-content');
+  if (!studioEl) return;
+
+  try {
+    // Capture the full page as canvas
+    const canvas = await html2canvas(studioEl, {
+      backgroundColor: '#0a0a0a',
+      scale: 2,
+      useCORS: true,
+      logging: false,
+    });
+
+    // Convert to PDF using canvas dimensions
+    // Simple approach: download as high-res PNG (universal, no extra lib needed)
+    const link = document.createElement('a');
+    link.download = `${option.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}-design-brief.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch (err) {
+    console.error('PDF generation failed:', err);
+  }
+}
+
 export function DesignStudio({ entry, onBack }: DesignStudioProps) {
   const [customPrompt, setCustomPrompt] = useState('');
+  const [sharing, setSharing] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
+  const heroCardRef = useRef<HTMLDivElement>(null);
+
+  // Scroll-linked parallax: image zooms + fades, title area is sticky
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-  const titleY = useTransform(scrollYProgress, [0, 1], [0, -80]);
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+  // Image moves up slower than scroll (parallax)
+  const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '20%']);
 
   const { option } = entry;
   const imgSrc = option.visualizationImage
@@ -58,16 +90,34 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
     : null;
   const accent = useAccentColor(option.palette);
 
-  // Get the first letter for potential drop-cap treatment
   const designName = option.name || 'Untitled';
   const firstLetter = designName.charAt(0).toUpperCase();
   const restOfName = designName.slice(1);
-
-  // Framework as category label
   const categoryLabel = option.frameworks?.[0] || '';
 
+  const handleShare = useCallback(async () => {
+    if (!heroCardRef.current) return;
+    setSharing(true);
+    try {
+      const blob = await captureCardAsImage(heroCardRef.current);
+      if (navigator.share) {
+        await shareCard(blob, option.name);
+      } else {
+        await downloadCard(blob, option.name);
+      }
+    } catch (err) {
+      console.error('Share failed:', err);
+    } finally {
+      setSharing(false);
+    }
+  }, [option.name]);
+
+  const handlePDF = useCallback(() => {
+    generatePDF(entry);
+  }, [entry]);
+
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 selection:bg-neutral-700">
+    <div className="min-h-screen bg-neutral-950 text-neutral-100 selection:bg-neutral-700" id="design-studio-content">
       {/* Fixed Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 sm:px-8 py-4">
         <button
@@ -77,95 +127,116 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
         >
           <SoIcon name="arrow-left" size={18} style={{ filter: 'brightness(0) invert(1)' }} />
         </button>
-        <button
-          className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-black/70 transition-colors"
-          aria-label="Share design"
-        >
-          <SoIcon name="share" size={18} style={{ filter: 'brightness(0) invert(1)' }} />
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handlePDF}
+            className="h-10 px-4 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center gap-2 hover:bg-black/70 transition-colors text-xs uppercase tracking-widest text-neutral-300"
+            aria-label="Download PDF"
+          >
+            <SoIcon name="download" size={16} style={{ filter: 'brightness(0) invert(0.8)' }} />
+            <span className="hidden sm:inline">Save</span>
+          </button>
+          <button
+            onClick={handleShare}
+            disabled={sharing}
+            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-black/70 transition-colors"
+            aria-label="Share design"
+          >
+            <SoIcon name="share" size={18} style={{ filter: 'brightness(0) invert(1)' }} />
+          </button>
+        </div>
       </nav>
 
-      {/* ═══════════════ HERO SECTION ═══════════════ */}
-      <div ref={heroRef} className="relative h-screen overflow-hidden">
-        {imgSrc ? (
-          <motion.img
-            src={imgSrc}
-            alt={option.name}
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ scale: heroScale, opacity: heroOpacity }}
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-950" />
-        )}
-        {/* Heavy bottom gradient for text legibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-transparent" />
-
-        {/* Title lockup — editorial style */}
-        <motion.div
-          className="absolute bottom-0 left-0 right-0 px-6 sm:px-12 lg:px-20 pb-16 sm:pb-20"
-          style={{ y: titleY }}
-        >
-          {/* Category label — small, colored like "PHOTOGRAPHY" in Unearth */}
-          {categoryLabel && (
-            <motion.span
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="block text-[11px] sm:text-xs uppercase tracking-[0.25em] mb-4"
-              style={{ color: accent }}
+      {/* ═══════════════ HERO SECTION — Sticky title over parallax image ═══════════════ */}
+      <div ref={heroRef} className="relative h-[140vh]">
+        {/* Sticky container: holds the viewport-height visual while scrolling through the 140vh wrapper */}
+        <div className="sticky top-0 h-screen overflow-hidden">
+          {/* Parallax image */}
+          {imgSrc ? (
+            <motion.div
+              className="absolute inset-0"
+              style={{ y: imageY }}
+              ref={heroCardRef}
             >
-              {categoryLabel}
-            </motion.span>
+              <motion.img
+                src={imgSrc}
+                alt={option.name}
+                className="w-full h-[120%] object-cover"
+                style={{ scale: heroScale, opacity: heroOpacity }}
+              />
+            </motion.div>
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-950" ref={heroCardRef} />
           )}
 
-          {/* Design name — big serif, mixed case like "Unearth" */}
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="leading-[0.88] max-w-5xl mb-6"
-            style={{ fontFamily: 'Georgia, "Times New Roman", "Playfair Display", serif' }}
-          >
-            {/* Drop cap first letter */}
-            <span className="text-7xl sm:text-[120px] lg:text-[160px] font-bold tracking-[-0.03em]">
-              {firstLetter}
-            </span>
-            <span className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-[-0.02em]">
-              {restOfName}
-            </span>
-          </motion.h1>
+          {/* Gradient overlays */}
+          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-neutral-950/40 to-transparent" />
 
-          {/* Mood as italic lede — like the subtitle in Unearth */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7, duration: 0.8 }}
-            className="text-lg sm:text-xl lg:text-2xl text-neutral-300 max-w-2xl leading-relaxed italic"
-            style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
-          >
-            {option.mood}
-          </motion.p>
-        </motion.div>
+          {/* Title lockup — stays pinned while hero scrolls */}
+          <div className="absolute bottom-0 left-0 right-0 px-6 sm:px-12 lg:px-20 pb-16 sm:pb-20">
+            {/* Category label */}
+            {categoryLabel && (
+              <motion.span
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="block text-[11px] sm:text-xs uppercase tracking-[0.25em] mb-4"
+                style={{ color: accent }}
+              >
+                {categoryLabel}
+              </motion.span>
+            )}
 
-        {/* Scroll indicator */}
-        <motion.div
-          className="absolute bottom-5 left-1/2 -translate-x-1/2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
-        >
-          <motion.div
-            animate={{ y: [0, 6, 0] }}
-            transition={{ repeat: Infinity, duration: 2.5, ease: 'easeInOut' }}
-            className="w-[1px] h-8 bg-gradient-to-b from-neutral-500 to-transparent"
-          />
-        </motion.div>
+            {/* Design name — big serif with drop cap */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="leading-[0.88] max-w-5xl mb-6"
+              style={{ fontFamily: 'Georgia, "Times New Roman", "Playfair Display", serif' }}
+            >
+              <span className="text-7xl sm:text-[120px] lg:text-[160px] font-bold tracking-[-0.03em]">
+                {firstLetter}
+              </span>
+              <span className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-[-0.02em]">
+                {restOfName}
+              </span>
+            </motion.h1>
+
+            {/* Mood as italic lede */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7, duration: 0.8 }}
+              className="text-lg sm:text-xl lg:text-2xl text-neutral-300 max-w-2xl leading-relaxed italic"
+              style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
+            >
+              {option.mood}
+            </motion.p>
+
+            {/* Scroll hint */}
+            <motion.div
+              className="mt-10 flex items-center gap-3 text-neutral-500"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.5 }}
+            >
+              <motion.div
+                animate={{ y: [0, 4, 0] }}
+                transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
+              >
+                <div className="w-[1px] h-6 bg-gradient-to-b from-neutral-500 to-transparent" />
+              </motion.div>
+              <span className="text-[10px] uppercase tracking-[0.3em]">Scroll to explore</span>
+            </motion.div>
+          </div>
+        </div>
       </div>
 
       {/* ═══════════════ EDITORIAL BRIEF ═══════════════ */}
-      {/* Thin rule separator like Unearth */}
       <div className="max-w-5xl mx-auto px-6 sm:px-12 lg:px-20">
-        <div className="border-t border-neutral-800 mt-0" />
+        <div className="border-t border-neutral-800" />
       </div>
 
       <div className="max-w-5xl mx-auto px-6 sm:px-12 lg:px-20 py-16 sm:py-24 space-y-20 sm:space-y-28">
@@ -188,7 +259,7 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
           </div>
         </RevealSection>
 
-        {/* ── Key Moves — numbered, editorial ── */}
+        {/* ── Key Moves ── */}
         <RevealSection>
           <h2 className="text-[10px] uppercase tracking-[0.25em] text-neutral-600 mb-10">Key Moves</h2>
           <div className="space-y-8">
@@ -206,12 +277,10 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
           </div>
         </RevealSection>
 
-        {/* ── The Full Plan — magazine body text ── */}
+        {/* ── The Full Plan ── */}
         {option.fullPlan && (
           <RevealSection>
             <h2 className="text-[10px] uppercase tracking-[0.25em] text-neutral-600 mb-12">The Plan</h2>
-
-            {/* Two-column on desktop like Unearth body text */}
             <div className="lg:columns-2 lg:gap-12 max-w-4xl">
               <ReactMarkdown
                 components={{
@@ -257,7 +326,7 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
           </RevealSection>
         )}
 
-        {/* ── Visualization detail (inset image like magazine) ── */}
+        {/* ── Visualization detail ── */}
         {imgSrc && (
           <RevealSection>
             <div className="relative rounded-lg overflow-hidden">
@@ -310,6 +379,27 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
                 Generate
               </button>
             </div>
+          </div>
+        </RevealSection>
+
+        {/* ── Save / Share bar ── */}
+        <RevealSection>
+          <div className="flex flex-col sm:flex-row items-center gap-4 pt-8 pb-4">
+            <button
+              onClick={handleShare}
+              disabled={sharing}
+              className="w-full sm:w-auto px-8 py-3 rounded-full border border-neutral-700 text-sm text-neutral-300 hover:bg-neutral-900 hover:border-neutral-500 transition-all flex items-center justify-center gap-2"
+            >
+              <SoIcon name="share" size={16} style={{ filter: 'brightness(0) invert(0.7)' }} />
+              {sharing ? 'Sharing…' : 'Share This Design'}
+            </button>
+            <button
+              onClick={handlePDF}
+              className="w-full sm:w-auto px-8 py-3 rounded-full border border-neutral-700 text-sm text-neutral-300 hover:bg-neutral-900 hover:border-neutral-500 transition-all flex items-center justify-center gap-2"
+            >
+              <SoIcon name="download" size={16} style={{ filter: 'brightness(0) invert(0.7)' }} />
+              Save as Image
+            </button>
           </div>
         </RevealSection>
       </div>
