@@ -158,7 +158,7 @@ export function LoadingSkeleton({
 
 // Specialized loading components for different features
 interface AnalysisLoadingProps {
-  stage: 'uploading' | 'processing' | 'analyzing' | 'generating';
+  stage: 'uploading' | 'processing' | 'analyzing' | 'generating' | 'visualizing';
   progress?: number;
   className?: string;
 }
@@ -195,6 +195,12 @@ export function AnalysisLoading({ stage, progress = 0, className = '' }: Analysi
     generating: {
       icon: Sparkles,
       message: 'Generating insights',
+      color: 'text-amber-500',
+      bgColor: 'bg-amber-50 dark:bg-amber-900/30',
+    },
+    visualizing: {
+      icon: Sparkles,
+      message: 'Rendering your designs',
       color: 'text-amber-500',
       bgColor: 'bg-amber-50 dark:bg-amber-900/30',
     },

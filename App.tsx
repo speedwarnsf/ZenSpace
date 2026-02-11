@@ -75,7 +75,7 @@ function AppContent() {
   const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null);
 
   // Enhanced state for production features
-  const [analysisStage, setAnalysisStage] = useState<'uploading' | 'processing' | 'analyzing' | 'generating'>('uploading');
+  const [analysisStage, setAnalysisStage] = useState<'uploading' | 'processing' | 'analyzing' | 'generating' | 'visualizing'>('uploading');
   const [analysisProgress, setAnalysisProgress] = useState(0);
 
   // Network and accessibility hooks
@@ -742,53 +742,52 @@ function AppContent() {
 
         const designResult = await generateDesignOptions(uploadedImage.base64, uploadedImage.mimeType);
         clearInterval(progressInterval);
-        setAnalysisProgress(90);
+        setAnalysisProgress(60);
         setDesignAnalysis(designResult);
         setSelectedDesignIndex(null);
 
-        setAnalysisStage('generating');
-        setAnalysisProgress(100);
+        // Generate all visualizations BEFORE showing the lookbook
+        setAnalysisStage('visualizing');
+        let vizDone = 0;
+        const totalViz = designResult.options.length;
 
-        // Create lookbook entries from the design options
-        const initialEntries: LookbookEntry[] = designResult.options.map((opt, idx) => ({
+        const entriesWithImages: LookbookEntry[] = designResult.options.map((opt, idx) => ({
           id: `design-${Date.now()}-${idx}`,
           option: opt,
           rating: null,
           generatedAt: Date.now(),
           batchIndex: 0,
         }));
-        setLookbookEntries(initialEntries);
-        if (uploadedImage) saveRoomImage(uploadedImage.dataUrl);
-        setAppState(AppState.LOOKBOOK);
-        analytics.trackAnalysisComplete(3);
-        announce('Analysis complete! Rate and explore your design directions.', 'polite');
-        playSound('success');
 
-        // Fire-and-forget: generate preview images
-        setIsGeneratingVisuals(true);
-        Promise.allSettled(
-          initialEntries.map(async (entry, idx) => {
+        // Generate visualizations in parallel, update progress as each completes
+        await Promise.allSettled(
+          entriesWithImages.map(async (entry, idx) => {
             try {
               const img = await generateDesignVisualization(
                 entry.option.visualizationPrompt,
                 uploadedImage.base64,
                 uploadedImage.mimeType
               );
-              // Update both lookbook entries and design analysis
-              setLookbookEntries(prev => prev.map(e =>
-                e.id === entry.id ? { ...e, option: { ...e.option, visualizationImage: img } } : e
-              ));
-              setDesignAnalysis(prev => {
-                if (!prev) return prev;
-                const updated = { ...prev, options: [...prev.options] as [DesignOption, DesignOption, DesignOption] };
-                updated.options[idx] = Object.assign({}, updated.options[idx], { visualizationImage: img }) as DesignOption;
-                return updated;
-              });
+              entriesWithImages[idx] = { ...entry, option: { ...entry.option, visualizationImage: img } };
+              // Also update designResult
+              (designResult.options[idx] as any).visualizationImage = img;
             } catch (e) {
               console.warn(`Visualization for option ${idx} failed`, e);
+            } finally {
+              vizDone++;
+              setAnalysisProgress(60 + Math.round((vizDone / totalViz) * 35));
             }
           })
-        ).finally(() => setIsGeneratingVisuals(false));
+        );
+
+        setAnalysisProgress(100);
+        setDesignAnalysis({ ...designResult });
+        setLookbookEntries(entriesWithImages);
+        if (uploadedImage) saveRoomImage(uploadedImage.dataUrl);
+        setAppState(AppState.LOOKBOOK);
+        analytics.trackAnalysisComplete(3);
+        announce('Your lookbook is ready.', 'polite');
+        playSound('success');
       }
     } catch (apiError) {
       console.error('Analysis error:', apiError);
