@@ -728,12 +728,21 @@ function AppContent() {
       } else {
         // Redesign flow
         setAnalysisStage('analyzing');
-        setAnalysisProgress(50);
+        setAnalysisProgress(5);
         analytics.trackAnalysisStart();
         announce('Analyzing room through design theory frameworks', 'polite');
 
+        // Smooth progress: tick up gradually, slow down as it approaches 85%
+        let prog = 5;
+        const progressInterval = setInterval(() => {
+          prog += Math.max(0.5, (85 - prog) * 0.04);
+          if (prog > 85) prog = 85;
+          setAnalysisProgress(Math.round(prog));
+        }, 300);
+
         const designResult = await generateDesignOptions(uploadedImage.base64, uploadedImage.mimeType);
-        setAnalysisProgress(80);
+        clearInterval(progressInterval);
+        setAnalysisProgress(90);
         setDesignAnalysis(designResult);
         setSelectedDesignIndex(null);
 
