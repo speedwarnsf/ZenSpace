@@ -14,7 +14,8 @@ const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 const supabaseAdmin = createClient(
   'https://vqkoxfenyjomillmxawh.supabase.co',
-  process.env.SUPABASE_SERVICE_KEY!
+  process.env.SUPABASE_SERVICE_KEY!,
+  { auth: { autoRefreshToken: false, persistSession: false } }
 );
 
 // Disable body parsing — Stripe needs raw body for signature verification
