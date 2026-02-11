@@ -590,12 +590,9 @@ const normalizeDesignOption = (raw: any, index: number): DesignOption => {
     .replace(/\\n/g, '\n')
     // Ensure existing # headings get newlines before them
     .replace(/([^\n])(#{1,4}\s)/g, '$1\n\n$2')
-    // Convert bold-only lines like "**The Vision.**" or "**Walls & Drapes**" to ### headings
-    .replace(/^(\*\*[^*\n]{2,50}\*\*\.?)$/gm, (_m: string, p1: string) => `### ${p1.replace(/\*\*/g, '').replace(/\.$/, '')}`)
-    // Convert short standalone lines (2-6 words, ending with period or colon) that look like section headers
-    .replace(/\n\n([A-Z][A-Za-z &,'-]{2,50}[.:])(?=\n)/g, '\n\n### $1')
-    // Convert inline section headers: "Previous text. The Vision. Next text" → split with heading
-    .replace(/\.\s+([A-Z][A-Za-z &'-]{2,40})\.\s+(?=[A-Z])/g, '.\n\n### $1\n\n');
+    // Convert bold-only lines that are short (2-5 words, no colons in content) into ### headings
+    // Only match lines that look like actual section titles, not material descriptions
+    .replace(/^(\*\*[A-Za-z &'-]{2,35}\*\*\.?)$/gm, (_m: string, p1: string) => `### ${p1.replace(/\*\*/g, '').replace(/\.$/, '')}`);
   const visualizationPrompt = (typeof raw?.visualization_prompt === 'string' && raw.visualization_prompt.trim()) || `Redesign this room in a ${name} style: ${keyChanges.join('. ')}.`;
   const frameworkRationale = (typeof raw?.framework_rationale === 'string' && raw.framework_rationale.trim()) || undefined;
 
