@@ -60,7 +60,7 @@ export const DesignOptionsView: React.FC<DesignOptionsViewProps> = ({
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Room Reading Toggle */}
-      <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 md:p-8 transition-colors duration-300">
+      <section className="bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-stone-100 dark:border-stone-700 p-6 md:p-8 transition-colors duration-300">
         <button
           onClick={() => setShowReading(!showReading)}
           className="w-full flex items-center justify-between group focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-lg"
@@ -68,22 +68,22 @@ export const DesignOptionsView: React.FC<DesignOptionsViewProps> = ({
           <div className="flex items-center gap-3">
             <Eye className="w-6 h-6 text-emerald-500" aria-hidden="true" />
             <div className="text-left">
-              <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 font-serif">
+              <h2 className="text-xl font-bold text-stone-800 dark:text-stone-100 font-serif">
                 Room Analysis
               </h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+              <p className="text-sm text-stone-500 dark:text-stone-400">
                 Your space through 5 design theory lenses
               </p>
             </div>
           </div>
           <ChevronRight 
-            className={`w-5 h-5 text-slate-400 transition-transform duration-200 ${showReading ? 'rotate-90' : ''}`} 
+            className={`w-5 h-5 text-stone-400 transition-transform duration-200 ${showReading ? 'rotate-90' : ''}`} 
             aria-hidden="true" 
           />
         </button>
         
         {showReading && (
-          <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700 prose prose-emerald dark:prose-invert max-w-none prose-headings:font-serif">
+          <div className="mt-6 pt-6 border-t border-stone-100 dark:border-stone-700 prose prose-emerald dark:prose-invert max-w-none prose-headings:font-serif">
             <ReactMarkdown>{roomReading}</ReactMarkdown>
           </div>
         )}
@@ -91,10 +91,10 @@ export const DesignOptionsView: React.FC<DesignOptionsViewProps> = ({
 
       {/* Header */}
       <div className="text-center">
-        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-100 font-serif mb-3">
+        <h2 className="text-3xl md:text-4xl font-bold text-stone-900 dark:text-stone-100 font-serif mb-3">
           3 Design Directions
         </h2>
-        <p className="text-slate-500 dark:text-slate-400 max-w-lg mx-auto">
+        <p className="text-stone-500 dark:text-stone-400 max-w-lg mx-auto">
           Each vision is grounded in academic design theory. Pick the one that speaks to you.
         </p>
       </div>
@@ -132,11 +132,11 @@ const DesignCard: React.FC<DesignCardProps> = ({ option, index, onSelect, isGene
   return (
     <button
       onClick={onSelect}
-      className={`group relative text-left bg-gradient-to-br ${cardAccents[index]} bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900`}
+      className={`group relative text-left bg-gradient-to-br ${cardAccents[index]} bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-stone-200 dark:border-stone-700 p-6 transition-all duration-300 hover:shadow-lg hover:-transtone-y-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900`}
       aria-label={`Select ${option.name} design`}
     >
       {/* Visualization preview */}
-      <div className="w-full h-40 rounded-xl mb-5 overflow-hidden bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+      <div className="w-full h-40 rounded-xl mb-5 overflow-hidden bg-stone-100 dark:bg-stone-700 flex items-center justify-center">
         {option.visualizationImage ? (
           <img
             src={`data:image/png;base64,${option.visualizationImage}`}
@@ -145,34 +145,34 @@ const DesignCard: React.FC<DesignCardProps> = ({ option, index, onSelect, isGene
           />
         ) : isGeneratingVisual ? (
           <div className="flex flex-col items-center gap-2">
-            <Loader2 className="w-6 h-6 text-slate-400 animate-spin" />
-            <span className="text-xs text-slate-400">Generating…</span>
+            <Loader2 className="w-6 h-6 text-stone-400 animate-spin" />
+            <span className="text-xs text-stone-400">Generating…</span>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
-            <Sparkles className="w-8 h-8 text-slate-300 dark:text-slate-500" />
-            <span className="text-xs text-slate-400 dark:text-slate-500">AI Preview</span>
+            <Sparkles className="w-8 h-8 text-stone-300 dark:text-stone-500" />
+            <span className="text-xs text-stone-400 dark:text-stone-500">AI Preview</span>
           </div>
         )}
       </div>
 
       {/* Name */}
-      <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 font-serif mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+      <h3 className="text-lg font-bold text-stone-800 dark:text-stone-100 font-serif mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
         {option.name}
       </h3>
 
       {/* Mood */}
-      <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 leading-relaxed line-clamp-2">
+      <p className="text-sm text-stone-600 dark:text-stone-300 mb-4 leading-relaxed line-clamp-2">
         {option.mood}
       </p>
 
       {/* Color Palette */}
       <div className="flex items-center gap-1.5 mb-4">
-        <Palette className="w-4 h-4 text-slate-400 mr-1" aria-hidden="true" />
+        <Palette className="w-4 h-4 text-stone-400 mr-1" aria-hidden="true" />
         {option.palette.map((hex, i) => (
           <div
             key={i}
-            className="w-7 h-7 rounded-full border-2 border-white dark:border-slate-600 shadow-sm"
+            className="w-7 h-7 rounded-full border-2 border-white dark:border-stone-600 shadow-sm"
             style={{ backgroundColor: hex }}
             title={hex}
             aria-label={`Color ${hex}`}
@@ -199,7 +199,7 @@ const DesignCard: React.FC<DesignCardProps> = ({ option, index, onSelect, isGene
       {/* Key Changes */}
       <ul className="space-y-1 mb-4">
         {option.keyChanges.slice(0, 3).map((change, i) => (
-          <li key={i} className="text-xs text-slate-500 dark:text-slate-400 flex items-start gap-1.5">
+          <li key={i} className="text-xs text-stone-500 dark:text-stone-400 flex items-start gap-1.5">
             <span className="text-emerald-500 mt-0.5">•</span>
             <span className="line-clamp-1">{change}</span>
           </li>
@@ -239,15 +239,15 @@ export const DesignDetailView: React.FC<DesignDetailViewProps> = ({
       {/* Back button */}
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-lg px-2 py-1"
+        className="flex items-center gap-2 text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-lg px-2 py-1"
       >
         <ArrowLeft className="w-4 h-4" /> Back to 3 Designs
       </button>
 
       {/* Hero */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden transition-colors duration-300">
+      <div className="bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-hidden transition-colors duration-300">
         {/* Visualization or generate */}
-        <div className="relative h-64 md:h-80 bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+        <div className="relative h-64 md:h-80 bg-stone-100 dark:bg-stone-700 flex items-center justify-center">
           {option.visualizationImage ? (
             <img
               src={`data:image/png;base64,${option.visualizationImage}`}
@@ -259,7 +259,7 @@ export const DesignDetailView: React.FC<DesignDetailViewProps> = ({
               {isVisualizing ? (
                 <>
                   <Loader2 className="w-10 h-10 text-purple-500 animate-spin" />
-                  <p className="text-slate-500 dark:text-slate-400 text-sm">Generating visualization…</p>
+                  <p className="text-stone-500 dark:text-stone-400 text-sm">Generating visualization…</p>
                 </>
               ) : (
                 <button
@@ -276,14 +276,14 @@ export const DesignDetailView: React.FC<DesignDetailViewProps> = ({
         <div className="p-6 md:p-8">
           {/* Title + palette */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-100 font-serif">
+            <h2 className="text-2xl md:text-3xl font-bold text-stone-800 dark:text-stone-100 font-serif">
               {option.name}
             </h2>
             <div className="flex items-center gap-1.5">
               {option.palette.map((hex, i) => (
                 <div
                   key={i}
-                  className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-600 shadow-sm"
+                  className="w-8 h-8 rounded-full border-2 border-white dark:border-stone-600 shadow-sm"
                   style={{ backgroundColor: hex }}
                   title={hex}
                 />
@@ -292,7 +292,7 @@ export const DesignDetailView: React.FC<DesignDetailViewProps> = ({
           </div>
 
           {/* Mood */}
-          <p className="text-lg text-slate-600 dark:text-slate-300 mb-6 leading-relaxed italic">
+          <p className="text-lg text-stone-600 dark:text-stone-300 mb-6 leading-relaxed italic">
             {option.mood}
           </p>
 
@@ -313,7 +313,7 @@ export const DesignDetailView: React.FC<DesignDetailViewProps> = ({
           </div>
 
           {/* Full plan */}
-          <div className="prose prose-slate dark:prose-invert max-w-none
+          <div className="prose prose-stone dark:prose-invert max-w-none
                 prose-headings:font-serif prose-headings:tracking-tight
                 prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-3
                 prose-h3:text-lg prose-h3:font-semibold prose-h3:mt-6 prose-h3:mb-2

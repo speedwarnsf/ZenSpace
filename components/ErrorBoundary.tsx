@@ -126,7 +126,7 @@ export class ErrorBoundary extends Component<Props, State> {
       const isQuotaExceeded = this.state.error?.message?.includes('QuotaExceeded');
 
       return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center px-4">
+        <div className="min-h-screen bg-stone-50 dark:bg-stone-900 flex items-center justify-center px-4">
           <div className="max-w-md w-full text-center space-y-6">
             {/* Error Icon */}
             <div className="flex justify-center">
@@ -137,10 +137,10 @@ export class ErrorBoundary extends Component<Props, State> {
 
             {/* Error Message */}
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+              <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-100">
                 {isQuotaExceeded ? 'Storage Full' : 'Something Went Wrong'}
               </h1>
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="text-stone-600 dark:text-stone-400">
                 {isQuotaExceeded ? (
                   'Your browser storage is full. Try clearing some data or using a different device.'
                 ) : (
@@ -151,15 +151,15 @@ export class ErrorBoundary extends Component<Props, State> {
 
             {/* Error Details (Development Only) */}
             {process.env.NODE_ENV === 'development' && this.state.error && (
-              <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-4 text-left">
-                <h3 className="font-medium text-slate-900 dark:text-slate-100 mb-2">
+              <div className="bg-stone-100 dark:bg-stone-800 rounded-lg p-4 text-left">
+                <h3 className="font-medium text-stone-900 dark:text-stone-100 mb-2">
                   Error Details
                 </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400 font-mono break-all">
+                <p className="text-sm text-stone-600 dark:text-stone-400 font-mono break-all">
                   {this.state.error.message}
                 </p>
                 {this.state.errorId && (
-                  <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
+                  <p className="text-xs text-stone-500 dark:text-stone-500 mt-2">
                     ID: {this.state.errorId}
                   </p>
                 )}
@@ -171,7 +171,7 @@ export class ErrorBoundary extends Component<Props, State> {
               {canRetry && !isQuotaExceeded && (
                 <button
                   onClick={this.handleRetry}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 flex items-center justify-center gap-2"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900 flex items-center justify-center gap-2"
                 >
                   <RefreshCw className="w-4 h-4" />
                   Try Again ({this.maxRetries - this.state.retryCount} left)
@@ -180,7 +180,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
               <button
                 onClick={this.handleGoHome}
-                className="bg-slate-600 hover:bg-slate-700 text-white px-6 py-3 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 flex items-center justify-center gap-2"
+                className="bg-stone-600 hover:bg-stone-700 text-white px-6 py-3 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900 flex items-center justify-center gap-2"
               >
                 <Home className="w-4 h-4" />
                 Go Home
@@ -188,7 +188,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
               <button
                 onClick={this.handleReload}
-                className="bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-6 py-3 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 flex items-center justify-center gap-2"
+                className="bg-stone-200 hover:bg-stone-300 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-700 dark:text-stone-200 px-6 py-3 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900 flex items-center justify-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
                 Reload Page
@@ -200,7 +200,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <button
                 id="copy-error-btn"
                 onClick={this.copyErrorInfo}
-                className="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300 underline flex items-center justify-center gap-1 transition-colors"
+                className="text-sm text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-300 underline flex items-center justify-center gap-1 transition-colors"
               >
                 <Bug className="w-3 h-3" />
                 Copy Error Info
@@ -209,7 +209,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
             {/* Helpful Tips */}
             {!isQuotaExceeded && (
-              <div className="text-sm text-slate-500 dark:text-slate-400">
+              <div className="text-sm text-stone-500 dark:text-stone-400">
                 <p>If the problem persists:</p>
                 <ul className="mt-1 space-y-1">
                   <li>• Try refreshing your browser</li>

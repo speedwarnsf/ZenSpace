@@ -116,20 +116,20 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessio
 
   return (
     <section
-      className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 md:p-8 transition-colors duration-300"
+      className="bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-stone-100 dark:border-stone-700 p-6 md:p-8 transition-colors duration-300"
       aria-labelledby="shopping-list-heading"
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-2 border-b border-slate-100 dark:border-slate-700 pb-4">
+      <div className="flex items-center justify-between mb-2 border-b border-stone-100 dark:border-stone-700 pb-4">
         <div className="flex items-center gap-2">
           <ShoppingCart className="w-6 h-6 text-emerald-500" aria-hidden="true" />
-          <h2 id="shopping-list-heading" className="text-2xl font-bold text-slate-800 dark:text-slate-100 m-0">
+          <h2 id="shopping-list-heading" className="text-2xl font-bold text-stone-800 dark:text-stone-100 m-0">
             Shopping List
           </h2>
         </div>
         <button
           onClick={handleCopyList}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border border-stone-200 dark:border-stone-600 hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors text-stone-600 dark:text-stone-300"
           aria-label="Copy shopping list to clipboard"
         >
           {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
@@ -138,8 +138,8 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessio
       </div>
 
       {/* Design context */}
-      <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
-        Curated for <span className="font-semibold text-slate-700 dark:text-slate-200">{shoppingList.designName}</span> — {shoppingList.designDescription}
+      <p className="text-sm text-stone-500 dark:text-stone-400 mb-6">
+        Curated for <span className="font-semibold text-stone-700 dark:text-stone-200">{shoppingList.designName}</span> — {shoppingList.designDescription}
       </p>
 
       {/* Budget summary */}
@@ -151,7 +151,7 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessio
           </span>
           <span className="text-sm text-emerald-600 dark:text-emerald-400">estimated total</span>
         </div>
-        <div className="text-sm text-slate-500 dark:text-slate-400 ml-auto">
+        <div className="text-sm text-stone-500 dark:text-stone-400 ml-auto">
           {purchasedCount}/{items.length} items checked off
         </div>
       </div>
@@ -165,20 +165,20 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessio
           const meta = CATEGORY_META[cat];
 
           return (
-            <div key={cat} className="border border-slate-100 dark:border-slate-700 rounded-xl overflow-hidden">
+            <div key={cat} className="border border-stone-100 dark:border-stone-700 rounded-xl overflow-hidden">
               <button
                 onClick={() => toggleCategory(cat)}
-                className="w-full flex items-center gap-3 px-4 py-3 bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-left"
+                className="w-full flex items-center gap-3 px-4 py-3 bg-stone-50 dark:bg-stone-700/50 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors text-left"
                 aria-expanded={!isCollapsed}
               >
-                {isCollapsed ? <ChevronRight className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                <span className="text-slate-500 dark:text-slate-400">{meta.icon}</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-100">{meta.label}</span>
-                <span className="text-xs text-slate-400 ml-auto">{catItems.length} item{catItems.length > 1 ? 's' : ''}</span>
+                {isCollapsed ? <ChevronRight className="w-4 h-4 text-stone-400" /> : <ChevronDown className="w-4 h-4 text-stone-400" />}
+                <span className="text-stone-500 dark:text-stone-400">{meta.icon}</span>
+                <span className="font-semibold text-stone-800 dark:text-stone-100">{meta.label}</span>
+                <span className="text-xs text-stone-400 ml-auto">{catItems.length} item{catItems.length > 1 ? 's' : ''}</span>
               </button>
 
               {!isCollapsed && (
-                <ul className="divide-y divide-slate-100 dark:divide-slate-700 list-none m-0 p-0">
+                <ul className="divide-y divide-stone-100 dark:divide-stone-700 list-none m-0 p-0">
                   {catItems.map(item => {
                     const isPurchased = purchasedIds.has(item.id);
                     return (
@@ -190,7 +190,7 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessio
                             className={`mt-1 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
                               isPurchased
                                 ? 'bg-emerald-500 border-emerald-500 text-white'
-                                : 'border-slate-300 dark:border-slate-600 hover:border-emerald-400'
+                                : 'border-stone-300 dark:border-stone-600 hover:border-emerald-400'
                             }`}
                             aria-label={isPurchased ? `Unmark ${item.name} as purchased` : `Mark ${item.name} as purchased`}
                           >
@@ -200,11 +200,11 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessio
                           {/* Info */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className={`font-semibold text-slate-800 dark:text-slate-100 ${isPurchased ? 'line-through opacity-60' : ''}`}>
+                              <span className={`font-semibold text-stone-800 dark:text-stone-100 ${isPurchased ? 'line-through opacity-60' : ''}`}>
                                 {item.name}
                               </span>
                               {item.quantity > 1 && (
-                                <span className="text-xs px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">
+                                <span className="text-xs px-1.5 py-0.5 rounded bg-stone-100 dark:bg-stone-700 text-stone-500 dark:text-stone-400">
                                   ×{item.quantity}
                                 </span>
                               )}
@@ -212,8 +212,8 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessio
                                 ${item.priceEstimate.low}–${item.priceEstimate.high}
                               </span>
                             </div>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{item.description}</p>
-                            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 italic">
+                            <p className="text-sm text-stone-500 dark:text-stone-400 mt-1">{item.description}</p>
+                            <p className="text-xs text-stone-400 dark:text-stone-500 mt-1 italic">
                               🎨 {item.designTheoryJustification}
                             </p>
                           </div>
@@ -240,7 +240,7 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessio
         })}
       </div>
 
-      <p className="mt-4 text-center text-xs text-slate-400 dark:text-slate-500 italic">
+      <p className="mt-4 text-center text-xs text-stone-400 dark:text-stone-500 italic">
         *As an Amazon Associate we earn from qualifying purchases. Prices are estimates and may vary.
       </p>
     </section>

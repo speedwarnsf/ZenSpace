@@ -72,21 +72,21 @@ export function ProductShelf({ products, title = 'The Edit', light = false }: Pr
           {products.map((product, i) => (
             <div
               key={i}
-              className="flex-shrink-0 w-52 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl p-3.5 flex flex-col gap-2 snap-start"
+              className="flex-shrink-0 w-52 bg-stone-50 dark:bg-stone-700/50 border border-stone-200 dark:border-stone-600 rounded-xl p-3.5 flex flex-col gap-2 snap-start"
             >
-              <span className="text-[10px] uppercase tracking-[0.15em] text-slate-400 dark:text-slate-500">
+              <span className="text-[10px] uppercase tracking-[0.15em] text-stone-400 dark:text-stone-500">
                 {CATEGORY_LABELS[product.category] || product.category}
               </span>
-              <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-snug">
+              <h4 className="text-sm font-semibold text-stone-800 dark:text-stone-100 leading-snug">
                 {product.name}
               </h4>
-              <span className="text-xs text-slate-400 dark:text-slate-500">{product.brand}</span>
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed flex-1">
+              <span className="text-xs text-stone-400 dark:text-stone-500">{product.brand}</span>
+              <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed flex-1">
                 {product.description}
               </p>
-              <div className="flex items-center justify-between pt-1 border-t border-slate-200 dark:border-slate-600">
-                <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{product.priceRange}</span>
-                <span className="text-[10px] uppercase tracking-widest text-slate-400 cursor-not-allowed">Shop →</span>
+              <div className="flex items-center justify-between pt-1 border-t border-stone-200 dark:border-stone-600">
+                <span className="text-xs font-medium text-stone-700 dark:text-stone-300">{product.priceRange}</span>
+                <span className="text-[10px] uppercase tracking-widest text-stone-400 cursor-not-allowed">Shop →</span>
               </div>
             </div>
           ))}

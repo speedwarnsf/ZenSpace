@@ -186,7 +186,7 @@ export function AccessibilityToolbar() {
       {/* Toggle button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-slate-800 text-white p-2 rounded-full shadow-lg hover:bg-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        className="bg-stone-800 text-white p-2 rounded-full shadow-lg hover:bg-stone-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         aria-label="Accessibility settings"
         aria-expanded={isOpen}
       >
@@ -196,11 +196,11 @@ export function AccessibilityToolbar() {
       {/* Toolbar panel */}
       {isOpen && (
         <div 
-          className="mb-2 absolute bottom-full left-0 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg shadow-xl p-4 w-64"
+          className="mb-2 absolute bottom-full left-0 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-lg shadow-xl p-4 w-64"
           role="dialog"
           aria-label="Accessibility Settings"
         >
-          <h3 className="font-semibold mb-3 text-slate-900 dark:text-slate-100">
+          <h3 className="font-semibold mb-3 text-stone-900 dark:text-stone-100">
             Accessibility Settings
           </h3>
           
@@ -211,9 +211,9 @@ export function AccessibilityToolbar() {
                 type="checkbox"
                 checked={settings.reducedMotion}
                 onChange={() => handleToggle('reducedMotion', settings.reducedMotion, 'Reduced motion')}
-                className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-blue-600 border-stone-300 rounded focus:ring-blue-500"
               />
-              <span className="text-sm text-slate-700 dark:text-slate-300">
+              <span className="text-sm text-stone-700 dark:text-stone-300">
                 Reduce motion
               </span>
             </label>
@@ -224,9 +224,9 @@ export function AccessibilityToolbar() {
                 type="checkbox"
                 checked={settings.highContrast}
                 onChange={() => handleToggle('highContrast', settings.highContrast, 'High contrast')}
-                className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-blue-600 border-stone-300 rounded focus:ring-blue-500"
               />
-              <span className="text-sm text-slate-700 dark:text-slate-300">
+              <span className="text-sm text-stone-700 dark:text-stone-300">
                 High contrast
               </span>
             </label>
@@ -237,9 +237,9 @@ export function AccessibilityToolbar() {
                 type="checkbox"
                 checked={settings.largeText}
                 onChange={() => handleToggle('largeText', settings.largeText, 'Large text')}
-                className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-blue-600 border-stone-300 rounded focus:ring-blue-500"
               />
-              <span className="text-sm text-slate-700 dark:text-slate-300">
+              <span className="text-sm text-stone-700 dark:text-stone-300">
                 Large text
               </span>
             </label>
@@ -250,9 +250,9 @@ export function AccessibilityToolbar() {
                 type="checkbox"
                 checked={settings.soundEnabled}
                 onChange={() => handleToggle('soundEnabled', settings.soundEnabled, 'Sound feedback')}
-                className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-blue-600 border-stone-300 rounded focus:ring-blue-500"
               />
-              <span className="text-sm text-slate-700 dark:text-slate-300 flex items-center gap-1">
+              <span className="text-sm text-stone-700 dark:text-stone-300 flex items-center gap-1">
                 {settings.soundEnabled ? <Volume2 className="w-3 h-3" /> : <VolumeX className="w-3 h-3" />}
                 Sound feedback
               </span>
@@ -264,17 +264,17 @@ export function AccessibilityToolbar() {
                 type="checkbox"
                 checked={settings.focusVisible}
                 onChange={() => handleToggle('focusVisible', settings.focusVisible, 'Focus indicators')}
-                className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-blue-600 border-stone-300 rounded focus:ring-blue-500"
               />
-              <span className="text-sm text-slate-700 dark:text-slate-300">
+              <span className="text-sm text-stone-700 dark:text-stone-300">
                 Enhanced focus indicators
               </span>
             </label>
           </div>
 
           {/* Keyboard shortcuts info */}
-          <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-600">
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+          <div className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-600">
+            <p className="text-xs text-stone-500 dark:text-stone-400">
               Use Tab to navigate, Enter to activate
             </p>
           </div>
@@ -380,7 +380,7 @@ export function AccessibleImage({
   if (failed) {
     return (
       <div 
-        className={`bg-slate-100 dark:bg-slate-800 flex items-center justify-center p-4 text-slate-500 dark:text-slate-400 ${className}`}
+        className={`bg-stone-100 dark:bg-stone-800 flex items-center justify-center p-4 text-stone-500 dark:text-stone-400 ${className}`}
         role="img" 
         aria-label={alt}
       >
@@ -505,8 +505,8 @@ export const accessibilityCSS = `
   /* High contrast adjustments for dark mode */
   @media (prefers-contrast: high) {
     .dark {
-      --slate-50: #ffffff;
-      --slate-900: #000000;
+      --stone-50: #ffffff;
+      --stone-900: #000000;
     }
   }
 `;

@@ -158,7 +158,7 @@ export function SessionManager({
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2
             ${hasUnsavedChanges 
               ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' 
-              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+              : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
           title="Save Session"
         >
           <Save className="w-4 h-4" />
@@ -167,7 +167,7 @@ export function SessionManager({
         
         <button
           onClick={handleOpen}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-stone-100 text-stone-600 hover:bg-stone-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
           title="Open Sessions"
         >
           <FolderOpen className="w-4 h-4" />
@@ -182,35 +182,35 @@ export function SessionManager({
           onClick={handleClose}
         >
           <div 
-            className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col"
+            className="bg-white dark:bg-stone-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col"
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Saved Sessions</h2>
+            <div className="px-6 py-4 border-b border-stone-200 dark:border-stone-700 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-stone-800 dark:text-stone-100">Saved Sessions</h2>
               <button
                 onClick={handleClose}
-                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
               >
-                <X className="w-5 h-5 text-slate-500" />
+                <X className="w-5 h-5 text-stone-500" />
               </button>
             </div>
             
             {/* Search & Import */}
-            <div className="px-6 py-3 border-b border-slate-100 dark:border-slate-700 flex gap-3">
+            <div className="px-6 py-3 border-b border-stone-100 dark:border-stone-700 flex gap-3">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 -transtone-y-1/2 w-4 h-4 text-stone-400" />
                 <input
                   type="text"
                   placeholder="Search sessions..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+                  className="w-full pl-10 pr-4 py-2 border border-stone-200 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-700 text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
                 />
               </div>
               <button
                 onClick={handleImport}
-                className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-200 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 dark:hover:bg-stone-600 rounded-lg text-sm font-medium text-stone-700 dark:text-stone-200 transition-colors"
               >
                 <Upload className="w-4 h-4" />
                 Import
@@ -220,14 +220,14 @@ export function SessionManager({
             {/* Session List */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {sessions.length === 0 ? (
-                <div className="text-center py-12 text-slate-500 dark:text-slate-400">
+                <div className="text-center py-12 text-stone-500 dark:text-stone-400">
                   {searchQuery ? 'No sessions found' : 'No saved sessions yet'}
                 </div>
               ) : (
                 sessions.map(session => (
                   <div
                     key={session.id}
-                    className={`group bg-slate-50 dark:bg-slate-700/50 rounded-xl p-3 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors ${
+                    className={`group bg-stone-50 dark:bg-stone-700/50 rounded-xl p-3 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors ${
                       session.id === currentSessionId ? 'ring-2 ring-emerald-500' : ''
                     }`}
                   >
@@ -236,7 +236,7 @@ export function SessionManager({
                       <img
                         src={session.thumbnail}
                         alt=""
-                        className="w-16 h-16 rounded-lg object-cover bg-slate-200 flex-shrink-0"
+                        className="w-16 h-16 rounded-lg object-cover bg-stone-200 flex-shrink-0"
                       />
                       
                       {/* Info */}
@@ -247,7 +247,7 @@ export function SessionManager({
                               type="text"
                               value={editName}
                               onChange={e => setEditName(e.target.value)}
-                              className="flex-1 px-2 py-1 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                              className="flex-1 px-2 py-1 text-sm border border-stone-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500"
                               autoFocus
                               onKeyDown={e => {
                                 if (e.key === 'Enter') handleSaveRename();
@@ -262,18 +262,18 @@ export function SessionManager({
                             </button>
                             <button 
                               onClick={() => setEditingId(null)}
-                              className="p-1 hover:bg-slate-200 rounded"
+                              className="p-1 hover:bg-stone-200 rounded"
                             >
-                              <X className="w-4 h-4 text-slate-500" />
+                              <X className="w-4 h-4 text-stone-500" />
                             </button>
                           </div>
                         ) : (
-                          <h3 className="font-semibold text-slate-800 dark:text-slate-100 truncate">
+                          <h3 className="font-semibold text-stone-800 dark:text-stone-100 truncate">
                             {session.name}
                           </h3>
                         )}
                         
-                        <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
+                        <div className="flex items-center gap-3 mt-1 text-xs text-stone-500">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             {formatDate(session.updatedAt)}
@@ -311,7 +311,7 @@ export function SessionManager({
                             </button>
                             <button
                               onClick={() => setConfirmDeleteId(null)}
-                              className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg"
+                              className="p-2 bg-stone-100 hover:bg-stone-200 rounded-lg"
                               title="Cancel"
                             >
                               <X className="w-4 h-4" />
@@ -328,24 +328,24 @@ export function SessionManager({
                             </button>
                             <button
                               onClick={() => handleStartRename(session)}
-                              className="p-2 hover:bg-slate-200 rounded-lg"
+                              className="p-2 hover:bg-stone-200 rounded-lg"
                               title="Rename"
                             >
-                              <Edit2 className="w-4 h-4 text-slate-500" />
+                              <Edit2 className="w-4 h-4 text-stone-500" />
                             </button>
                             <button
                               onClick={() => handleExport(session.id)}
-                              className="p-2 hover:bg-slate-200 rounded-lg"
+                              className="p-2 hover:bg-stone-200 rounded-lg"
                               title="Export"
                             >
-                              <Download className="w-4 h-4 text-slate-500" />
+                              <Download className="w-4 h-4 text-stone-500" />
                             </button>
                             <button
                               onClick={() => setConfirmDeleteId(session.id)}
                               className="p-2 hover:bg-red-100 rounded-lg"
                               title="Delete"
                             >
-                              <Trash2 className="w-4 h-4 text-slate-500" />
+                              <Trash2 className="w-4 h-4 text-stone-500" />
                             </button>
                           </>
                         )}
@@ -357,7 +357,7 @@ export function SessionManager({
             </div>
             
             {/* Footer */}
-            <div className="px-6 py-3 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+            <div className="px-6 py-3 border-t border-stone-200 dark:border-stone-700 flex items-center justify-between text-xs text-stone-500 dark:text-stone-400">
               <span>
                 {storageInfo.sessionCount} / {storageInfo.maxSessions} sessions
               </span>

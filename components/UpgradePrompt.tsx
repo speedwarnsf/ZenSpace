@@ -13,10 +13,10 @@ interface UpgradePromptProps {
 export function UpgradePrompt({ message, onUpgrade, onDismiss }: UpgradePromptProps) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="relative w-full max-w-sm mx-4 bg-slate-900 border border-slate-700 rounded-2xl p-8 shadow-2xl text-center">
+      <div className="relative w-full max-w-sm mx-4 bg-stone-900 border border-stone-700 rounded-2xl p-8 shadow-2xl text-center">
         <button
           onClick={onDismiss}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 transition-colors"
+          className="absolute top-4 right-4 text-stone-400 hover:text-stone-200 transition-colors"
           aria-label="Dismiss"
         >
           <X className="w-5 h-5" />
@@ -26,7 +26,7 @@ export function UpgradePrompt({ message, onUpgrade, onDismiss }: UpgradePromptPr
           <Sparkles className="w-6 h-6 text-emerald-400" />
         </div>
 
-        <p className="text-slate-300 text-sm mb-2">{message}</p>
+        <p className="text-stone-300 text-sm mb-2">{message}</p>
         <p className="text-white font-medium mb-6">
           Unlock unlimited designs, iterations, and more
         </p>
@@ -39,7 +39,7 @@ export function UpgradePrompt({ message, onUpgrade, onDismiss }: UpgradePromptPr
         </button>
         <button
           onClick={onDismiss}
-          className="w-full text-slate-500 hover:text-slate-300 text-sm transition-colors py-2"
+          className="w-full text-stone-500 hover:text-stone-300 text-sm transition-colors py-2"
         >
           Maybe later
         </button>

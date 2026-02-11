@@ -165,7 +165,7 @@ export function NetworkStatus({ onNetworkChange, showIndicator = true, className
       {/* Offline Message Toast */}
       {showOfflineMessage && (
         <div 
-          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-in slide-in-from-top-4 duration-300"
+          className="fixed top-4 left-1/2 transform -transtone-x-1/2 z-50 animate-in slide-in-from-top-4 duration-300"
           role="alert"
           aria-live="assertive"
         >
@@ -304,11 +304,11 @@ export function withOfflineSupport<P extends object>(
     if (!isOnline) {
       return (
         <div className="flex flex-col items-center justify-center py-8 text-center">
-          <CloudOff className="w-12 h-12 text-slate-400 dark:text-slate-500 mb-4" />
-          <h3 className="text-lg font-medium text-slate-700 dark:text-slate-300 mb-2">
+          <CloudOff className="w-12 h-12 text-stone-400 dark:text-stone-500 mb-4" />
+          <h3 className="text-lg font-medium text-stone-700 dark:text-stone-300 mb-2">
             Offline
           </h3>
-          <p className="text-slate-500 dark:text-slate-400 max-w-md">
+          <p className="text-stone-500 dark:text-stone-400 max-w-md">
             {offlineMessage}
           </p>
         </div>

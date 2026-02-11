@@ -16,7 +16,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 }) => {
   return (
     <div 
-      className={`bg-slate-200 rounded ${animate ? 'animate-pulse' : ''} ${className}`}
+      className={`bg-stone-200 rounded ${animate ? 'animate-pulse' : ''} ${className}`}
       aria-hidden="true"
     />
   );
@@ -33,8 +33,8 @@ export const AnalysisSkeleton: React.FC = () => {
       aria-label="Loading analysis results"
     >
       {/* Analysis Card Skeleton */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8">
-        <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
+      <div className="bg-white rounded-2xl shadow-sm border border-stone-100 p-6 md:p-8">
+        <div className="flex items-center gap-2 mb-6 border-b border-stone-100 pb-4">
           <Skeleton className="w-6 h-6 rounded-full" />
           <Skeleton className="w-48 h-8" />
         </div>
@@ -79,7 +79,7 @@ export const AnalysisSkeleton: React.FC = () => {
       </div>
 
       {/* Products Skeleton */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8">
+      <div className="bg-white rounded-2xl shadow-sm border border-stone-100 p-6 md:p-8">
         <div className="flex items-center gap-2 mb-6">
           <Skeleton className="w-6 h-6 rounded-full" />
           <Skeleton className="w-32 h-8" />
@@ -89,7 +89,7 @@ export const AnalysisSkeleton: React.FC = () => {
           {[1, 2, 3, 4].map((i) => (
             <div 
               key={i} 
-              className="p-5 rounded-xl border border-slate-200 bg-slate-50/50"
+              className="p-5 rounded-xl border border-stone-200 bg-stone-50/50"
             >
               <div className="flex justify-between items-start mb-2">
                 <Skeleton className="w-24 h-5" />
@@ -114,12 +114,12 @@ export const AnalysisSkeleton: React.FC = () => {
 export const ChatSkeleton: React.FC = () => {
   return (
     <div 
-      className="flex flex-col h-[600px] bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden"
+      className="flex flex-col h-[600px] bg-white rounded-2xl shadow-sm border border-stone-100 overflow-hidden"
       role="status"
       aria-label="Loading chat interface"
     >
       {/* Header */}
-      <div className="p-4 border-b border-slate-100 bg-emerald-50/50 flex items-center gap-2">
+      <div className="p-4 border-b border-stone-100 bg-emerald-50/50 flex items-center gap-2">
         <Skeleton className="w-5 h-5 rounded-full" />
         <Skeleton className="w-40 h-5" />
       </div>
@@ -135,7 +135,7 @@ export const ChatSkeleton: React.FC = () => {
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-slate-100">
+      <div className="p-4 border-t border-stone-100">
         <Skeleton className="w-full h-12 rounded-xl" />
       </div>
       

@@ -47,7 +47,7 @@ export function PricingPage({ onClose, onNeedAuth }: PricingPageProps) {
       <div className="relative w-full max-w-2xl mx-4">
         <button
           onClick={onClose}
-          className="absolute -top-2 -right-2 z-10 w-8 h-8 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+          className="absolute -top-2 -right-2 z-10 w-8 h-8 rounded-full bg-stone-800 border border-stone-600 flex items-center justify-center text-stone-400 hover:text-white transition-colors"
           aria-label="Close pricing"
         >
           <X className="w-4 h-4" />
@@ -62,7 +62,7 @@ export function PricingPage({ onClose, onNeedAuth }: PricingPageProps) {
           <h2 className="text-3xl font-serif font-bold text-white mb-2">
             Transform every room
           </h2>
-          <p className="text-slate-400">
+          <p className="text-stone-400">
             Unlimited designs, iterations, and professional tools
           </p>
         </div>
@@ -70,15 +70,15 @@ export function PricingPage({ onClose, onNeedAuth }: PricingPageProps) {
         {/* Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           {/* Monthly */}
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 flex flex-col">
+          <div className="bg-stone-900 border border-stone-700 rounded-2xl p-6 flex flex-col">
             <h3 className="text-lg font-semibold text-white mb-1">Monthly</h3>
             <div className="mb-4">
               <span className="text-3xl font-bold text-white">$10</span>
-              <span className="text-slate-400">/mo</span>
+              <span className="text-stone-400">/mo</span>
             </div>
             <ul className="space-y-2 mb-6 flex-1">
               {FEATURES.map((f) => (
-                <li key={f} className="flex items-start gap-2 text-sm text-slate-300">
+                <li key={f} className="flex items-start gap-2 text-sm text-stone-300">
                   <Check className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
                   {f}
                 </li>
@@ -87,26 +87,26 @@ export function PricingPage({ onClose, onNeedAuth }: PricingPageProps) {
             <button
               onClick={() => handleCheckout('monthly')}
               disabled={!!loading}
-              className="w-full py-3 rounded-xl bg-slate-700 text-white font-medium hover:bg-slate-600 transition-colors disabled:opacity-50"
+              className="w-full py-3 rounded-xl bg-stone-700 text-white font-medium hover:bg-stone-600 transition-colors disabled:opacity-50"
             >
               {loading === 'monthly' ? 'Loading...' : 'Get Monthly'}
             </button>
           </div>
 
           {/* Annual */}
-          <div className="bg-slate-900 border border-emerald-500/30 rounded-2xl p-6 flex flex-col relative">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-emerald-600 text-white text-xs font-medium">
+          <div className="bg-stone-900 border border-emerald-500/30 rounded-2xl p-6 flex flex-col relative">
+            <div className="absolute -top-3 left-1/2 -transtone-x-1/2 px-3 py-0.5 rounded-full bg-emerald-600 text-white text-xs font-medium">
               Save 33%
             </div>
             <h3 className="text-lg font-semibold text-white mb-1">Annual</h3>
             <div className="mb-4">
               <span className="text-3xl font-bold text-white">$80</span>
-              <span className="text-slate-400">/yr</span>
-              <span className="text-slate-500 text-sm ml-2 line-through">$120</span>
+              <span className="text-stone-400">/yr</span>
+              <span className="text-stone-500 text-sm ml-2 line-through">$120</span>
             </div>
             <ul className="space-y-2 mb-6 flex-1">
               {FEATURES.map((f) => (
-                <li key={f} className="flex items-start gap-2 text-sm text-slate-300">
+                <li key={f} className="flex items-start gap-2 text-sm text-stone-300">
                   <Check className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
                   {f}
                 </li>
@@ -126,7 +126,7 @@ export function PricingPage({ onClose, onNeedAuth }: PricingPageProps) {
         <div className="text-center mb-4">
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-200 text-sm transition-colors"
+            className="text-stone-400 hover:text-stone-200 text-sm transition-colors"
           >
             Start free — 3 designs included
           </button>

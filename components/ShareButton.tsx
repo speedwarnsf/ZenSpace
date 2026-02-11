@@ -170,7 +170,7 @@ export function ShareButton({ analysis, roomType = 'room', onShare }: ShareButto
           
           {/* Menu */}
           <div 
-            className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+            className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-stone-200 py-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
             role="menu"
             aria-orientation="vertical"
           >
@@ -178,10 +178,10 @@ export function ShareButton({ analysis, roomType = 'room', onShare }: ShareButto
               <button
                 key={option.id}
                 onClick={() => option.action()}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-stone-700 hover:bg-stone-50 transition-colors"
                 role="menuitem"
               >
-                <option.icon className="w-4 h-4 text-slate-500" aria-hidden="true" />
+                <option.icon className="w-4 h-4 text-stone-500" aria-hidden="true" />
                 <span>{option.label}</span>
               </button>
             ))}

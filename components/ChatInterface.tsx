@@ -63,13 +63,13 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   return (
     <section 
-      className="flex flex-col h-[calc(100vh-12rem)] sm:h-[600px] max-h-[600px] bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden transition-colors duration-300"
+      className="flex flex-col h-[calc(100vh-12rem)] sm:h-[600px] max-h-[600px] bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-hidden transition-colors duration-300"
       aria-labelledby="chat-heading"
     >
       {/* Header */}
-      <header className="p-4 border-b border-slate-100 dark:border-slate-700 bg-emerald-50/50 dark:bg-emerald-900/20 flex items-center gap-2">
+      <header className="p-4 border-b border-stone-100 dark:border-stone-700 bg-emerald-50/50 dark:bg-emerald-900/20 flex items-center gap-2">
         <Bot className="w-5 h-5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
-        <h3 id="chat-heading" className="font-semibold text-slate-800 dark:text-slate-100">
+        <h3 id="chat-heading" className="font-semibold text-stone-800 dark:text-stone-100">
           Chat with ZenSpace AI
         </h3>
       </header>
@@ -84,7 +84,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       >
         {/* Empty State */}
         {messages.length === 0 && !isTyping && (
-          <div className="text-center text-slate-400 dark:text-slate-500 mt-10" aria-hidden="true">
+          <div className="text-center text-stone-400 dark:text-stone-500 mt-10" aria-hidden="true">
             <p>Ask me anything about organizing your room!</p>
             <div className="mt-4 space-y-2 text-sm">
               <p className="italic">"Where should I put the shoes?"</p>
@@ -108,7 +108,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   ? 'bg-emerald-600 text-white rounded-br-none' 
                   : msg.isError 
                     ? 'bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded-bl-none border border-red-200 dark:border-red-700' 
-                    : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-bl-none'
+                    : 'bg-stone-100 dark:bg-stone-700 text-stone-800 dark:text-stone-100 rounded-bl-none'
                 }
               `}
             >
@@ -141,12 +141,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             role="status"
             aria-label="ZenSpace is typing"
           >
-            <div className="bg-slate-100 dark:bg-slate-700 rounded-2xl rounded-bl-none p-4 flex items-center gap-2">
+            <div className="bg-stone-100 dark:bg-stone-700 rounded-2xl rounded-bl-none p-4 flex items-center gap-2">
               <Loader2 
-                className="w-4 h-4 animate-spin text-slate-400 dark:text-slate-500" 
+                className="w-4 h-4 animate-spin text-stone-400 dark:text-stone-500" 
                 aria-hidden="true" 
               />
-              <span className="text-xs text-slate-500 dark:text-slate-400">Thinking...</span>
+              <span className="text-xs text-stone-500 dark:text-stone-400">Thinking...</span>
             </div>
           </div>
         )}
@@ -158,7 +158,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       {/* Input Form */}
       <form 
         onSubmit={handleSubmit} 
-        className="p-4 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800"
+        className="p-4 border-t border-stone-100 dark:border-stone-700 bg-white dark:bg-stone-800"
       >
         <div className="relative">
           <label htmlFor="chat-input" className="sr-only">
@@ -173,7 +173,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             onKeyDown={handleKeyDown}
             placeholder="Ask a follow-up question..."
             disabled={isTyping}
-            className="w-full pl-4 pr-12 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900/50 outline-none transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:cursor-not-allowed"
+            className="w-full pl-4 pr-12 py-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900/50 outline-none transition-all text-stone-700 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 disabled:bg-stone-50 dark:disabled:bg-stone-800 disabled:cursor-not-allowed"
             aria-describedby={isTyping ? "typing-status" : undefined}
           />
           {isTyping && (
@@ -184,7 +184,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           <button
             type="submit"
             disabled={!input.trim() || isTyping}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800"
+            className="absolute right-2 top-1/2 -transtone-y-1/2 p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-800"
             aria-label="Send message"
           >
             <Send className="w-4 h-4" aria-hidden="true" />

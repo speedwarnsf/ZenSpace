@@ -44,14 +44,14 @@ export const SaveToRoomPicker: React.FC<SaveToRoomPickerProps> = ({ entry, sourc
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+        className="bg-white dark:bg-stone-800 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-          <h3 className="font-serif text-lg font-bold text-slate-800 dark:text-slate-100">Save to Room</h3>
-          <button onClick={onClose} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-            <X className="w-4 h-4 text-slate-500" />
+        <div className="px-5 py-4 border-b border-stone-200 dark:border-stone-700 flex items-center justify-between">
+          <h3 className="font-serif text-lg font-bold text-stone-800 dark:text-stone-100">Save to Room</h3>
+          <button onClick={onClose} className="p-1.5 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-lg transition-colors">
+            <X className="w-4 h-4 text-stone-500" />
           </button>
         </div>
 
@@ -65,21 +65,21 @@ export const SaveToRoomPicker: React.FC<SaveToRoomPickerProps> = ({ entry, sourc
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors ${
                 savedToId === room.id
                   ? 'bg-emerald-50 dark:bg-emerald-900/20'
-                  : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                  : 'hover:bg-stone-50 dark:hover:bg-stone-700/50'
               }`}
             >
-              <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-700 flex-shrink-0">
+              <div className="w-10 h-10 rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-700 flex-shrink-0">
                 {room.sourceImageThumb ? (
                   <img src={room.sourceImageThumb} alt="" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <Home className="w-4 h-4 text-slate-400" />
+                    <Home className="w-4 h-4 text-stone-400" />
                   </div>
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-800 dark:text-slate-100 truncate">{room.name}</p>
-                <p className="text-xs text-slate-400 dark:text-slate-500">{room.designs.length} design{room.designs.length !== 1 ? 's' : ''}</p>
+                <p className="text-sm font-medium text-stone-800 dark:text-stone-100 truncate">{room.name}</p>
+                <p className="text-xs text-stone-400 dark:text-stone-500">{room.designs.length} design{room.designs.length !== 1 ? 's' : ''}</p>
               </div>
               {savedToId === room.id && (
                 <Check className="w-5 h-5 text-emerald-500 flex-shrink-0" />
@@ -88,7 +88,7 @@ export const SaveToRoomPicker: React.FC<SaveToRoomPickerProps> = ({ entry, sourc
           ))}
 
           {rooms.length === 0 && !isCreating && (
-            <p className="text-sm text-slate-400 dark:text-slate-500 text-center py-4">No rooms yet</p>
+            <p className="text-sm text-stone-400 dark:text-stone-500 text-center py-4">No rooms yet</p>
           )}
         </div>
 
@@ -102,7 +102,7 @@ export const SaveToRoomPicker: React.FC<SaveToRoomPickerProps> = ({ entry, sourc
                 onChange={e => setNewName(e.target.value)}
                 placeholder="Room name..."
                 autoFocus
-                className="flex-1 px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="flex-1 px-3 py-2 text-sm border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-700 text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 onKeyDown={e => { if (e.key === 'Enter') handleCreateAndSave(); if (e.key === 'Escape') setIsCreating(false); }}
               />
               <button

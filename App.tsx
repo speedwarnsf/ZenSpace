@@ -894,20 +894,20 @@ function AppContent() {
   const isNetworkError = ['NETWORK_ERROR', 'NETWORK_OFFLINE', 'NETWORK_TIMEOUT'].includes(error?.code ?? '');
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col font-sans transition-colors duration-300">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-900 flex flex-col font-sans transition-colors duration-300">
       {/* Header */}
       <header 
-        className={`bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50 transition-colors duration-300 ${appState === AppState.DESIGN_STUDIO ? 'hidden' : ''}`}
+        className={`bg-white dark:bg-stone-800 border-b border-stone-200 dark:border-stone-700 sticky top-0 z-50 transition-colors duration-300 ${appState === AppState.DESIGN_STUDIO ? 'hidden' : ''}`}
         role="banner"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <button 
             onClick={resetApp}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded-lg p-1 flex-shrink-0"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-800 rounded-lg p-1 flex-shrink-0"
             aria-label="ZenSpace - Return to home"
           >
             <LayoutGrid className="w-6 h-6 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
-            <span className="font-serif text-xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">ZenSpace</span>
+            <span className="font-serif text-xl font-bold text-stone-800 dark:text-stone-100 tracking-tight">ZenSpace</span>
           </button>
           
           <div className="flex items-center gap-1 sm:gap-3 overflow-x-auto flex-shrink min-w-0">
@@ -925,7 +925,7 @@ function AppContent() {
             {(appState === AppState.MODE_SELECT || appState === AppState.DESIGN_OPTIONS || appState === AppState.LOOKBOOK) && (
               <button 
                 onClick={resetApp}
-                className="text-sm text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded-lg px-2 sm:px-3 py-2 whitespace-nowrap"
+                className="text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-800 rounded-lg px-2 sm:px-3 py-2 whitespace-nowrap"
                 aria-label="Start over with a new image"
               >
                 <ArrowLeft className="w-4 h-4" aria-hidden="true" />
@@ -936,7 +936,7 @@ function AppContent() {
             {(appState === AppState.HOME || appState === AppState.RESULTS || appState === AppState.MODE_SELECT || appState === AppState.DESIGN_OPTIONS || appState === AppState.LOOKBOOK) && (
               <button
                 onClick={() => setAppState(AppState.ROOMS)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                 title="My Rooms"
               >
                 <Home className="w-4 h-4" />
@@ -947,7 +947,7 @@ function AppContent() {
             {appState === AppState.RESULTS && (
               <button
                 onClick={() => setIsGalleryOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                 title="Saved Projects"
               >
                 <Home className="w-4 h-4" />
@@ -960,7 +960,7 @@ function AppContent() {
                 onClick={handleSaveRoom}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${
                   currentRoomId
-                    ? 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                    ? 'bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-200'
                     : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
                 }`}
                 title={currentRoomId ? 'Update Room' : 'Save Room'}
@@ -991,7 +991,7 @@ function AppContent() {
                 </Suspense>
                 <button 
                   onClick={resetApp}
-                  className="text-sm text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 rounded-lg px-2 sm:px-3 py-2 whitespace-nowrap"
+                  className="text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-800 rounded-lg px-2 sm:px-3 py-2 whitespace-nowrap"
                   aria-label="Start over with a new image"
                 >
                   <ArrowLeft className="w-4 h-4" aria-hidden="true" />
@@ -1006,7 +1006,7 @@ function AppContent() {
       {/* Rate Limit Toast */}
       {rateLimitMessage && (
         <div 
-          className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 animate-in slide-in-from-top-4 duration-300"
+          className="fixed top-20 left-1/2 transform -transtone-x-1/2 z-50 animate-in slide-in-from-top-4 duration-300"
           role="alert"
         >
           <div className="bg-amber-50 dark:bg-amber-900/50 border border-amber-200 dark:border-amber-700 text-amber-800 dark:text-amber-200 px-4 py-3 rounded-lg shadow-lg flex items-center gap-3">
@@ -1026,10 +1026,10 @@ function AppContent() {
         {/* Home State */}
         {appState === AppState.HOME && (
           <div className="flex flex-col items-center justify-center min-h-[60vh] animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-slate-100 text-center mb-6 font-serif">
+            <h1 className="text-4xl md:text-5xl font-bold text-stone-900 dark:text-stone-100 text-center mb-6 font-serif">
               From Chaos to Calm.
             </h1>
-            <p className="text-lg text-slate-600 dark:text-slate-400 text-center max-w-xl mb-12 leading-relaxed">
+            <p className="text-lg text-stone-600 dark:text-stone-400 text-center max-w-xl mb-12 leading-relaxed">
               Upload a photo of any room. Choose to declutter and organize — or get bold redesign concepts from world-class design thinkers.
             </p>
             <UploadZone onImageSelected={handleImageSelected} isAnalyzing={isAnalyzing} />
@@ -1037,7 +1037,7 @@ function AppContent() {
             {hasSavedLookbook && (
               <button
                 onClick={handleResumeLookbook}
-                className="mt-6 px-6 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-sm font-medium flex items-center gap-2"
+                className="mt-6 px-6 py-3 rounded-xl bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors text-sm font-medium flex items-center gap-2"
               >
                 <LayoutGrid className="w-4 h-4 text-emerald-500" />
                 You have saved designs. Resume your lookbook?
@@ -1045,16 +1045,16 @@ function AppContent() {
             )}
             <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-center opacity-80">
               <div>
-                <div className="font-bold text-slate-800 dark:text-slate-200 mb-2">Snap</div>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Take a photo of your room</p>
+                <div className="font-bold text-stone-800 dark:text-stone-200 mb-2">Snap</div>
+                <p className="text-sm text-stone-500 dark:text-stone-400">Take a photo of your room</p>
               </div>
               <div>
-                <div className="font-bold text-slate-800 dark:text-slate-200 mb-2">Choose</div>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Clean it up or redesign it</p>
+                <div className="font-bold text-stone-800 dark:text-stone-200 mb-2">Choose</div>
+                <p className="text-sm text-stone-500 dark:text-stone-400">Clean it up or redesign it</p>
               </div>
               <div>
-                <div className="font-bold text-slate-800 dark:text-slate-200 mb-2">Transform</div>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Get your personalized plan</p>
+                <div className="font-bold text-stone-800 dark:text-stone-200 mb-2">Transform</div>
+                <p className="text-sm text-stone-500 dark:text-stone-400">Get your personalized plan</p>
               </div>
             </div>
           </div>
@@ -1164,16 +1164,16 @@ function AppContent() {
               )}
             </div>
             
-            <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-4">
+            <h2 className="text-2xl font-bold text-stone-800 dark:text-stone-100 mb-4">
               {errorTitle}
             </h2>
             
-            <p className="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
+            <p className="text-stone-600 dark:text-stone-400 mb-8 leading-relaxed">
               {errorMessage}
             </p>
 
             {errorSuggestion && (
-              <p className="text-slate-500 dark:text-slate-400 mb-8 text-sm">
+              <p className="text-stone-500 dark:text-stone-400 mb-8 text-sm">
                 {errorSuggestion}
               </p>
             )}
@@ -1188,7 +1188,7 @@ function AppContent() {
                 {error.isRetryable && (
                   <button 
                     onClick={handleRetry}
-                    className="bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+                    className="bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900"
                     aria-label="Try analyzing the image again"
                   >
                     <RefreshCw className="w-4 h-4" aria-hidden="true" />
@@ -1197,7 +1197,7 @@ function AppContent() {
                 )}
                 <button 
                   onClick={resetApp}
-                  className="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-6 py-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+                  className="bg-stone-100 dark:bg-stone-700 text-stone-700 dark:text-stone-200 px-6 py-3 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-600 transition-colors focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900"
                   aria-label="Go back to home and start fresh"
                 >
                   Start Fresh
@@ -1206,7 +1206,7 @@ function AppContent() {
             )}
             
             {/* Error code for debugging */}
-            <p className="mt-8 text-xs text-slate-400 dark:text-slate-500">
+            <p className="mt-8 text-xs text-stone-400 dark:text-stone-500">
               Error code: {error.code}
             </p>
           </div>
@@ -1222,13 +1222,13 @@ function AppContent() {
                 {designAnalysis && (
                   <button
                     onClick={handleBackToOptions}
-                    className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors text-sm font-medium"
+                    className="flex items-center gap-2 text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors text-sm font-medium"
                   >
                     <ArrowLeft className="w-4 h-4" /> Back to 3 Designs
                   </button>
                 )}
                 {/* Image Preview Card */}
-                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden p-2 transition-colors duration-300">
+                <div className="bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-hidden p-2 transition-colors duration-300">
                   {uploadedImage?.dataUrl ? (
                     <img 
                       src={uploadedImage.dataUrl} 
@@ -1238,7 +1238,7 @@ function AppContent() {
                       decoding="async"
                     />
                   ) : (
-                    <div className="w-full h-64 md:h-80 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300 text-sm">
+                    <div className="w-full h-64 md:h-80 rounded-xl bg-stone-100 dark:bg-stone-700 flex items-center justify-center text-stone-500 dark:text-stone-300 text-sm">
                       Original image not available. Upload a new photo to view it here.
                     </div>
                   )}
@@ -1276,7 +1276,7 @@ function AppContent() {
 
       {/* Footer - only on home */}
       {appState === AppState.HOME && (
-        <footer className="py-8 text-center text-sm text-slate-400 dark:text-slate-500">
+        <footer className="py-8 text-center text-sm text-stone-400 dark:text-stone-500">
           <p>Powered by Google Gemini AI</p>
         </footer>
       )}

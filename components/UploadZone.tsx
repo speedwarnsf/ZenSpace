@@ -300,7 +300,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelected, isAnaly
 
       {/* Help Text - visible on mobile */}
       {!preview && !isAnalyzing && (
-        <p className="mt-6 text-sm text-slate-400 dark:text-slate-500 flex items-center gap-2 md:hidden">
+        <p className="mt-6 text-sm text-stone-400 dark:text-stone-500 flex items-center gap-2 md:hidden">
           <Camera className="w-4 h-4" aria-hidden="true" />
           <span>Tap to take or upload a photo</span>
         </p>

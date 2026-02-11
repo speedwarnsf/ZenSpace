@@ -155,13 +155,13 @@ export function ComparisonSlider({
           className="absolute top-0 bottom-0 w-1 bg-white shadow-lg cursor-ew-resize transition-opacity"
           style={{ 
             left: `${sliderPosition}%`, 
-            transform: 'translateX(-50%)',
+            transform: 'transtoneX(-50%)',
             opacity: isDragging ? 1 : 0.9
           }}
         >
           {/* Handle button */}
           <div
-            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
+            className={`absolute top-1/2 left-1/2 -transtone-x-1/2 -transtone-y-1/2 
               w-10 h-10 rounded-full bg-white shadow-lg border-2 border-gray-300
               flex items-center justify-center transition-all duration-200
               ${isDragging ? 'scale-110 border-blue-500' : 'hover:scale-105 hover:border-blue-400'}`}
@@ -195,7 +195,7 @@ export function ComparisonSlider({
       {/* Instructions overlay (shows briefly) */}
       {allLoaded && (
         <div 
-          className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full
+          className="absolute bottom-3 left-1/2 -transtone-x-1/2 px-3 py-1.5 rounded-full
             bg-black/60 text-white text-xs backdrop-blur-sm flex items-center gap-2
             animate-fade-out pointer-events-none"
         >

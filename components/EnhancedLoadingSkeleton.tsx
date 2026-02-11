@@ -27,12 +27,12 @@ export function LoadingSkeleton({
   children
 }: LoadingSkeletonProps) {
   const baseClasses = animate 
-    ? 'bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 animate-pulse bg-[length:200%_100%]'
-    : 'bg-slate-200 dark:bg-slate-700';
+    ? 'bg-gradient-to-r from-stone-200 via-stone-300 to-stone-200 dark:from-stone-700 dark:via-stone-600 dark:to-stone-700 animate-pulse bg-[length:200%_100%]'
+    : 'bg-stone-200 dark:bg-stone-700';
 
   // Shimmer animation for enhanced loading
   const shimmerClasses = animate 
-    ? 'relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent'
+    ? 'relative overflow-hidden before:absolute before:inset-0 before:-transtone-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent'
     : '';
 
   switch (variant) {
@@ -56,22 +56,22 @@ export function LoadingSkeleton({
       return (
         <div className={`${className}`}>
           <div className={`aspect-video rounded-xl ${baseClasses} ${shimmerClasses} flex items-center justify-center`}>
-            {showIcon && <Image className="w-12 h-12 text-slate-400 dark:text-slate-500" />}
+            {showIcon && <Image className="w-12 h-12 text-stone-400 dark:text-stone-500" />}
           </div>
           {message && (
-            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400 text-center animate-pulse">
+            <p className="mt-3 text-sm text-stone-500 dark:text-stone-400 text-center animate-pulse">
               {message}
             </p>
           )}
           {progress !== undefined && (
             <div className="mt-3">
-              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+              <div className="w-full bg-stone-200 dark:bg-stone-700 rounded-full h-2">
                 <div 
                   className="bg-emerald-500 h-2 rounded-full transition-all duration-300 ease-out"
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 text-center mt-1">
+              <p className="text-xs text-stone-500 dark:text-stone-400 text-center mt-1">
                 {Math.round(progress)}%
               </p>
             </div>
@@ -136,7 +136,7 @@ export function LoadingSkeleton({
     default: // card
       return (
         <div className={`${className}`}>
-          <div className={`p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4`}>
+          <div className={`p-6 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-4`}>
             <div className={`h-6 w-1/3 rounded-lg ${baseClasses} ${shimmerClasses}`} />
             <div className="space-y-3">
               {Array.from({ length: lines }, (_, i) => (
@@ -218,10 +218,10 @@ export function AnalysisLoading({ stage, progress = 0, className = '' }: Analysi
 
       {/* Stage Message */}
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+        <h3 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
           {config.message}{dots}
         </h3>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
+        <p className="text-sm text-stone-500 dark:text-stone-400">
           This may take a few moments
         </p>
       </div>
@@ -229,7 +229,7 @@ export function AnalysisLoading({ stage, progress = 0, className = '' }: Analysi
       {/* Progress Bar */}
       {progress > 0 && (
         <div className="w-full max-w-xs mx-auto">
-          <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+          <div className="w-full bg-stone-200 dark:bg-stone-700 rounded-full h-2">
             <div 
               className={`h-2 rounded-full transition-all duration-500 ease-out bg-gradient-to-r ${
                 stage === 'uploading' ? 'from-blue-400 to-blue-500' :
@@ -240,7 +240,7 @@ export function AnalysisLoading({ stage, progress = 0, className = '' }: Analysi
               style={{ width: `${Math.min(progress, 100)}%` }}
             />
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 text-center mt-1">
+          <p className="text-xs text-stone-500 dark:text-stone-400 text-center mt-1">
             {Math.round(progress)}%
           </p>
         </div>
@@ -259,12 +259,12 @@ export function ChatTypingIndicator({ className = '' }: { className?: string }) 
         {[0, 1, 2].map(i => (
           <div
             key={i}
-            className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce"
+            className="w-2 h-2 bg-stone-400 dark:bg-stone-500 rounded-full animate-bounce"
             style={{ animationDelay: `${i * 0.1}s` }}
           />
         ))}
       </div>
-      <span className="text-sm text-slate-500 dark:text-slate-400">
+      <span className="text-sm text-stone-500 dark:text-stone-400">
         AI is thinking...
       </span>
     </div>
@@ -297,8 +297,8 @@ export function LoadingButton({
   
   const variantClasses = {
     primary: 'bg-emerald-600 hover:bg-emerald-700 text-white focus:ring-emerald-500',
-    secondary: 'bg-slate-600 hover:bg-slate-700 text-white focus:ring-slate-500',
-    ghost: 'bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 focus:ring-slate-500',
+    secondary: 'bg-stone-600 hover:bg-stone-700 text-white focus:ring-stone-500',
+    ghost: 'bg-transparent hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 focus:ring-stone-500',
   };
   
   const sizeClasses = {
@@ -348,8 +348,8 @@ export function FadeInImage({
 
   if (error) {
     return (
-      <div className={`bg-slate-100 dark:bg-slate-800 flex items-center justify-center ${className}`}>
-        <Image className="w-8 h-8 text-slate-400 dark:text-slate-500" />
+      <div className={`bg-stone-100 dark:bg-stone-800 flex items-center justify-center ${className}`}>
+        <Image className="w-8 h-8 text-stone-400 dark:text-stone-500" />
       </div>
     );
   }
@@ -357,7 +357,7 @@ export function FadeInImage({
   return (
     <div className="relative">
       {!loaded && (
-        <div className={`absolute inset-0 bg-slate-200 dark:bg-slate-700 animate-pulse ${className}`} />
+        <div className={`absolute inset-0 bg-stone-200 dark:bg-stone-700 animate-pulse ${className}`} />
       )}
       <img
         src={src}
@@ -377,7 +377,7 @@ export function FadeInImage({
 export const shimmerCSS = `
   @keyframes shimmer {
     100% {
-      transform: translateX(100%);
+      transform: transtoneX(100%);
     }
   }
 `;

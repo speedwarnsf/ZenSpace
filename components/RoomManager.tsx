@@ -53,20 +53,20 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ onAddRoom, onOpenDesig
           {selectedRoom ? (
             <button
               onClick={() => setSelectedRoomId(null)}
-              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+              className="p-2 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-lg transition-colors"
             >
-              <ArrowLeft className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+              <ArrowLeft className="w-5 h-5 text-stone-500 dark:text-stone-400" />
             </button>
           ) : (
             <button
               onClick={onBack}
-              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+              className="p-2 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-lg transition-colors"
             >
-              <ArrowLeft className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+              <ArrowLeft className="w-5 h-5 text-stone-500 dark:text-stone-400" />
             </button>
           )}
           <Home className="w-6 h-6 text-emerald-500" />
-          <h2 style={{ fontFamily: "'Playfair Display', serif" }} className="text-2xl font-bold text-slate-800 dark:text-slate-100">
+          <h2 style={{ fontFamily: "'Playfair Display', serif" }} className="text-2xl font-bold text-stone-800 dark:text-stone-100">
             {selectedRoom ? selectedRoom.name : 'My Rooms'}
           </h2>
         </div>
@@ -87,9 +87,9 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ onAddRoom, onOpenDesig
         <>
           {rooms.length === 0 ? (
             <div className="text-center py-20">
-              <Home className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-              <p className="text-lg font-medium text-slate-500 dark:text-slate-400 mb-2">No rooms yet</p>
-              <p className="text-sm text-slate-400 dark:text-slate-500 mb-6">
+              <Home className="w-16 h-16 text-stone-300 dark:text-stone-600 mx-auto mb-4" />
+              <p className="text-lg font-medium text-stone-500 dark:text-stone-400 mb-2">No rooms yet</p>
+              <p className="text-sm text-stone-400 dark:text-stone-500 mb-6">
                 Upload a photo and save designs to start building your room portfolio
               </p>
               <button
@@ -109,16 +109,16 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ onAddRoom, onOpenDesig
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
-                    className="group relative bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
+                    className="group relative bg-white dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 overflow-hidden hover:shadow-lg hover:-transtone-y-0.5 transition-all cursor-pointer"
                     onClick={() => setSelectedRoomId(room.id)}
                   >
                     {/* Thumbnail */}
-                    <div className="h-36 bg-slate-100 dark:bg-slate-700 overflow-hidden">
+                    <div className="h-36 bg-stone-100 dark:bg-stone-700 overflow-hidden">
                       {room.sourceImageThumb ? (
                         <img src={room.sourceImageThumb} alt={room.name} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Home className="w-10 h-10 text-slate-300 dark:text-slate-600" />
+                          <Home className="w-10 h-10 text-stone-300 dark:text-stone-600" />
                         </div>
                       )}
                       {/* Design count badge */}
@@ -130,8 +130,8 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ onAddRoom, onOpenDesig
 
                     {/* Info */}
                     <div className="p-3">
-                      <h3 className="font-semibold text-slate-800 dark:text-slate-100 text-sm truncate">{room.name}</h3>
-                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                      <h3 className="font-semibold text-stone-800 dark:text-stone-100 text-sm truncate">{room.name}</h3>
+                      <p className="text-xs text-stone-400 dark:text-stone-500 mt-1">
                         {new Date(room.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </p>
                       {room.selectedDesignId && (
@@ -154,17 +154,17 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ onAddRoom, onOpenDesig
                           </button>
                           <button
                             onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null); }}
-                            className="p-1.5 bg-white dark:bg-slate-600 rounded-lg shadow-sm"
+                            className="p-1.5 bg-white dark:bg-stone-600 rounded-lg shadow-sm"
                           >
-                            <X className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
+                            <X className="w-3.5 h-3.5 text-stone-600 dark:text-stone-300" />
                           </button>
                         </div>
                       ) : (
                         <button
                           onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(room.id); }}
-                          className="p-1.5 bg-white/90 dark:bg-slate-600/90 rounded-lg shadow-sm hover:bg-red-50"
+                          className="p-1.5 bg-white/90 dark:bg-stone-600/90 rounded-lg shadow-sm hover:bg-red-50"
                         >
-                          <Trash2 className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
+                          <Trash2 className="w-3.5 h-3.5 text-stone-600 dark:text-stone-300" />
                         </button>
                       )}
                     </div>
@@ -200,9 +200,9 @@ const RoomDesigns: React.FC<{
   if (room.designs.length === 0) {
     return (
       <div className="text-center py-16">
-        <Palette className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-        <p className="text-slate-500 dark:text-slate-400">No designs saved to this room yet</p>
-        <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
+        <Palette className="w-12 h-12 text-stone-300 dark:text-stone-600 mx-auto mb-4" />
+        <p className="text-stone-500 dark:text-stone-400">No designs saved to this room yet</p>
+        <p className="text-sm text-stone-400 dark:text-stone-500 mt-1">
           Generate designs and use "Save to Room" to add them here
         </p>
       </div>
@@ -225,19 +225,19 @@ const RoomDesigns: React.FC<{
               onClick={() => onOpenDesign(chosen)}
               className="w-full flex items-center gap-4 p-4 text-left hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
             >
-              <div className="w-20 h-20 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-700 flex-shrink-0">
+              <div className="w-20 h-20 rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-700 flex-shrink-0">
                 {chosen.option.visualizationImage || chosen.option.visualizationThumb ? (
                   <img src={chosen.option.visualizationImage ? `data:image/png;base64,${chosen.option.visualizationImage}` : chosen.option.visualizationThumb!} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center"><Palette className="w-6 h-6 text-slate-300" /></div>
+                  <div className="w-full h-full flex items-center justify-center"><Palette className="w-6 h-6 text-stone-300" /></div>
                 )}
               </div>
               <div>
-                <h3 style={{ fontFamily: "'Playfair Display', serif" }} className="text-lg font-bold text-slate-800 dark:text-slate-100">{chosen.option.name}</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">{chosen.option.mood}</p>
+                <h3 style={{ fontFamily: "'Playfair Display', serif" }} className="text-lg font-bold text-stone-800 dark:text-stone-100">{chosen.option.name}</h3>
+                <p className="text-sm text-stone-500 dark:text-stone-400 line-clamp-2">{chosen.option.mood}</p>
                 <div className="flex gap-1 mt-2">
                   {chosen.option.palette.map((c, i) => (
-                    <div key={i} className="w-4 h-4 rounded-full border border-slate-200 dark:border-slate-600" style={{ backgroundColor: c }} />
+                    <div key={i} className="w-4 h-4 rounded-full border border-stone-200 dark:border-stone-600" style={{ backgroundColor: c }} />
                   ))}
                 </div>
               </div>
@@ -247,7 +247,7 @@ const RoomDesigns: React.FC<{
       })()}
 
       {/* All designs */}
-      <h4 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+      <h4 className="text-sm font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wide">
         All Designs ({room.designs.length})
       </h4>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -256,28 +256,28 @@ const RoomDesigns: React.FC<{
           return (
             <div
               key={entry.id}
-              className={`bg-white dark:bg-slate-800 rounded-xl border overflow-hidden transition-all ${
+              className={`bg-white dark:bg-stone-800 rounded-xl border overflow-hidden transition-all ${
                 isChosen
                   ? 'border-emerald-300 dark:border-emerald-600'
-                  : 'border-slate-200 dark:border-slate-700 hover:shadow-md'
+                  : 'border-stone-200 dark:border-stone-700 hover:shadow-md'
               }`}
             >
               <button
                 onClick={() => onOpenDesign(entry)}
                 className="w-full text-left"
               >
-                <div className="aspect-[4/3] bg-slate-100 dark:bg-slate-700 overflow-hidden">
+                <div className="aspect-[4/3] bg-stone-100 dark:bg-stone-700 overflow-hidden">
                   {entry.option.visualizationImage || entry.option.visualizationThumb ? (
                     <img src={entry.option.visualizationImage ? `data:image/png;base64,${entry.option.visualizationImage}` : entry.option.visualizationThumb!} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Palette className="w-8 h-8 text-slate-300 dark:text-slate-600" />
+                      <Palette className="w-8 h-8 text-stone-300 dark:text-stone-600" />
                     </div>
                   )}
                 </div>
                 <div className="p-3">
-                  <h3 className="font-semibold text-sm text-slate-800 dark:text-slate-100 truncate">{entry.option.name}</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">{entry.option.mood}</p>
+                  <h3 className="font-semibold text-sm text-stone-800 dark:text-stone-100 truncate">{entry.option.name}</h3>
+                  <p className="text-xs text-stone-500 dark:text-stone-400 line-clamp-1 mt-0.5">{entry.option.mood}</p>
                 </div>
               </button>
               {!isChosen && (

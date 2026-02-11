@@ -84,7 +84,7 @@ const LookbookCard = memo(function LookbookCard({
     ? 'border-2 border-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.3)]'
     : isGood
     ? 'border border-yellow-400/50 shadow-[0_0_10px_rgba(234,179,8,0.15)]'
-    : 'border border-slate-100 dark:border-slate-700';
+    : 'border border-stone-100 dark:border-stone-700';
 
   return (
     <motion.div
@@ -105,7 +105,7 @@ const LookbookCard = memo(function LookbookCard({
       onDrag={(_: any, info: { offset: { x: number } }) => { dragDistRef.current = Math.abs(info.offset.x); }}
       onDragEnd={handleDragEnd}
       onClick={() => { if (dragDistRef.current < 5) onExpand(entry); dragDistRef.current = 0; }}
-      className={`relative group bg-white dark:bg-slate-800 rounded-2xl shadow-sm overflow-hidden cursor-grab active:cursor-grabbing ${borderClass} select-none`}
+      className={`relative group bg-white dark:bg-stone-800 rounded-2xl shadow-sm overflow-hidden cursor-grab active:cursor-grabbing ${borderClass} select-none`}
     >
       {/* Drag overlays */}
       <motion.div
@@ -143,7 +143,7 @@ const LookbookCard = memo(function LookbookCard({
       </button>
 
       {/* Image */}
-      <div className="aspect-[4/3] bg-slate-100 dark:bg-slate-700 overflow-hidden">
+      <div className="aspect-[4/3] bg-stone-100 dark:bg-stone-700 overflow-hidden">
         {entry.option.visualizationImage ? (
           <img
             src={`data:image/png;base64,${entry.option.visualizationImage}`}
@@ -153,8 +153,8 @@ const LookbookCard = memo(function LookbookCard({
             draggable={false}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800">
-            <div className="text-center text-slate-400 dark:text-slate-500">
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-stone-100 to-stone-200 dark:from-stone-700 dark:to-stone-800">
+            <div className="text-center text-stone-400 dark:text-stone-500">
               <SoIcon name="eye" size={28} className="mx-auto mb-1 opacity-50" />
               <span className="text-xs">Preview pending</span>
             </div>
@@ -165,7 +165,7 @@ const LookbookCard = memo(function LookbookCard({
       {/* Content */}
       <div className="p-4 space-y-3">
         <div className="flex items-start justify-between gap-2">
-          <h3 style={{ fontFamily: "'Playfair Display', serif" }} className="text-lg font-bold text-slate-800 dark:text-slate-100 leading-tight">
+          <h3 style={{ fontFamily: "'Playfair Display', serif" }} className="text-lg font-bold text-stone-800 dark:text-stone-100 leading-tight">
             {entry.option.name}
           </h3>
           {entry.rating && (
@@ -175,7 +175,7 @@ const LookbookCard = memo(function LookbookCard({
           )}
         </div>
 
-        <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">
+        <p className="text-sm text-stone-500 dark:text-stone-400 line-clamp-2">
           {entry.option.mood}
         </p>
 
@@ -184,7 +184,7 @@ const LookbookCard = memo(function LookbookCard({
           {entry.option.palette.map((color, i) => (
             <div
               key={i}
-              className="w-5 h-5 rounded-full border border-slate-200 dark:border-slate-600"
+              className="w-5 h-5 rounded-full border border-stone-200 dark:border-stone-600"
               style={{ backgroundColor: color }}
               title={color}
             />
@@ -194,7 +194,7 @@ const LookbookCard = memo(function LookbookCard({
         {/* Expand/collapse key changes */}
         <button
           onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
-          className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+          className="flex items-center gap-1 text-xs text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
         >
           {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
           {expanded ? 'Less' : 'Key changes'}
@@ -205,7 +205,7 @@ const LookbookCard = memo(function LookbookCard({
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="text-xs text-slate-500 dark:text-slate-400 space-y-1 overflow-hidden"
+              className="text-xs text-stone-500 dark:text-stone-400 space-y-1 overflow-hidden"
             >
               {entry.option.keyChanges.map((change, i) => (
                 <li key={i}>• {change}</li>
@@ -222,8 +222,8 @@ const LookbookCard = memo(function LookbookCard({
               onClick={(e) => { e.stopPropagation(); onRate(entry.id, r.value); }}
               className={`flex-1 text-center py-1.5 rounded-lg text-lg transition-all ${
                 entry.rating === r.value
-                  ? 'bg-slate-100 dark:bg-slate-700 scale-110'
-                  : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                  ? 'bg-stone-100 dark:bg-stone-700 scale-110'
+                  : 'hover:bg-stone-50 dark:hover:bg-stone-700/50'
               }`}
               title={r.label}
             >
@@ -296,7 +296,7 @@ function FullScreenCard({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 30 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-2xl w-full my-4 overflow-hidden"
+        className="relative bg-white dark:bg-stone-800 rounded-2xl shadow-2xl max-w-2xl w-full my-4 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
@@ -308,7 +308,7 @@ function FullScreenCard({
         </button>
 
         {/* Image */}
-        <div className="aspect-[16/10] bg-slate-100 dark:bg-slate-700 overflow-hidden">
+        <div className="aspect-[16/10] bg-stone-100 dark:bg-stone-700 overflow-hidden">
           {entry.option.visualizationImage ? (
             <img
               src={`data:image/png;base64,${entry.option.visualizationImage}`}
@@ -316,7 +316,7 @@ function FullScreenCard({
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">
+            <div className="w-full h-full flex items-center justify-center text-stone-400 dark:text-stone-500 text-sm">
               Preview not yet generated
             </div>
           )}
@@ -324,12 +324,12 @@ function FullScreenCard({
 
         <div className="p-6 space-y-5">
           {/* Name */}
-          <h2 style={{ fontFamily: "'Playfair Display', serif" }} className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-slate-100">
+          <h2 style={{ fontFamily: "'Playfair Display', serif" }} className="text-2xl sm:text-3xl font-bold text-stone-800 dark:text-stone-100">
             {entry.option.name}
           </h2>
 
           {/* Mood */}
-          <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+          <p className="text-stone-600 dark:text-stone-300 leading-relaxed">
             {entry.option.mood}
           </p>
 
@@ -338,10 +338,10 @@ function FullScreenCard({
             {entry.option.palette.map((color, i) => (
               <div key={i} className="flex flex-col items-center gap-1">
                 <div
-                  className="w-8 h-8 rounded-full border-2 border-slate-200 dark:border-slate-600"
+                  className="w-8 h-8 rounded-full border-2 border-stone-200 dark:border-stone-600"
                   style={{ backgroundColor: color }}
                 />
-                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{color}</span>
+                <span className="text-[10px] text-stone-400 dark:text-stone-500 font-mono">{color}</span>
               </div>
             ))}
           </div>
@@ -362,9 +362,9 @@ function FullScreenCard({
 
           {/* Framework Rationale */}
           {entry.option.frameworkRationale && (
-            <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4 border border-slate-200 dark:border-slate-600">
+            <div className="bg-stone-50 dark:bg-stone-700/50 rounded-xl p-4 border border-stone-200 dark:border-stone-600">
               <h4 className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-3">Design Reasoning</h4>
-              <div className="text-[13px] leading-[1.75] text-slate-600 dark:text-slate-300">
+              <div className="text-[13px] leading-[1.75] text-stone-600 dark:text-stone-300">
                 <ReactMarkdown>{entry.option.frameworkRationale}</ReactMarkdown>
               </div>
             </div>
@@ -372,10 +372,10 @@ function FullScreenCard({
 
           {/* Key Changes */}
           <div>
-            <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Key Changes</h4>
+            <h4 className="text-sm font-semibold text-stone-700 dark:text-stone-200 mb-2">Key Changes</h4>
             <ul className="space-y-3">
               {entry.option.keyChanges.map((change, i) => (
-                <li key={i} className="text-sm text-slate-600 dark:text-slate-400 flex items-start gap-2">
+                <li key={i} className="text-sm text-stone-600 dark:text-stone-400 flex items-start gap-2">
                   <span className="text-emerald-500 mt-0.5">•</span>
                   {change}
                 </li>
@@ -385,21 +385,21 @@ function FullScreenCard({
 
           {/* Full Plan */}
           {entry.option.fullPlan && (
-            <div className="border-t border-slate-200 dark:border-slate-700 pt-6 mt-2">
+            <div className="border-t border-stone-200 dark:border-stone-700 pt-6 mt-2">
               <h4 className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-6">Full Design Plan</h4>
               <div className="max-w-none">
                 <ReactMarkdown
                   components={{
-                    h1: ({ children }) => <h3 style={{ fontFamily: "'Playfair Display', serif" }} className="text-lg font-semibold tracking-normal text-slate-500 dark:text-slate-400 mt-8 mb-3">{children}</h3>,
-                    h2: ({ children }) => <h3 style={{ fontFamily: "'Playfair Display', serif" }} className="text-lg font-semibold tracking-normal text-slate-500 dark:text-slate-400 mt-8 mb-3">{children}</h3>,
-                    h3: ({ children }) => <h3 style={{ fontFamily: "'Playfair Display', serif" }} className="text-lg font-semibold tracking-normal text-slate-500 dark:text-slate-400 mt-8 mb-3">{children}</h3>,
-                    h4: ({ children }) => <h4 style={{ fontFamily: "'Playfair Display', serif" }} className="text-sm font-semibold text-slate-500 dark:text-slate-400 mt-5 mb-1">{children}</h4>,
+                    h1: ({ children }) => <h3 style={{ fontFamily: "'Playfair Display', serif" }} className="text-lg font-semibold tracking-normal text-stone-500 dark:text-stone-400 mt-8 mb-3">{children}</h3>,
+                    h2: ({ children }) => <h3 style={{ fontFamily: "'Playfair Display', serif" }} className="text-lg font-semibold tracking-normal text-stone-500 dark:text-stone-400 mt-8 mb-3">{children}</h3>,
+                    h3: ({ children }) => <h3 style={{ fontFamily: "'Playfair Display', serif" }} className="text-lg font-semibold tracking-normal text-stone-500 dark:text-stone-400 mt-8 mb-3">{children}</h3>,
+                    h4: ({ children }) => <h4 style={{ fontFamily: "'Playfair Display', serif" }} className="text-sm font-semibold text-stone-500 dark:text-stone-400 mt-5 mb-1">{children}</h4>,
                     hr: () => <div className="mt-6" />,
-                    p: ({ children }) => <p className="text-[13px] leading-[1.75] text-slate-600 dark:text-slate-300 mb-3">{children}</p>,
-                    strong: ({ children }) => <strong className="font-semibold text-slate-800 dark:text-slate-100">{children}</strong>,
+                    p: ({ children }) => <p className="text-[13px] leading-[1.75] text-stone-600 dark:text-stone-300 mb-3">{children}</p>,
+                    strong: ({ children }) => <strong className="font-semibold text-stone-800 dark:text-stone-100">{children}</strong>,
                     ul: ({ children }) => <ul className="mt-1.5 mb-4 space-y-2.5 list-disc list-outside pl-5">{children}</ul>,
                     ol: ({ children }) => <ol className="mt-1.5 mb-4 space-y-2.5 list-decimal list-outside pl-5">{children}</ol>,
-                    li: ({ children }) => <li className="text-[13px] leading-[1.75] text-slate-600 dark:text-slate-300 pl-1">{children}</li>,
+                    li: ({ children }) => <li className="text-[13px] leading-[1.75] text-stone-600 dark:text-stone-300 pl-1">{children}</li>,
                   }}
                 >{entry.option.fullPlan.replace(/([^\n])(#{1,4}\s)/g, '$1\n\n$2').replace(/\\n/g, '\n')}</ReactMarkdown>
               </div>
@@ -408,7 +408,7 @@ function FullScreenCard({
 
           {/* Product Recommendations */}
           {entry.option.products && entry.option.products.length > 0 && (
-            <div className="border-t border-slate-200 dark:border-slate-700 pt-5 mt-2">
+            <div className="border-t border-stone-200 dark:border-stone-700 pt-5 mt-2">
               <ProductShelf products={entry.option.products} title="Get This Look" light />
             </div>
           )}
@@ -421,8 +421,8 @@ function FullScreenCard({
                 onClick={() => onRate(entry.id, r.value)}
                 className={`flex-1 text-center py-2 rounded-xl text-xl transition-all ${
                   entry.rating === r.value
-                    ? 'bg-slate-100 dark:bg-slate-700 scale-110 ring-2 ring-emerald-400'
-                    : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                    ? 'bg-stone-100 dark:bg-stone-700 scale-110 ring-2 ring-emerald-400'
+                    : 'hover:bg-stone-50 dark:hover:bg-stone-700/50'
                 }`}
                 title={r.label}
               >
@@ -436,7 +436,7 @@ function FullScreenCard({
             <button
               onClick={() => onDownload(entry)}
               disabled={isDownloading}
-              className="flex-1 py-2.5 rounded-xl text-sm font-medium border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-2.5 rounded-xl text-sm font-medium border border-stone-200 dark:border-stone-600 text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-700/50 transition-colors flex items-center justify-center gap-2"
               title="Save Image"
             >
               {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <SoIcon name="save" size={16} />}
@@ -445,7 +445,7 @@ function FullScreenCard({
             <button
               onClick={() => onShare(entry)}
               disabled={isSharing}
-              className="flex-1 py-2.5 rounded-xl text-sm font-medium border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-2.5 rounded-xl text-sm font-medium border border-stone-200 dark:border-stone-600 text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-700/50 transition-colors flex items-center justify-center gap-2"
               title="Share"
             >
               {isSharing ? <Loader2 className="w-4 h-4 animate-spin" /> : <SoIcon name="share" size={16} />}
@@ -562,10 +562,10 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h2 style={{ fontFamily: "'Playfair Display', serif" }} className="text-3xl font-bold text-slate-800 dark:text-slate-100">
+        <h2 style={{ fontFamily: "'Playfair Display', serif" }} className="text-3xl font-bold text-stone-800 dark:text-stone-100">
           Your Lookbook
         </h2>
-        <p className="text-slate-500 dark:text-slate-400 text-sm">
+        <p className="text-stone-500 dark:text-stone-400 text-sm">
           Swipe right to love, left to dismiss — or tap to rate
         </p>
       </div>
@@ -599,8 +599,8 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
             onClick={() => setFilter(tab.key)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               filter === tab.key
-                ? 'bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900'
-                : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
+                ? 'bg-stone-800 dark:bg-stone-100 text-white dark:text-stone-900'
+                : 'bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-600'
             }`}
           >
             <span className="flex items-center gap-1">
@@ -608,7 +608,7 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
               {tab.label}
             </span>
             {tab.count > 0 && (
-              <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 rounded-full text-xs bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200">
+              <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 rounded-full text-xs bg-stone-200 dark:bg-stone-600 text-stone-700 dark:text-stone-200">
                 {tab.count}
               </span>
             )}
@@ -639,7 +639,7 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
       </motion.div>
 
       {sortedEntries.length === 0 && (
-        <div className="text-center py-16 text-slate-400 dark:text-slate-500">
+        <div className="text-center py-16 text-stone-400 dark:text-stone-500">
           <p className="text-lg">No designs in this view</p>
           <p className="text-sm mt-1">Try switching tabs or generating more</p>
         </div>

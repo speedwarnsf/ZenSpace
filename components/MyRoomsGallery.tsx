@@ -105,24 +105,24 @@ export const MyRoomsGallery: React.FC<MyRoomsGalleryProps> = ({ isOpen, onClose,
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col"
+        className="bg-white dark:bg-stone-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between flex-shrink-0">
+        <div className="px-6 py-4 border-b border-stone-200 dark:border-stone-700 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-3">
             {selectedRoom && (
-              <button onClick={handleBack} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                <ArrowLeft className="w-5 h-5 text-slate-500" />
+              <button onClick={handleBack} className="p-1.5 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-lg transition-colors">
+                <ArrowLeft className="w-5 h-5 text-stone-500" />
               </button>
             )}
             <Home className="w-5 h-5 text-emerald-500" />
-            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 font-serif">
+            <h2 className="text-xl font-bold text-stone-800 dark:text-stone-100 font-serif">
               {selectedRoom ? selectedRoom.name : 'My Rooms'}
             </h2>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-            <X className="w-5 h-5 text-slate-500" />
+          <button onClick={onClose} className="p-2 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-lg transition-colors">
+            <X className="w-5 h-5 text-stone-500" />
           </button>
         </div>
 
@@ -159,7 +159,7 @@ export const MyRoomsGallery: React.FC<MyRoomsGalleryProps> = ({ isOpen, onClose,
 
         {/* Footer */}
         {!selectedRoom && (
-          <div className="px-6 py-3 border-t border-slate-200 dark:border-slate-700 text-xs text-slate-400 dark:text-slate-500 flex-shrink-0">
+          <div className="px-6 py-3 border-t border-stone-200 dark:border-stone-700 text-xs text-stone-400 dark:text-stone-500 flex-shrink-0">
             {rooms.length} room{rooms.length !== 1 ? 's' : ''} saved
           </div>
         )}
@@ -196,23 +196,23 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   <div className="p-6">
     {/* Search */}
     <div className="relative mb-6">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      <Search className="absolute left-3 top-1/2 -transtone-y-1/2 w-4 h-4 text-stone-400" />
       <input
         type="text"
         placeholder="Search rooms..."
         value={searchQuery}
         onChange={e => onSearchChange(e.target.value)}
-        className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+        className="w-full pl-10 pr-4 py-2.5 border border-stone-200 dark:border-stone-600 rounded-xl bg-white dark:bg-stone-700 text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
       />
     </div>
 
     {rooms.length === 0 ? (
       <div className="text-center py-16">
-        <Home className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-        <p className="text-slate-500 dark:text-slate-400 text-lg font-medium mb-2">
+        <Home className="w-12 h-12 text-stone-300 dark:text-stone-600 mx-auto mb-4" />
+        <p className="text-stone-500 dark:text-stone-400 text-lg font-medium mb-2">
           {searchQuery ? 'No rooms found' : 'No rooms saved yet'}
         </p>
-        <p className="text-slate-400 dark:text-slate-500 text-sm">
+        <p className="text-stone-400 dark:text-stone-500 text-sm">
           {searchQuery ? 'Try a different search' : 'Analyze a room and save it to start your portfolio'}
         </p>
       </div>
@@ -268,10 +268,10 @@ const RoomCard: React.FC<RoomCardProps> = ({
     new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   return (
-    <div className="group relative bg-white dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+    <div className="group relative bg-white dark:bg-stone-700/50 rounded-xl border border-stone-200 dark:border-stone-600 overflow-hidden hover:shadow-lg hover:-transtone-y-0.5 transition-all duration-200">
       {/* Thumbnail — clickable */}
       <button onClick={onSelect} className="w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-inset">
-        <div className="relative h-36 bg-slate-100 dark:bg-slate-700">
+        <div className="relative h-36 bg-stone-100 dark:bg-stone-700">
           <img src={room.thumbnail} alt="" className="w-full h-full object-cover" />
           {/* Completion overlay */}
           {room.completionPercent > 0 && (
@@ -296,7 +296,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
               type="text"
               value={editName}
               onChange={e => onEditNameChange(e.target.value)}
-              className="flex-1 px-2 py-1 text-sm border border-slate-300 dark:border-slate-500 rounded bg-white dark:bg-slate-600 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="flex-1 px-2 py-1 text-sm border border-stone-300 dark:border-stone-500 rounded bg-white dark:bg-stone-600 text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               autoFocus
               onKeyDown={e => { if (e.key === 'Enter') onSaveEdit(); if (e.key === 'Escape') onCancelEdit(); }}
             />
@@ -306,12 +306,12 @@ const RoomCard: React.FC<RoomCardProps> = ({
           </div>
         ) : (
           <button onClick={onSelect} className="text-left w-full focus:outline-none">
-            <h3 className="font-semibold text-slate-800 dark:text-slate-100 text-sm truncate">{room.name}</h3>
+            <h3 className="font-semibold text-stone-800 dark:text-stone-100 text-sm truncate">{room.name}</h3>
           </button>
         )}
 
         <div className="flex items-center justify-between mt-1.5">
-          <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
+          <div className="flex items-center gap-2 text-xs text-stone-400 dark:text-stone-500">
             <Clock className="w-3 h-3" />
             {formatDate(room.updatedAt)}
           </div>
@@ -327,7 +327,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
         {/* Progress bar */}
         {room.completionPercent > 0 && (
           <div className="mt-2">
-            <div className="h-1.5 bg-slate-100 dark:bg-slate-600 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-stone-100 dark:bg-stone-600 rounded-full overflow-hidden">
               <div
                 className="h-full bg-emerald-500 rounded-full transition-all duration-500"
                 style={{ width: `${room.completionPercent}%` }}
@@ -344,17 +344,17 @@ const RoomCard: React.FC<RoomCardProps> = ({
             <button onClick={onDelete} className="p-1.5 bg-red-500 text-white rounded-lg shadow-sm hover:bg-red-600" title="Confirm">
               <Check className="w-3.5 h-3.5" />
             </button>
-            <button onClick={onCancelDelete} className="p-1.5 bg-white dark:bg-slate-600 rounded-lg shadow-sm hover:bg-slate-100" title="Cancel">
-              <X className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
+            <button onClick={onCancelDelete} className="p-1.5 bg-white dark:bg-stone-600 rounded-lg shadow-sm hover:bg-stone-100" title="Cancel">
+              <X className="w-3.5 h-3.5 text-stone-600 dark:text-stone-300" />
             </button>
           </>
         ) : (
           <>
-            <button onClick={onStartEdit} className="p-1.5 bg-white/90 dark:bg-slate-600/90 rounded-lg shadow-sm hover:bg-white" title="Rename">
-              <Edit2 className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
+            <button onClick={onStartEdit} className="p-1.5 bg-white/90 dark:bg-stone-600/90 rounded-lg shadow-sm hover:bg-white" title="Rename">
+              <Edit2 className="w-3.5 h-3.5 text-stone-600 dark:text-stone-300" />
             </button>
-            <button onClick={onConfirmDelete} className="p-1.5 bg-white/90 dark:bg-slate-600/90 rounded-lg shadow-sm hover:bg-red-50" title="Delete">
-              <Trash2 className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
+            <button onClick={onConfirmDelete} className="p-1.5 bg-white/90 dark:bg-stone-600/90 rounded-lg shadow-sm hover:bg-red-50" title="Delete">
+              <Trash2 className="w-3.5 h-3.5 text-stone-600 dark:text-stone-300" />
             </button>
           </>
         )}
@@ -387,13 +387,13 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
   return (
     <div className="p-6 space-y-6">
       {/* Room image */}
-      <div className="rounded-xl overflow-hidden h-48 bg-slate-100 dark:bg-slate-700">
+      <div className="rounded-xl overflow-hidden h-48 bg-stone-100 dark:bg-stone-700">
         <img src={room.imageDataUrl || room.thumbnail} alt={room.name} className="w-full h-full object-cover" />
       </div>
 
       {/* Designs */}
       <div>
-        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
+        <h3 className="text-lg font-bold text-stone-800 dark:text-stone-100 mb-4 flex items-center gap-2">
           <Palette className="w-5 h-5 text-emerald-500" />
           Saved Designs
         </h3>
@@ -413,40 +413,40 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
                 className={`border rounded-xl overflow-hidden transition-colors ${
                   isChosen
                     ? 'border-emerald-300 dark:border-emerald-600 bg-emerald-50/50 dark:bg-emerald-900/10'
-                    : 'border-slate-200 dark:border-slate-600'
+                    : 'border-stone-200 dark:border-stone-600'
                 }`}
               >
                 {/* Design header */}
                 <button
                   onClick={() => setExpandedDesign(isExpanded ? null : design.index)}
-                  className="w-full flex items-center gap-3 p-4 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                  className="w-full flex items-center gap-3 p-4 text-left hover:bg-stone-50 dark:hover:bg-stone-700/50 transition-colors"
                 >
                   {/* Mini visualization */}
-                  <div className="w-14 h-14 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-700 flex-shrink-0">
+                  <div className="w-14 h-14 rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-700 flex-shrink-0">
                     {design.visualizationImage ? (
                       <img src={`data:image/png;base64,${design.visualizationImage}`} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <Palette className="w-5 h-5 text-slate-300" />
+                        <Palette className="w-5 h-5 text-stone-300" />
                       </div>
                     )}
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-slate-800 dark:text-slate-100 truncate">{design.name}</span>
+                      <span className="font-semibold text-stone-800 dark:text-stone-100 truncate">{design.name}</span>
                       {isChosen && (
                         <span className="flex items-center gap-1 text-xs bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full font-medium">
                           <Star className="w-3 h-3 fill-current" /> Chosen
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">{design.mood}</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5 line-clamp-1">{design.mood}</p>
 
                     {/* Palette dots */}
                     <div className="flex items-center gap-1 mt-1.5">
                       {design.palette.map((hex, i) => (
-                        <div key={i} className="w-4 h-4 rounded-full border border-white dark:border-slate-600 shadow-sm" style={{ backgroundColor: hex }} />
+                        <div key={i} className="w-4 h-4 rounded-full border border-white dark:border-stone-600 shadow-sm" style={{ backgroundColor: hex }} />
                       ))}
                     </div>
                   </div>
@@ -456,7 +456,7 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
                     <div className="flex-shrink-0 text-center">
                       <div className="relative w-10 h-10">
                         <svg className="w-10 h-10 -rotate-90">
-                          <circle cx="20" cy="20" r="16" fill="none" stroke="currentColor" strokeWidth="3" className="text-slate-200 dark:text-slate-600" />
+                          <circle cx="20" cy="20" r="16" fill="none" stroke="currentColor" strokeWidth="3" className="text-stone-200 dark:text-stone-600" />
                           <circle cx="20" cy="20" r="16" fill="none" stroke="currentColor" strokeWidth="3"
                             className="text-emerald-500"
                             strokeDasharray={`${2 * Math.PI * 16}`}
@@ -464,17 +464,17 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
                             strokeLinecap="round"
                           />
                         </svg>
-                        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-slate-600 dark:text-slate-300">{pct}%</span>
+                        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-stone-600 dark:text-stone-300">{pct}%</span>
                       </div>
                     </div>
                   )}
 
-                  <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                  <ChevronRight className={`w-4 h-4 text-stone-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
                 </button>
 
                 {/* Expanded content */}
                 {isExpanded && (
-                  <div className="border-t border-slate-100 dark:border-slate-700 p-4 space-y-4">
+                  <div className="border-t border-stone-100 dark:border-stone-700 p-4 space-y-4">
                     {/* Actions */}
                     <div className="flex flex-wrap gap-2">
                       {!isChosen && (
@@ -487,7 +487,7 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
                       )}
                       <button
                         onClick={() => onLoadDesign(room, design.index)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 font-medium transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-stone-100 dark:bg-stone-700 text-stone-700 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-stone-600 font-medium transition-colors"
                       >
                         <ChevronRight className="w-3.5 h-3.5" /> Open in Editor
                       </button>
@@ -495,10 +495,10 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
 
                     {/* Key changes */}
                     <div>
-                      <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">Key Changes</h4>
+                      <h4 className="text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wide mb-2">Key Changes</h4>
                       <ul className="space-y-1">
                         {design.keyChanges.map((c, i) => (
-                          <li key={i} className="text-sm text-slate-600 dark:text-slate-300 flex items-start gap-1.5">
+                          <li key={i} className="text-sm text-stone-600 dark:text-stone-300 flex items-start gap-1.5">
                             <span className="text-emerald-500 mt-0.5">•</span> {c}
                           </li>
                         ))}
@@ -508,7 +508,7 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
                     {/* Shopping list progress */}
                     {design.shoppingList && design.shoppingList.items.length > 0 && (
                       <div>
-                        <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                        <h4 className="text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wide mb-2 flex items-center gap-1.5">
                           <ShoppingCart className="w-3.5 h-3.5" />
                           Shopping Progress ({progress.purchasedIds.length}/{progress.totalItems})
                         </h4>
@@ -521,20 +521,20 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
                                 onClick={() => handleTogglePurchased(design, item.id)}
                                 className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm transition-colors ${
                                   isPurchased
-                                    ? 'bg-emerald-50 dark:bg-emerald-900/20 text-slate-400 dark:text-slate-500'
-                                    : 'hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-200'
+                                    ? 'bg-emerald-50 dark:bg-emerald-900/20 text-stone-400 dark:text-stone-500'
+                                    : 'hover:bg-stone-50 dark:hover:bg-stone-700/50 text-stone-700 dark:text-stone-200'
                                 }`}
                               >
                                 <div className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${
                                   isPurchased
                                     ? 'bg-emerald-500 border-emerald-500 text-white'
-                                    : 'border-slate-300 dark:border-slate-600'
+                                    : 'border-stone-300 dark:border-stone-600'
                                 }`}>
                                   {isPurchased && <Check className="w-2.5 h-2.5" />}
                                 </div>
                                 <span className={isPurchased ? 'line-through' : ''}>{item.name}</span>
-                                {item.quantity > 1 && <span className="text-xs text-slate-400">×{item.quantity}</span>}
-                                <span className="ml-auto text-xs text-slate-400">${item.priceEstimate.low}–${item.priceEstimate.high}</span>
+                                {item.quantity > 1 && <span className="text-xs text-stone-400">×{item.quantity}</span>}
+                                <span className="ml-auto text-xs text-stone-400">${item.priceEstimate.low}–${item.priceEstimate.high}</span>
                               </button>
                             );
                           })}

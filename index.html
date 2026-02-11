@@ -32,9 +32,9 @@
         theme: {
           extend: {
             colors: {
-              slate: {
-                850: '#172033',
-                950: '#0a0f1a'
+              stone: {
+                850: '#201e1c',
+                950: '#0c0a09'
               }
             }
           }
@@ -47,6 +47,56 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <link rel="preload" href="/index.tsx" as="script" crossorigin>
     <style>
+      /* ═══════════════════════════════════════════════════════════
+         ZenSpace Design Tokens — The Single Source of Truth
+         ═══════════════════════════════════════════════════════════
+
+         BACKGROUNDS
+           --bg-page:       Light: stone-50  (#fafaf9)   Dark: stone-900  (#1c1917)
+           --bg-card:       Light: white     (#ffffff)   Dark: stone-800  (#292524)
+           --bg-elevated:   Light: stone-100 (#f5f5f4)   Dark: stone-700  (#44403c)
+
+         TEXT
+           --text-primary:  Light: stone-900 (#1c1917)   Dark: stone-100  (#f5f5f4)
+           --text-secondary:Light: stone-600 (#57534e)   Dark: stone-400  (#a8a29e)
+           --text-tertiary: Light: stone-400 (#a8a29e)   Dark: stone-500  (#78716c)
+
+         ACCENT (Emerald — the ZenSpace brand green)
+           --accent:        emerald-500  (#10b981)       — primary CTA, brand mark
+           --accent-hover:  emerald-600  (#059669)       — button hover (light), or emerald-400 on dark
+           --accent-subtle: emerald-50   (#ecfdf5)       Dark: emerald-900/20
+           --accent-text:   emerald-600  (#059669)       Dark: emerald-400 (#34d399)
+
+         BORDERS
+           --border:        Light: stone-200 (#e7e5e4)   Dark: stone-700  (#44403c)
+
+         INTERACTIVE STATES
+           --hover-bg:      Light: stone-100 (#f5f5f4)   Dark: stone-700  (#44403c)
+           --active-bg:     Light: stone-200 (#e7e5e4)   Dark: stone-600  (#57534e)
+           --disabled:      opacity-50
+
+         SEMANTIC
+           --error:         red-500 / red-400 (dark)
+           --warning:       amber-500 / amber-400 (dark)
+           --success:       emerald-500
+
+         SPECIAL SURFACES
+           --design-studio: neutral-950 (#0a0a0a) — immersive editorial layout
+           --upload-lens:   zinc-900 (#18181b) — camera lens aesthetic
+
+         FRAMEWORK BADGES (semantic color per design theory)
+           Aesthetic Order:   violet
+           Human-Centric:     blue
+           Universal Design:  teal
+           Biophilic:         emerald
+           Phenomenological:  amber
+
+         RATING ACCENTS
+           "The One":  yellow-400 (gold star)
+           "Good":     yellow-400/50
+
+         ═══════════════════════════════════════════════════════════ */
+
       body {
         font-family: 'Inter', sans-serif;
       }
@@ -71,19 +121,19 @@
         background: transparent; 
       }
       ::-webkit-scrollbar-thumb {
-        background: #cbd5e1; 
+        background: #d6d3d1; 
         border-radius: 4px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8; 
+        background: #a8a29e; 
       }
       
       /* Dark mode scrollbar */
       .dark ::-webkit-scrollbar-thumb {
-        background: #475569;
+        background: #44403c;
       }
       .dark ::-webkit-scrollbar-thumb:hover {
-        background: #64748b;
+        background: #57534e;
       }
       
       /* Safe area insets for notched phones */
@@ -225,10 +275,10 @@
       /* High contrast adjustments for dark mode */
       @media (prefers-contrast: high) {
         .dark {
-          --slate-50: #ffffff;
-          --slate-100: #f1f5f9;
-          --slate-900: #000000;
-          --slate-800: #1e1e1e;
+          --stone-50: #ffffff;
+          --stone-100: #f5f5f4;
+          --stone-900: #000000;
+          --stone-800: #1c1917;
         }
         
         .dark button,
@@ -285,7 +335,7 @@
       }
     </style>
   </head>
-  <body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 antialiased transition-colors duration-300">
+  <body class="bg-stone-50 dark:bg-stone-900 text-stone-900 dark:text-stone-100 antialiased transition-colors duration-300">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
     <script>

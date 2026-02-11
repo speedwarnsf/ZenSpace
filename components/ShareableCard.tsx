@@ -18,7 +18,7 @@ export function ShareableCard({ entry, onReady }: ShareableCardProps) {
 
   const gradientBg = option.palette.length >= 2
     ? `linear-gradient(135deg, ${option.palette[0]}, ${option.palette[1]}, ${option.palette[option.palette.length - 1]})`
-    : '#1e293b';
+    : '#292524';
 
   return (
     <div
@@ -26,7 +26,7 @@ export function ShareableCard({ entry, onReady }: ShareableCardProps) {
       style={{
         width: 1080,
         minHeight: 1080,
-        backgroundColor: '#0f172a',
+        backgroundColor: '#1c1917',
         color: '#ffffff',
         fontFamily: "'Georgia', 'Times New Roman', serif",
         display: 'flex',
@@ -41,7 +41,7 @@ export function ShareableCard({ entry, onReady }: ShareableCardProps) {
           height: 720,
           overflow: 'hidden',
           position: 'relative',
-          background: '#0f172a',
+          background: '#1c1917',
         }}
       >
         {option.visualizationImage ? (
@@ -96,7 +96,7 @@ export function ShareableCard({ entry, onReady }: ShareableCardProps) {
           style={{
             fontSize: 22,
             fontStyle: 'italic',
-            color: '#cbd5e1',
+            color: '#d6d3d1',
             lineHeight: 1.6,
           }}
         >
@@ -116,7 +116,7 @@ export function ShareableCard({ entry, onReady }: ShareableCardProps) {
                   border: '3px solid rgba(255,255,255,0.15)',
                 }}
               />
-              <span style={{ fontSize: 13, color: '#94a3b8', fontFamily: 'monospace' }}>
+              <span style={{ fontSize: 13, color: '#a8a29e', fontFamily: 'monospace' }}>
                 {color}
               </span>
             </div>
@@ -152,7 +152,7 @@ export function ShareableCard({ entry, onReady }: ShareableCardProps) {
               key={i}
               style={{
                 fontSize: 18,
-                color: '#e2e8f0',
+                color: '#e7e5e4',
                 fontFamily: 'system-ui, sans-serif',
                 display: 'flex',
                 gap: 12,
@@ -184,13 +184,13 @@ export function ShareableCard({ entry, onReady }: ShareableCardProps) {
               fontSize: 20,
               fontWeight: 600,
               letterSpacing: 2,
-              color: '#94a3b8',
+              color: '#a8a29e',
               fontFamily: 'system-ui, sans-serif',
             }}
           >
             zenspace.design
           </span>
-          <span style={{ fontSize: 16, color: '#475569' }}>AI-powered interior design</span>
+          <span style={{ fontSize: 16, color: '#44403c' }}>AI-powered interior design</span>
         </div>
       </div>
     </div>
