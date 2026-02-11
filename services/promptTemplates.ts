@@ -225,11 +225,17 @@ NAMING RULES (CRITICAL):
 - BAD names (DO NOT do this): "Cocooned Horizon Slumber", "Ethereal Woven Sanctuary", "Luminous Organic Retreat", "Serene Botanical Haven", "Tranquil Whisper Abode"
 - No abstract filler words: sanctuary, haven, retreat, embrace, whisper, harmony, essence, serenity, oasis, cocoon, ethereal, luminous
 
-PER OPTION: name (2-3 punchy words — see rules above), mood (2-3 sentences), frameworks (2-3), palette (5 hex), key_changes (3-5 bullets — specific enough to act on, with material/finish details), full_plan (markdown with ### headings, bullet lists, 250-400 words), visualization_prompt (detailed, keep room geometry).
+PER OPTION: name (2-3 punchy words — see rules above), mood (2-3 sentences), frameworks (2-3), palette (5 hex), key_changes (3-5 bullets — specific enough to act on, with material/finish details), full_plan (markdown with ### headings, bullet lists, 250-400 words), visualization_prompt (detailed, keep room geometry), products (5-8 REAL product recommendations).
+
+PRODUCT RECOMMENDATIONS (per option):
+- 5-8 SPECIFIC, REAL products — actual product names from actual brands. Not "minimalist oak table" — real items like "Noguchi Coffee Table" by Herman Miller or "Arco Floor Lamp" by Flos.
+- Brands to draw from: DWR, RH, Serena & Lily, Article, CB2, Rejuvenation, Schoolhouse, Lulu & Georgia, West Elm, Knoll, Fritz Hansen, Menu/Audo, HAY, Muuto, Tom Dixon, Flos, Artemide, 1stDibs
+- Each product: { name, brand, category (furniture|lighting|textiles|decor|rugs|hardware), price_range ("$X-Y"), description (one line — why it works HERE), search_query (e.g. "Herman Miller Noguchi Coffee Table") }
+- Products must relate to THIS specific design direction, not generic picks. Match the palette, materials, and mood.
 
 Full plan structure: ### Design Thesis (2-3 sentences) → ### Interventions (bullet list) → ### Materials (bullet list) → ### Rug (2-3 sentences). No prose paragraphs longer than 3 sentences.
 ${previousDesigns.length > 0 ? `\nALREADY SEEN (avoid these): ${previousDesigns.map(d => `"${d}"`).join(', ')}` : ''}
-Return ONLY valid JSON: { "room_reading": "...", "options": [{name, mood, frameworks, palette, key_changes, full_plan, visualization_prompt}, ...] }`;
+Return ONLY valid JSON: { "room_reading": "...", "options": [{name, mood, frameworks, palette, key_changes, full_plan, visualization_prompt, products}, ...] }`;
 }
 
 /**

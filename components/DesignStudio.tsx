@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { ArrowLeft, Download, Share2, Loader2 } from 'lucide-react';
 import { SoIcon } from './SoIcon';
+import { ProductShelf } from './ProductShelf';
 import type { LookbookEntry } from '../types';
 
 interface DesignStudioProps {
@@ -380,6 +381,13 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
                 }}
               >{option.fullPlan.replace(/([^\n])(#{1,4}\s)/g, '$1\n\n$2').replace(/\\n/g, '\n')}</ReactMarkdown>
             </div>
+          </RevealSection>
+        )}
+
+        {/* ── Product Recommendations ── */}
+        {option.products && option.products.length > 0 && (
+          <RevealSection>
+            <ProductShelf products={option.products} title="The Edit" />
           </RevealSection>
         )}
 

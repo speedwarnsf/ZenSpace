@@ -7,6 +7,7 @@ import { createRoot } from 'react-dom/client';
 import { ShareableCard } from './ShareableCard';
 import ReactMarkdown from 'react-markdown';
 import { SaveToRoomPicker } from './SaveToRoomPicker';
+import { ProductShelf } from './ProductShelf';
 import type { LookbookEntry, DesignRating } from '../types';
 
 interface LookbookProps {
@@ -402,6 +403,13 @@ function FullScreenCard({
                   }}
                 >{entry.option.fullPlan.replace(/([^\n])(#{1,4}\s)/g, '$1\n\n$2').replace(/\\n/g, '\n')}</ReactMarkdown>
               </div>
+            </div>
+          )}
+
+          {/* Product Recommendations */}
+          {entry.option.products && entry.option.products.length > 0 && (
+            <div className="border-t border-slate-200 dark:border-slate-700 pt-5 mt-2">
+              <ProductShelf products={entry.option.products} title="Get This Look" light />
             </div>
           )}
 

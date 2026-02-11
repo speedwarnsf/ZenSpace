@@ -599,7 +599,18 @@ const normalizeDesignOption = (raw: any, index: number): DesignOption => {
   const visualizationPrompt = (typeof raw?.visualization_prompt === 'string' && raw.visualization_prompt.trim()) || `Redesign this room in a ${name} style: ${keyChanges.join('. ')}.`;
   const frameworkRationale = (typeof raw?.framework_rationale === 'string' && raw.framework_rationale.trim()) || undefined;
 
-  return { name, mood, frameworks, frameworkRationale, palette, keyChanges, fullPlan, visualizationPrompt };
+  const products: import('../types').ProductRecommendation[] = Array.isArray(raw?.products)
+    ? raw.products.filter((p: any) => p?.name && p?.brand).slice(0, 8).map((p: any) => ({
+        name: String(p.name),
+        brand: String(p.brand),
+        category: ['furniture', 'lighting', 'textiles', 'decor', 'rugs', 'hardware'].includes(p.category) ? p.category : 'decor',
+        priceRange: String(p.price_range || p.priceRange || 'Price varies'),
+        description: String(p.description || ''),
+        searchQuery: String(p.search_query || p.searchQuery || `${p.brand} ${p.name}`),
+      }))
+    : [];
+
+  return { name, mood, frameworks, frameworkRationale, palette, keyChanges, fullPlan, visualizationPrompt, products };
 };
 
 /**
@@ -643,9 +654,24 @@ export const generateDesignOptions = async (
                   palette: { type: Type.ARRAY, items: { type: Type.STRING } },
                   key_changes: { type: Type.ARRAY, items: { type: Type.STRING } },
                   full_plan: { type: Type.STRING },
-                  visualization_prompt: { type: Type.STRING }
+                  visualization_prompt: { type: Type.STRING },
+                  products: {
+                    type: Type.ARRAY,
+                    items: {
+                      type: Type.OBJECT,
+                      properties: {
+                        name: { type: Type.STRING, description: "Real product name" },
+                        brand: { type: Type.STRING, description: "Brand name" },
+                        category: { type: Type.STRING, description: "furniture|lighting|textiles|decor|rugs|hardware" },
+                        price_range: { type: Type.STRING, description: "e.g. $800-1,200" },
+                        description: { type: Type.STRING, description: "Why this product works in this design" },
+                        search_query: { type: Type.STRING, description: "Search query for this product" }
+                      },
+                      required: ['name', 'brand', 'category', 'price_range', 'description', 'search_query']
+                    }
+                  }
                 },
-                required: ['name', 'mood', 'frameworks', 'palette', 'key_changes', 'full_plan', 'visualization_prompt']
+                required: ['name', 'mood', 'frameworks', 'palette', 'key_changes', 'full_plan', 'visualization_prompt', 'products']
               }
             }
           },

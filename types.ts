@@ -82,6 +82,24 @@ export type DesignFramework =
   | 'Phenomenological';
 
 /**
+ * A specific real product recommendation for a design direction
+ */
+export interface ProductRecommendation {
+  /** Actual product name, e.g. "Noguchi Coffee Table" */
+  name: string;
+  /** Brand name, e.g. "Herman Miller" */
+  brand: string;
+  /** Product category */
+  category: 'furniture' | 'lighting' | 'textiles' | 'decor' | 'rugs' | 'hardware';
+  /** Estimated price range, e.g. "$800-1,200" */
+  priceRange: string;
+  /** One line — why this piece works in this design */
+  description: string;
+  /** Pre-built search query for affiliate linking later */
+  searchQuery: string;
+}
+
+/**
  * One of three design directions generated after room analysis
  */
 export interface DesignOption {
@@ -103,6 +121,8 @@ export interface DesignOption {
   visualizationPrompt: string;
   /** Base64 image data once generated */
   visualizationImage?: string;
+  /** Curated product recommendations for this design */
+  products?: ProductRecommendation[];
 }
 
 /**
