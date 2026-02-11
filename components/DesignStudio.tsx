@@ -242,8 +242,8 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
                   ),
                   strong: ({ children }) => <strong className="font-semibold text-neutral-200">{children}</strong>,
                   em: ({ children }) => <em className="text-neutral-300" style={{ fontFamily: 'Georgia, serif' }}>{children}</em>,
-                  ul: ({ children }) => <ul className="mt-2 mb-6 space-y-3 list-none">{children}</ul>,
-                  ol: ({ children }) => <ol className="mt-2 mb-6 space-y-3 list-decimal list-outside pl-5">{children}</ol>,
+                  ul: ({ children }) => <ul className="mt-3 mb-8 space-y-6 list-none">{children}</ul>,
+                  ol: ({ children }) => <ol className="mt-3 mb-8 space-y-6 list-decimal list-outside pl-5">{children}</ol>,
                   li: ({ children }) => (
                     <li className="text-[15px] leading-[1.85] text-neutral-400 pl-0 flex items-start gap-3">
                       <span className="text-neutral-700 mt-[2px] shrink-0">—</span>
