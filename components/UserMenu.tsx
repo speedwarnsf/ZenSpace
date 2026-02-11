@@ -31,7 +31,7 @@ export function UserMenu({ onOpenPricing, onOpenAuth }: UserMenuProps) {
           if (onOpenAuth) onOpenAuth();
           else onOpenPricing();
         }}
-        className="w-8 h-8 rounded-full border border-slate-300 dark:border-slate-600 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:border-slate-400 dark:hover:border-slate-400 transition-colors"
+        className="fixed bottom-5 right-5 z-40 w-10 h-10 rounded-full bg-slate-800/80 dark:bg-slate-700/80 backdrop-blur-sm border border-slate-600/50 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 dark:hover:bg-slate-600 transition-all shadow-lg"
         aria-label="Sign in"
       >
         <UserIcon className="w-4 h-4" />
