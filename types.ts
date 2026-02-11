@@ -143,6 +143,8 @@ export enum AppState {
   LOOKBOOK = 'LOOKBOOK',
   /** Analysis complete, showing results */
   RESULTS = 'RESULTS',
+  /** Deep-dive editorial view for a single design */
+  DESIGN_STUDIO = 'DESIGN_STUDIO',
   /** An error occurred */
   ERROR = 'ERROR'
 }

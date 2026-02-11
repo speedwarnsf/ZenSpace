@@ -15,6 +15,7 @@ const DesignOptionsView = lazy(() => import('./components/DesignOptionsView').th
 const DesignDetailView = lazy(() => import('./components/DesignOptionsView').then(m => ({ default: m.DesignDetailView })));
 const MyRoomsGallery = lazy(() => import('./components/MyRoomsGallery').then(m => ({ default: m.MyRoomsGallery })));
 const Lookbook = lazy(() => import('./components/Lookbook'));
+const DesignStudio = lazy(() => import('./components/DesignStudio'));
 import { 
   analyzeImage, 
   createChatSession, 
@@ -64,6 +65,7 @@ function AppContent() {
   const [isVisualizingDesign, setIsVisualizingDesign] = useState(false);
   const [shoppingList, setShoppingList] = useState<ShoppingListData | null>(null);
   const [lookbookEntries, setLookbookEntries] = useState<LookbookEntry[]>([]);
+  const [studioEntry, setStudioEntry] = useState<LookbookEntry | null>(null);
 
   // Error state
   const [error, setError] = useState<AppError | null>(null);
@@ -668,32 +670,14 @@ function AppContent() {
   }, [uploadedImage, lookbookEntries]);
 
   /**
-   * Go deeper on a lookbook entry — transition to results
+   * Go deeper on a lookbook entry — transition to Design Studio
    */
   const handleSelectForIteration = useCallback((entryId: string) => {
     const entry = lookbookEntries.find(e => e.id === entryId);
     if (!entry) return;
-    // Find the index in the design analysis if available, or create one
-    if (designAnalysis) {
-      const idx = designAnalysis.options.findIndex(o => o.name === entry.option.name);
-      if (idx >= 0) {
-        handleSelectDesign(idx);
-        return;
-      }
-    }
-    // Fallback: create ad-hoc analysis result
-    const opt = entry.option;
-    const chat = createChatSession(`Design: ${opt.name}\n\n${opt.fullPlan}`);
-    setChatSession(chat);
-    setAnalysis({
-      rawText: `## ${opt.name}\n\n*${opt.mood}*\n\n${opt.fullPlan}`,
-      visualizationPrompt: opt.visualizationPrompt,
-      products: []
-    });
-    setVisualizationImage(opt.visualizationImage || null);
-    setMessages([]);
-    setAppState(AppState.RESULTS);
-  }, [lookbookEntries, designAnalysis, handleSelectDesign]);
+    setStudioEntry(entry);
+    setAppState(AppState.DESIGN_STUDIO);
+  }, [lookbookEntries]);
 
   /**
    * Handle mode selection (Clean vs Redesign)
@@ -881,7 +865,7 @@ function AppContent() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col font-sans transition-colors duration-300">
       {/* Header */}
       <header 
-        className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50 transition-colors duration-300"
+        className={`bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50 transition-colors duration-300 ${appState === AppState.DESIGN_STUDIO ? 'hidden' : ''}`}
         role="banner"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -991,7 +975,7 @@ function AppContent() {
       {/* Main Content */}
       <main 
         id="main-content"
-        className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8"
+        className={`flex-1 w-full ${appState === AppState.DESIGN_STUDIO ? '' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}`}
         role="main"
       >
         
@@ -1078,6 +1062,16 @@ function AppContent() {
               onGenerateMore={handleGenerateMore}
               isGenerating={isGeneratingVisuals}
               uploadedImageUrl={uploadedImage?.dataUrl || null}
+            />
+          </Suspense>
+        )}
+
+        {/* Design Studio State */}
+        {appState === AppState.DESIGN_STUDIO && studioEntry && (
+          <Suspense fallback={<div className="flex items-center justify-center min-h-[40vh]"><AnalysisLoading stage="generating" progress={95} className="max-w-md" /></div>}>
+            <DesignStudio
+              entry={studioEntry}
+              onBack={() => setAppState(AppState.LOOKBOOK)}
             />
           </Suspense>
         )}
