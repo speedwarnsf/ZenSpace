@@ -2,7 +2,9 @@ import { useState, useCallback, useMemo, useRef, memo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { SoIcon } from './SoIcon';
-import { captureCardAsImage, shareCard } from '../services/shareService';
+import { captureShareableCard, shareCard } from '../services/shareService';
+import { createRoot } from 'react-dom/client';
+import { ShareableCard } from './ShareableCard';
 import ReactMarkdown from 'react-markdown';
 import type { LookbookEntry, DesignRating } from '../types';
 
@@ -434,11 +436,18 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   const handleShare = useCallback(async (entry: LookbookEntry) => {
-    const cardEl = cardRefs.current.get(entry.id);
-    if (!cardEl) return;
     setSharingEntryId(entry.id);
+    let root: ReturnType<typeof createRoot> | null = null;
     try {
-      const blob = await captureCardAsImage(cardEl);
+      const blob = await captureShareableCard(
+        (container) => {
+          root = createRoot(container);
+          root.render(<ShareableCard entry={entry} />);
+        },
+        () => {
+          root?.unmount();
+        },
+      );
       await shareCard(blob, entry.option.name);
     } catch (err) {
       console.error('Share failed:', err);

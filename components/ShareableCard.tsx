@@ -25,7 +25,7 @@ export function ShareableCard({ entry, onReady }: ShareableCardProps) {
       ref={ref}
       style={{
         width: 1080,
-        minHeight: 1350,
+        minHeight: 1080,
         backgroundColor: '#0f172a',
         color: '#ffffff',
         fontFamily: "'Georgia', 'Times New Roman', serif",
