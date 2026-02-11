@@ -634,8 +634,6 @@ export const generateDesignOptions = async (
             room_reading: { type: Type.STRING },
             options: {
               type: Type.ARRAY,
-              minItems: 3,
-              maxItems: 3,
               items: {
                 type: Type.OBJECT,
                 properties: {
