@@ -77,12 +77,16 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
   const heroRef = useRef<HTMLDivElement>(null);
   const heroCardRef = useRef<HTMLDivElement>(null);
 
-  // Scroll-linked parallax: image zooms + fades, title area is sticky
+  // Scroll-linked parallax: image zooms + fades, title stays visible longer
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+  // Image fades out quickly
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   // Image moves up slower than scroll (parallax)
-  const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '20%']);
+  const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '15%']);
+  // Title fades much slower — stays readable longer over the photo
+  const titleOpacity = useTransform(scrollYProgress, [0, 0.7, 1], [1, 1, 0]);
+  const titleY = useTransform(scrollYProgress, [0, 1], [0, -100]);
 
   const { option } = entry;
   const imgSrc = option.visualizationImage
@@ -147,34 +151,35 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
         </div>
       </nav>
 
-      {/* ═══════════════ HERO SECTION — Sticky title over parallax image ═══════════════ */}
-      <div ref={heroRef} className="relative h-[140vh]">
-        {/* Sticky container: holds the viewport-height visual while scrolling through the 140vh wrapper */}
-        <div className="sticky top-0 h-screen overflow-hidden">
-          {/* Parallax image */}
-          {imgSrc ? (
-            <motion.div
-              className="absolute inset-0"
-              style={{ y: imageY }}
-              ref={heroCardRef}
-            >
-              <motion.img
-                src={imgSrc}
-                alt={option.name}
-                className="w-full h-[120%] object-cover"
-                style={{ scale: heroScale, opacity: heroOpacity }}
-              />
-            </motion.div>
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-950" ref={heroCardRef} />
-          )}
+      {/* ═══════════════ HERO SECTION ═══════════════ */}
+      <div ref={heroRef} className="relative h-screen overflow-hidden">
+        {/* Parallax image */}
+        {imgSrc ? (
+          <motion.div
+            className="absolute inset-0"
+            style={{ y: imageY }}
+            ref={heroCardRef}
+          >
+            <motion.img
+              src={imgSrc}
+              alt={option.name}
+              className="w-full h-[120%] object-cover"
+              style={{ scale: heroScale, opacity: heroOpacity }}
+            />
+          </motion.div>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-950" ref={heroCardRef} />
+        )}
 
-          {/* Gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/30 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-neutral-950/40 to-transparent" />
+        {/* Gradient overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-neutral-950/40 to-transparent" />
 
-          {/* Title lockup — stays pinned while hero scrolls */}
-          <div className="absolute bottom-0 left-0 right-0 px-6 sm:px-12 lg:px-20 pb-16 sm:pb-20">
+        {/* Title lockup — fades slower than image, stays readable longer */}
+        <motion.div
+          className="absolute bottom-0 left-0 right-0 px-6 sm:px-12 lg:px-20 pb-16 sm:pb-20"
+          style={{ opacity: titleOpacity, y: titleY }}
+        >
             {/* Category label */}
             {categoryLabel && (
               <motion.span
@@ -230,8 +235,7 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
               </motion.div>
               <span className="text-[10px] uppercase tracking-[0.3em]">Scroll to explore</span>
             </motion.div>
-          </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* ═══════════════ EDITORIAL BRIEF ═══════════════ */}
