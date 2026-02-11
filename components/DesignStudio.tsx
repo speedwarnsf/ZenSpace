@@ -216,12 +216,12 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
               <ReactMarkdown
                 components={{
                   h1: ({ children }) => (
-                    <h3 className="text-lg font-semibold text-neutral-200 mt-10 mb-4 uppercase tracking-[0.1em] break-after-avoid" style={{ fontFamily: 'system-ui, sans-serif' }}>
+                    <h3 className="text-lg font-semibold text-neutral-200 mt-10 mb-4 tracking-normal break-after-avoid">
                       {children}
                     </h3>
                   ),
                   h2: ({ children }) => (
-                    <h3 className="text-lg font-semibold text-neutral-200 mt-10 mb-4 uppercase tracking-[0.1em] break-after-avoid" style={{ fontFamily: 'system-ui, sans-serif' }}>
+                    <h3 className="text-lg font-semibold text-neutral-200 mt-10 mb-4 tracking-normal break-after-avoid">
                       {children}
                     </h3>
                   ),
@@ -231,7 +231,7 @@ export function DesignStudio({ entry, onBack }: DesignStudioProps) {
                     </h4>
                   ),
                   h4: ({ children }) => (
-                    <h5 className="text-sm font-semibold text-neutral-400 uppercase tracking-wider mt-6 mb-2 break-after-avoid">
+                    <h5 className="text-sm font-medium text-neutral-400 tracking-wide mt-6 mb-2 break-after-avoid">
                       {children}
                     </h5>
                   ),
