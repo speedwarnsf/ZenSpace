@@ -1,10 +1,12 @@
-import { useState, useRef, useMemo, useCallback } from 'react';
-import { motion, useScroll, useTransform, useInView } from 'framer-motion';
+import { useState, useRef, useMemo, useCallback, useEffect } from 'react';
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
-import { ArrowLeft, Download, Share2, Loader2 } from 'lucide-react';
+import { ArrowLeft, Download, Loader2 } from 'lucide-react';
 import { SoIcon } from './SoIcon';
 import { ProductShelf } from './ProductShelf';
-import type { LookbookEntry } from '../types';
+import { inferTypeMood, getTypePalette, loadStudioFonts } from '../services/studioTypography';
+import type { LookbookEntry, TypeMood } from '../types';
+import type { TypePalette } from '../services/studioTypography';
 
 interface DesignStudioProps {
   entry: LookbookEntry;
@@ -13,14 +15,16 @@ interface DesignStudioProps {
   sourceImage?: { base64: string; mimeType: string };
 }
 
-const ITERATION_PROMPTS = [
-  { label: 'Warmer palette', icon: 'like' },
-  { label: 'More minimal', icon: 'shrink-content' },
-  { label: 'Bolder materials', icon: 'expand-content' },
-  { label: 'Show me at night', icon: 'eye' },
-  { label: 'More dramatic', icon: 'stars' },
-  { label: 'More subtle', icon: 'filter' },
-];
+/* ═══════════════════════════════════════════════════
+   Shared utilities
+   ═══════════════════════════════════════════════════ */
+
+function useAccentColor(palette: string[]): string {
+  return useMemo(() => {
+    if (!palette.length) return '#a3a3a3';
+    return palette[Math.floor(palette.length / 2)] ?? palette[0] ?? '#a3a3a3';
+  }, [palette]);
+}
 
 function RevealSection({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   const ref = useRef(null);
@@ -38,229 +42,41 @@ function RevealSection({ children, className = '' }: { children: React.ReactNode
   );
 }
 
-function useAccentColor(palette: string[]): string {
-  return useMemo(() => {
-    if (!palette.length) return '#a3a3a3';
-    const mid = palette[Math.floor(palette.length / 2)] ?? palette[0];
-    return mid ?? '#a3a3a3';
-  }, [palette]);
-}
+/* ═══════════════════════════════════════════════════
+   StudioHero — Full-bleed visualization + mood typography
+   ═══════════════════════════════════════════════════ */
 
-/** Generate a PDF of the full design studio editorial layout */
-async function generatePDF(entry: LookbookEntry) {
-  const { option } = entry;
-  const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
-    import('jspdf'),
-    import('html2canvas'),
-  ]);
-
-  const el = document.getElementById('design-studio-content');
-  if (!el) return;
-
-  // Capture full scrollable content
-  const canvas = await html2canvas(el, {
-    backgroundColor: '#0a0a0a',
-    scale: 2,
-    useCORS: true,
-    logging: false,
-    scrollY: -window.scrollY,
-    windowHeight: el.scrollHeight,
-    height: el.scrollHeight,
-  });
-
-  const imgData = canvas.toDataURL('image/jpeg', 0.92);
-  const pdfWidth = 210; // A4 mm
-  const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-  const pdf = new jsPDF({
-    orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
-    unit: 'mm',
-    format: [pdfWidth, Math.min(pdfHeight, 297 * 3)], // cap at ~3 pages
-  });
-
-  pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-  pdf.save(`${option.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}-zenspace.pdf`);
-}
-
-/** Save the visualization image as a downloadable PNG */
-function saveVisualization(entry: LookbookEntry) {
-  const { option } = entry;
-  if (!option.visualizationImage) return;
-  
-  try {
-    const link = document.createElement('a');
-    link.download = `${option.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}-visualization.png`;
-    link.href = `data:image/png;base64,${option.visualizationImage}`;
-    link.click();
-  } catch (err) {
-    console.error('Save failed:', err);
-  }
-}
-
-export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignStudioProps) {
-  const [customPrompt, setCustomPrompt] = useState('');
-  const [sharing, setSharing] = useState(false);
-  const [isIterating, setIsIterating] = useState(false);
-  const [activeIterationLabel, setActiveIterationLabel] = useState<string | null>(null);
-  const studioTopRef = useRef<HTMLDivElement>(null);
-
-  const handleIterate = useCallback(async (prompt: string) => {
-    if (!onIterate || isIterating || !prompt.trim()) return;
-    setIsIterating(true);
-    setActiveIterationLabel(prompt);
-    try {
-      await onIterate(prompt);
-      setCustomPrompt('');
-      // Scroll to top after iteration completes
-      studioTopRef.current?.scrollIntoView({ behavior: 'smooth' });
-    } catch (err) {
-      console.error('Iteration failed:', err);
-    } finally {
-      setIsIterating(false);
-      setActiveIterationLabel(null);
-    }
-  }, [onIterate, isIterating]);
+function StudioHero({
+  entry,
+  tp,
+  accent,
+}: {
+  entry: LookbookEntry;
+  tp: TypePalette;
+  accent: string;
+}) {
   const heroRef = useRef<HTMLDivElement>(null);
-  // heroCardRef removed — share now uses base64 directly
-
-  // Scroll-linked parallax: image zooms + fades, title stays visible longer
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
-  // Image fades out quickly
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  // Image moves up slower than scroll (parallax)
   const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '15%']);
-  // (title is now below photo, not overlaid)
 
   const { option } = entry;
   const imgSrc = option.visualizationImage
     ? `data:image/png;base64,${option.visualizationImage}`
     : null;
-  const accent = useAccentColor(option.palette);
 
   const designName = option.name || 'Untitled';
   const firstLetter = designName.charAt(0).toUpperCase();
   const restOfName = designName.slice(1);
   const categoryLabel = option.frameworks?.[0] || '';
 
-  const handleShare = useCallback(async () => {
-    if (!option.visualizationImage) return;
-    setSharing(true);
-    try {
-      // Convert base64 to blob
-      const byteString = atob(option.visualizationImage);
-      const ab = new ArrayBuffer(byteString.length);
-      const ia = new Uint8Array(ab);
-      for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
-      const blob = new Blob([ab], { type: 'image/png' });
-      
-      if (navigator.share) {
-        const file = new File([blob], `${option.name}.png`, { type: 'image/png' });
-        await navigator.share({
-          title: option.name,
-          text: option.mood,
-          files: [file],
-        });
-      } else {
-        // Desktop fallback — download
-        const link = document.createElement('a');
-        link.download = `${option.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}.png`;
-        link.href = URL.createObjectURL(blob);
-        link.click();
-        URL.revokeObjectURL(link.href);
-      }
-    } catch (err) {
-      console.error('Share failed:', err);
-    } finally {
-      setSharing(false);
-    }
-  }, [option.name, option.mood, option.visualizationImage]);
-
-  const [savingPdf, setSavingPdf] = useState(false);
-
-  const handleSave = useCallback(() => {
-    saveVisualization(entry);
-  }, [entry]);
-
-  const handlePDF = useCallback(async () => {
-    setSavingPdf(true);
-    try {
-      await generatePDF(entry);
-    } catch (err) {
-      console.error('PDF generation failed:', err);
-    } finally {
-      setSavingPdf(false);
-    }
-  }, [entry]);
-
   return (
-    <div ref={studioTopRef} className="min-h-screen bg-neutral-950 text-neutral-100 selection:bg-neutral-700" id="design-studio-content">
-      {/* Iteration loading overlay */}
-      {isIterating && (
-        <div className="fixed inset-0 z-[60] pointer-events-none">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-neutral-800 overflow-hidden">
-            <motion.div
-              className="h-full bg-white/60"
-              initial={{ x: '-100%' }}
-              animate={{ x: '100%' }}
-              transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
-              style={{ width: '40%' }}
-            />
-          </div>
-          <div className="absolute top-16 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-xl border border-white/10 rounded-full px-5 py-2.5 flex items-center gap-3 pointer-events-auto">
-            <Loader2 size={16} className="animate-spin text-white" />
-            <span className="text-sm text-neutral-200">Iterating…</span>
-          </div>
-        </div>
-      )}
-
-      {/* Fixed Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 sm:px-8 py-4">
-        <button
-          onClick={onBack}
-          className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-black/70 transition-colors"
-          aria-label="Back to lookbook"
-        >
-          <ArrowLeft size={18} className="text-white" />
-        </button>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleSave}
-            className="h-10 px-4 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center gap-2 hover:bg-black/70 transition-colors text-xs uppercase tracking-widest text-neutral-300"
-            aria-label="Download PDF"
-          >
-            <Download size={16} className="text-neutral-300" />
-            <span className="hidden sm:inline">Image</span>
-          </button>
-          <button
-            onClick={handlePDF}
-            disabled={savingPdf}
-            className="h-10 px-4 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center gap-2 hover:bg-black/70 transition-colors text-xs uppercase tracking-widest text-neutral-300"
-            aria-label="Export PDF"
-          >
-            {savingPdf ? <Loader2 size={16} className="animate-spin text-neutral-300" /> : <Download size={16} className="text-neutral-300" />}
-            <span className="hidden sm:inline">PDF</span>
-          </button>
-          <button
-            onClick={handleShare}
-            disabled={sharing}
-            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-black/70 transition-colors"
-            aria-label="Share design"
-          >
-            <SoIcon name="share" size={18} style={{ filter: 'brightness(0) invert(1)' }} />
-          </button>
-        </div>
-      </nav>
-
-      {/* ═══════════════ HERO SECTION ═══════════════ */}
+    <>
+      {/* Full-bleed hero image */}
       <div ref={heroRef} className="relative h-screen overflow-hidden">
-        {/* Parallax image */}
         {imgSrc ? (
-          <motion.div
-            className="absolute inset-0"
-            style={{ y: imageY }}
-            
-          >
+          <motion.div className="absolute inset-0" style={{ y: imageY }}>
             <motion.img
               src={imgSrc}
               alt={option.name}
@@ -269,13 +85,11 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
             />
           </motion.div>
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-950"  />
+          <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-950" />
         )}
-
-        {/* Subtle bottom gradient only — let the photo breathe */}
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-neutral-950 to-transparent" />
 
-        {/* Scroll indicator — minimal, bottom center */}
+        {/* Scroll indicator */}
         <motion.div
           className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10"
           initial={{ opacity: 0 }}
@@ -290,260 +104,619 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
         </motion.div>
       </div>
 
-      {/* ═══════════════ TITLE SECTION — Below the photo ═══════════════ */}
+      {/* Title section — typographically styled */}
       <div className="bg-neutral-950 px-6 sm:px-12 lg:px-20 pt-12 sm:pt-16 pb-8 sm:pb-12">
-        {/* Category label */}
         {categoryLabel && (
           <motion.span
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="block text-[11px] sm:text-xs uppercase tracking-[0.25em] mb-4"
-            style={{ color: accent }}
+            style={{ color: accent, fontFamily: tp.body }}
           >
             {categoryLabel}
           </motion.span>
         )}
 
-        {/* Design name — big serif with drop cap */}
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
           className="leading-[0.88] max-w-5xl mb-6"
-          style={{ fontFamily: 'Georgia, "Times New Roman", "Playfair Display", serif' }}
+          style={{
+            fontFamily: tp.heading,
+            letterSpacing: tp.tracking,
+            textTransform: tp.capsHeadings ? 'uppercase' : 'none',
+          }}
         >
-          <span className="text-7xl sm:text-[120px] lg:text-[160px] font-bold tracking-[-0.03em]">
+          <span className="text-7xl sm:text-[120px] lg:text-[160px] font-bold">
             {firstLetter}
           </span>
-          <span className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-[-0.02em]">
+          <span className="text-5xl sm:text-7xl lg:text-8xl font-bold">
             {restOfName}
           </span>
         </motion.h1>
 
-        {/* Mood as italic lede */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7, duration: 0.8 }}
           className="text-lg sm:text-xl lg:text-2xl text-neutral-300 max-w-2xl leading-relaxed italic"
-          style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
+          style={{ fontFamily: tp.body }}
         >
           {option.mood}
         </motion.p>
       </div>
+    </>
+  );
+}
 
-      {/* ═══════════════ EDITORIAL BRIEF ═══════════════ */}
-      <div className="max-w-5xl mx-auto px-6 sm:px-12 lg:px-20">
-        <div className="border-t border-neutral-800" />
-      </div>
+/* ═══════════════════════════════════════════════════
+   StudioBrief — Editorial layout with pull quote,
+   intervention cards, materials, color story
+   ═══════════════════════════════════════════════════ */
 
-      <div className="max-w-5xl mx-auto px-6 sm:px-12 lg:px-20 py-16 sm:py-24 space-y-20 sm:space-y-28">
+function StudioBrief({
+  entry,
+  tp,
+  accent,
+}: {
+  entry: LookbookEntry;
+  tp: TypePalette;
+  accent: string;
+}) {
+  const { option } = entry;
+  const imgSrc = option.visualizationImage
+    ? `data:image/png;base64,${option.visualizationImage}`
+    : null;
 
-        {/* ── Palette ── */}
-        <RevealSection>
-          <h2 className="text-[10px] uppercase tracking-[0.25em] text-neutral-600 mb-8">Palette</h2>
-          <div className="flex gap-3 sm:gap-4">
-            {option.palette.map((color, i) => (
-              <div key={i} className="flex-1 group cursor-crosshair">
-                <div
-                  className="aspect-[3/2] sm:aspect-[4/1] rounded-md transition-all duration-300 group-hover:scale-[1.03] group-hover:shadow-lg"
-                  style={{ backgroundColor: color }}
-                />
-                <span className="block text-center text-[10px] text-neutral-600 font-mono mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 uppercase">
-                  {color}
-                </span>
-              </div>
-            ))}
-          </div>
-        </RevealSection>
+  // Extract a pull quote from the mood or first sentence of the full plan
+  const pullQuote = option.mood.split('.')[0] + '.';
 
-        {/* ── Key Moves ── */}
-        <RevealSection>
-          <h2 className="text-[10px] uppercase tracking-[0.25em] text-neutral-600 mb-10">Key Moves</h2>
-          <div className="space-y-8">
-            {option.keyChanges.map((change, i) => (
-              <div key={i} className="flex items-baseline gap-5 sm:gap-8">
-                <span
-                  className="text-4xl sm:text-5xl font-bold leading-none tabular-nums shrink-0"
-                  style={{ color: accent, opacity: 0.4, fontFamily: 'Georgia, serif' }}
-                >
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <p className="text-base sm:text-lg text-neutral-300 leading-relaxed">{change}</p>
-              </div>
-            ))}
-          </div>
-        </RevealSection>
+  // Parse materials from full plan (look for material-related keywords)
+  const materials = useMemo(() => {
+    const matKeywords = /(?:marble|walnut|oak|brass|steel|concrete|linen|velvet|leather|ceramic|stone|wool|cotton|silk|copper|glass|terrazzo|plaster|rattan|cane|teak|bamboo|travertine|onyx|bouclé|mohair|jute|sisal|lacquer)/gi;
+    const found = new Set<string>();
+    const text = `${option.fullPlan} ${option.keyChanges.join(' ')} ${option.mood}`;
+    let match;
+    while ((match = matKeywords.exec(text)) !== null) {
+      found.add(match[0].charAt(0).toUpperCase() + match[0].slice(1).toLowerCase());
+    }
+    return Array.from(found).slice(0, 8);
+  }, [option]);
 
-        {/* ── The Full Plan ── */}
-        {option.fullPlan && (
-          <RevealSection>
-            <h2 className="text-[10px] uppercase tracking-[0.25em] text-neutral-600 mb-12">The Plan</h2>
-            <div className="lg:columns-2 lg:gap-12 max-w-4xl">
-              <ReactMarkdown
-                components={{
-                  h1: ({ children }) => (
-                    <h3 className="text-lg font-semibold text-neutral-200 mt-10 mb-4 tracking-normal break-after-avoid">
-                      {children}
-                    </h3>
-                  ),
-                  h2: ({ children }) => (
-                    <h3 className="text-lg font-semibold text-neutral-200 mt-10 mb-4 tracking-normal break-after-avoid">
-                      {children}
-                    </h3>
-                  ),
-                  h3: ({ children }) => (
-                    <h4 className="text-base font-semibold text-neutral-300 mt-8 mb-3 break-after-avoid">
-                      {children}
-                    </h4>
-                  ),
-                  h4: ({ children }) => (
-                    <h5 className="text-sm font-medium text-neutral-400 tracking-wide mt-6 mb-2 break-after-avoid">
-                      {children}
-                    </h5>
-                  ),
-                  p: ({ children }) => (
-                    <p className="text-[15px] leading-[1.9] text-neutral-400 mb-5" style={{ fontFamily: 'Georgia, serif' }}>
-                      {children}
-                    </p>
-                  ),
-                  strong: ({ children }) => <strong className="font-semibold text-neutral-200">{children}</strong>,
-                  em: ({ children }) => <em className="text-neutral-300" style={{ fontFamily: 'Georgia, serif' }}>{children}</em>,
-                  ul: ({ children }) => <ul className="mt-3 mb-8 space-y-6 list-none">{children}</ul>,
-                  ol: ({ children }) => <ol className="mt-3 mb-8 space-y-6 list-decimal list-outside pl-5">{children}</ol>,
-                  li: ({ children }) => (
-                    <li className="text-[15px] leading-[1.85] text-neutral-400 pl-0 flex items-start gap-3">
-                      <span className="text-neutral-700 mt-[2px] shrink-0">—</span>
-                      <span style={{ fontFamily: 'Georgia, serif' }}>{children}</span>
-                    </li>
-                  ),
-                  hr: () => <div className="my-10 border-t border-neutral-800/50" />,
-                }}
-              >{option.fullPlan.replace(/([^\n])(#{1,4}\s)/g, '$1\n\n$2').replace(/\\n/g, '\n')}</ReactMarkdown>
-            </div>
-          </RevealSection>
-        )}
+  return (
+    <div className="max-w-5xl mx-auto px-6 sm:px-12 lg:px-20 py-16 sm:py-24 space-y-20 sm:space-y-28">
 
-        {/* ── Product Recommendations ── */}
-        {option.products && option.products.length > 0 && (
-          <RevealSection>
-            <ProductShelf products={option.products} title="The Edit" />
-          </RevealSection>
-        )}
+      {/* ── Pull Quote ── */}
+      <RevealSection>
+        <blockquote
+          className="text-3xl sm:text-4xl lg:text-5xl leading-[1.2] text-neutral-200 max-w-3xl"
+          style={{ fontFamily: tp.heading, letterSpacing: tp.tracking }}
+        >
+          <span className="text-neutral-600" style={{ fontSize: '1.2em' }}>"</span>
+          {pullQuote}
+          <span className="text-neutral-600" style={{ fontSize: '1.2em' }}>"</span>
+        </blockquote>
+      </RevealSection>
 
-        {/* ── Visualization detail ── */}
-        {imgSrc && (
-          <RevealSection>
-            <div className="relative rounded-lg overflow-hidden">
-              <img
-                src={imgSrc}
-                alt={`${option.name} visualization detail`}
-                className="w-full h-auto"
+      {/* ── Color Story — Full-width gradient bar ── */}
+      <RevealSection>
+        <h2
+          className="text-[10px] uppercase tracking-[0.25em] text-neutral-600 mb-6"
+          style={{ fontFamily: tp.body }}
+        >
+          Color Story
+        </h2>
+        <div className="h-16 sm:h-20 rounded-lg overflow-hidden relative">
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(to right, ${option.palette.join(', ')})`,
+            }}
+          />
+        </div>
+        <div className="flex mt-4 gap-3 sm:gap-4">
+          {option.palette.map((color, i) => (
+            <div key={i} className="flex-1 group cursor-crosshair">
+              <div
+                className="aspect-square rounded-md transition-all duration-300 group-hover:scale-[1.05] group-hover:shadow-lg"
+                style={{ backgroundColor: color }}
               />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-neutral-950/80 to-transparent p-6">
-                <span className="text-[10px] uppercase tracking-[0.25em] text-neutral-400">
-                  Visualization — {option.name}
-                </span>
-              </div>
-            </div>
-          </RevealSection>
-        )}
-
-        {/* ── Iteration Controls ── */}
-        <RevealSection>
-          <div className="border-t border-neutral-800/50 pt-14">
-            <h2 className="text-[10px] uppercase tracking-[0.25em] text-neutral-600 mb-2">Iterate</h2>
-            <p className="text-sm text-neutral-500 mb-10 italic" style={{ fontFamily: 'Georgia, serif' }}>
-              Explore variations on this direction
-            </p>
-
-            <div className="flex flex-wrap gap-3 mb-8">
-              {ITERATION_PROMPTS.map(({ label, icon }) => {
-                const isActive = isIterating && activeIterationLabel === label;
-                return (
-                  <button
-                    key={label}
-                    disabled={isIterating || !onIterate}
-                    onClick={() => handleIterate(label)}
-                    className={`px-5 py-2.5 rounded-full border text-[13px] transition-all duration-300 flex items-center gap-2.5 ${
-                      isActive
-                        ? 'border-white/30 bg-white/10 text-white'
-                        : isIterating
-                          ? 'border-neutral-800/50 text-neutral-600 cursor-not-allowed'
-                          : 'border-neutral-800 text-neutral-400 hover:bg-neutral-900 hover:border-neutral-600 hover:text-neutral-200'
-                    }`}
-                  >
-                    {isActive ? (
-                      <Loader2 size={14} className="animate-spin" />
-                    ) : (
-                      <SoIcon name={icon as any} size={14} style={{ filter: `brightness(0) invert(${isIterating ? '0.3' : '0.5'})` }} />
-                    )}
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="flex gap-3">
-              <input
-                type="text"
-                value={customPrompt}
-                onChange={(e) => setCustomPrompt(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter' && customPrompt.trim()) handleIterate(customPrompt); }}
-                placeholder="Or describe your own variation…"
-                disabled={isIterating}
-                className="flex-1 bg-transparent border-b border-neutral-800 px-1 py-3 text-sm text-neutral-200 placeholder-neutral-700 focus:outline-none focus:border-neutral-500 transition-colors disabled:opacity-40"
-                style={{ fontFamily: 'Georgia, serif' }}
-              />
-              <button
-                disabled={isIterating || !customPrompt.trim() || !onIterate}
-                onClick={() => handleIterate(customPrompt)}
-                className="px-6 py-2.5 text-sm font-medium transition-all duration-300 border-b border-neutral-100 text-neutral-100 hover:text-white hover:border-white disabled:opacity-30 disabled:cursor-not-allowed"
+              <span
+                className="block text-center text-[10px] font-mono mt-2 text-neutral-600 group-hover:text-neutral-400 transition-colors"
+                style={{ fontFamily: tp.mood === 'raw-industrial' ? tp.heading : undefined }}
               >
-                {isIterating && activeIterationLabel === customPrompt ? (
-                  <Loader2 size={16} className="animate-spin" />
-                ) : (
-                  'Generate'
-                )}
-              </button>
+                {color}
+              </span>
+            </div>
+          ))}
+        </div>
+      </RevealSection>
+
+      {/* ── Interventions (Key Moves) as cards ── */}
+      <RevealSection>
+        <h2
+          className="text-[10px] uppercase tracking-[0.25em] text-neutral-600 mb-10"
+          style={{ fontFamily: tp.body }}
+        >
+          Interventions
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {option.keyChanges.map((change, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1, duration: 0.6 }}
+              className="bg-neutral-900 border border-neutral-800 rounded-xl p-5 hover:border-neutral-700 transition-colors"
+            >
+              <span
+                className="text-2xl font-bold block mb-3"
+                style={{ color: accent, opacity: 0.5, fontFamily: tp.heading }}
+              >
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <p className="text-sm text-neutral-300 leading-relaxed" style={{ fontFamily: tp.body }}>
+                {change}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </RevealSection>
+
+      {/* ── Materials Palette ── */}
+      {materials.length > 0 && (
+        <RevealSection>
+          <h2
+            className="text-[10px] uppercase tracking-[0.25em] text-neutral-600 mb-8"
+            style={{ fontFamily: tp.body }}
+          >
+            Materials
+          </h2>
+          <div className="flex flex-wrap gap-3">
+            {materials.map((mat) => (
+              <span
+                key={mat}
+                className="px-4 py-2 rounded-full border border-neutral-800 text-sm text-neutral-400 hover:text-neutral-200 hover:border-neutral-600 transition-colors"
+                style={{ fontFamily: tp.body }}
+              >
+                {mat}
+              </span>
+            ))}
+          </div>
+        </RevealSection>
+      )}
+
+      {/* ── The Full Plan ── */}
+      {option.fullPlan && (
+        <RevealSection>
+          <h2
+            className="text-[10px] uppercase tracking-[0.25em] text-neutral-600 mb-12"
+            style={{ fontFamily: tp.body }}
+          >
+            The Plan
+          </h2>
+          <div
+            className={`max-w-4xl ${tp.layoutDensity === 'sparse' ? '' : 'lg:columns-2 lg:gap-12'}`}
+          >
+            <ReactMarkdown
+              components={{
+                h1: ({ children }) => (
+                  <h3
+                    className="text-lg font-semibold text-neutral-200 mt-10 mb-4 break-after-avoid"
+                    style={{ fontFamily: tp.heading, letterSpacing: tp.tracking }}
+                  >
+                    {children}
+                  </h3>
+                ),
+                h2: ({ children }) => (
+                  <h3
+                    className="text-lg font-semibold text-neutral-200 mt-10 mb-4 break-after-avoid"
+                    style={{ fontFamily: tp.heading, letterSpacing: tp.tracking }}
+                  >
+                    {children}
+                  </h3>
+                ),
+                h3: ({ children }) => (
+                  <h4
+                    className="text-base font-semibold text-neutral-300 mt-8 mb-3 break-after-avoid"
+                    style={{ fontFamily: tp.heading }}
+                  >
+                    {children}
+                  </h4>
+                ),
+                h4: ({ children }) => (
+                  <h5 className="text-sm font-medium text-neutral-400 tracking-wide mt-6 mb-2 break-after-avoid">
+                    {children}
+                  </h5>
+                ),
+                p: ({ children }) => (
+                  <p className="text-[15px] leading-[1.9] text-neutral-400 mb-5" style={{ fontFamily: tp.body }}>
+                    {children}
+                  </p>
+                ),
+                strong: ({ children }) => <strong className="font-semibold text-neutral-200">{children}</strong>,
+                em: ({ children }) => <em className="text-neutral-300" style={{ fontFamily: tp.body }}>{children}</em>,
+                ul: ({ children }) => <ul className="mt-3 mb-8 space-y-6 list-none">{children}</ul>,
+                ol: ({ children }) => <ol className="mt-3 mb-8 space-y-6 list-decimal list-outside pl-5">{children}</ol>,
+                li: ({ children }) => (
+                  <li className="text-[15px] leading-[1.85] text-neutral-400 pl-0 flex items-start gap-3">
+                    <span className="text-neutral-700 mt-[2px] shrink-0">—</span>
+                    <span style={{ fontFamily: tp.body }}>{children}</span>
+                  </li>
+                ),
+                hr: () => <div className="my-10 border-t border-neutral-800/50" />,
+              }}
+            >{option.fullPlan.replace(/([^\n])(#{1,4}\s)/g, '$1\n\n$2').replace(/\\n/g, '\n')}</ReactMarkdown>
+          </div>
+        </RevealSection>
+      )}
+
+      {/* ── Product Recommendations ── */}
+      {option.products && option.products.length > 0 && (
+        <RevealSection>
+          <ProductShelf products={option.products} title="The Edit" />
+        </RevealSection>
+      )}
+
+      {/* ── Visualization detail ── */}
+      {imgSrc && (
+        <RevealSection>
+          <div className="relative rounded-lg overflow-hidden">
+            <img
+              src={imgSrc}
+              alt={`${option.name} visualization detail`}
+              className="w-full h-auto"
+            />
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-neutral-950/80 to-transparent p-6">
+              <span
+                className="text-[10px] uppercase tracking-[0.25em] text-neutral-400"
+                style={{ fontFamily: tp.body }}
+              >
+                Visualization — {option.name}
+              </span>
             </div>
           </div>
         </RevealSection>
+      )}
+    </div>
+  );
+}
 
-        {/* ── Save / Share bar ── */}
-        <RevealSection>
-          <div className="flex flex-col sm:flex-row items-center gap-4 pt-8 pb-4">
+/* ═══════════════════════════════════════════════════
+   StudioIterate — Paired iteration controls
+   ═══════════════════════════════════════════════════ */
+
+const ITERATION_PAIRS: { left: string; right: string; leftIcon: string; rightIcon: string }[] = [
+  { left: 'Warmer', right: 'Cooler', leftIcon: 'like', rightIcon: 'filter' },
+  { left: 'More minimal', right: 'More layered', leftIcon: 'shrink-content', rightIcon: 'expand-content' },
+  { left: 'Show at night', right: 'Show at golden hour', leftIcon: 'eye', rightIcon: 'stars' },
+  { left: 'Bolder color', right: 'More restrained', leftIcon: 'love', rightIcon: 'filter' },
+];
+
+function StudioIterate({
+  tp,
+  onIterate,
+  isIterating,
+  activeLabel,
+}: {
+  tp: TypePalette;
+  onIterate: (prompt: string) => void;
+  isIterating: boolean;
+  activeLabel: string | null;
+}) {
+  const [customPrompt, setCustomPrompt] = useState('');
+
+  return (
+    <div className="max-w-5xl mx-auto px-6 sm:px-12 lg:px-20 pb-16 sm:pb-24">
+      <RevealSection>
+        <div className="border-t border-neutral-800/50 pt-14">
+          <h2
+            className="text-[10px] uppercase tracking-[0.25em] text-neutral-600 mb-2"
+            style={{ fontFamily: tp.body }}
+          >
+            Iterate
+          </h2>
+          <p className="text-sm text-neutral-500 mb-10 italic" style={{ fontFamily: tp.body }}>
+            This direction, but…
+          </p>
+
+          {/* Paired sliders */}
+          <div className="space-y-4 mb-10">
+            {ITERATION_PAIRS.map(({ left, right, leftIcon, rightIcon }) => (
+              <div key={left} className="flex items-center gap-3">
+                <button
+                  disabled={isIterating}
+                  onClick={() => onIterate(left)}
+                  className={`flex-1 px-4 py-3 rounded-xl border text-[13px] transition-all duration-300 flex items-center justify-center gap-2 ${
+                    isIterating && activeLabel === left
+                      ? 'border-white/30 bg-white/10 text-white'
+                      : isIterating
+                        ? 'border-neutral-800/50 text-neutral-600 cursor-not-allowed'
+                        : 'border-neutral-800 text-neutral-400 hover:bg-neutral-900 hover:border-neutral-600 hover:text-neutral-200'
+                  }`}
+                  style={{ fontFamily: tp.body }}
+                >
+                  {isIterating && activeLabel === left ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <SoIcon name={leftIcon as any} size={14} style={{ filter: `brightness(0) invert(${isIterating ? '0.3' : '0.5'})` }} />
+                  )}
+                  {left}
+                </button>
+                <span className="text-neutral-700 text-xs">or</span>
+                <button
+                  disabled={isIterating}
+                  onClick={() => onIterate(right)}
+                  className={`flex-1 px-4 py-3 rounded-xl border text-[13px] transition-all duration-300 flex items-center justify-center gap-2 ${
+                    isIterating && activeLabel === right
+                      ? 'border-white/30 bg-white/10 text-white'
+                      : isIterating
+                        ? 'border-neutral-800/50 text-neutral-600 cursor-not-allowed'
+                        : 'border-neutral-800 text-neutral-400 hover:bg-neutral-900 hover:border-neutral-600 hover:text-neutral-200'
+                  }`}
+                  style={{ fontFamily: tp.body }}
+                >
+                  {isIterating && activeLabel === right ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <SoIcon name={rightIcon as any} size={14} style={{ filter: `brightness(0) invert(${isIterating ? '0.3' : '0.5'})` }} />
+                  )}
+                  {right}
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Custom prompt */}
+          <div className="flex gap-3">
+            <input
+              type="text"
+              value={customPrompt}
+              onChange={(e) => setCustomPrompt(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && customPrompt.trim()) { onIterate(customPrompt); setCustomPrompt(''); } }}
+              placeholder="Or describe your own variation…"
+              disabled={isIterating}
+              className="flex-1 bg-transparent border-b border-neutral-800 px-1 py-3 text-sm text-neutral-200 placeholder-neutral-700 focus:outline-none focus:border-neutral-500 transition-colors disabled:opacity-40"
+              style={{ fontFamily: tp.body }}
+            />
+            <button
+              disabled={isIterating || !customPrompt.trim()}
+              onClick={() => { onIterate(customPrompt); setCustomPrompt(''); }}
+              className="px-6 py-2.5 text-sm font-medium transition-all duration-300 border-b border-neutral-100 text-neutral-100 hover:text-white hover:border-white disabled:opacity-30 disabled:cursor-not-allowed"
+              style={{ fontFamily: tp.body }}
+            >
+              {isIterating && activeLabel === customPrompt ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                'Generate'
+              )}
+            </button>
+          </div>
+        </div>
+      </RevealSection>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   PDF + Save helpers
+   ═══════════════════════════════════════════════════ */
+
+async function generatePDF(entry: LookbookEntry) {
+  const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+    import('jspdf'),
+    import('html2canvas'),
+  ]);
+  const el = document.getElementById('design-studio-content');
+  if (!el) return;
+  const canvas = await html2canvas(el, {
+    backgroundColor: '#0a0a0a',
+    scale: 2,
+    useCORS: true,
+    logging: false,
+    scrollY: -window.scrollY,
+    windowHeight: el.scrollHeight,
+    height: el.scrollHeight,
+  });
+  const imgData = canvas.toDataURL('image/jpeg', 0.92);
+  const pdfWidth = 210;
+  const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+  const pdf = new jsPDF({
+    orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
+    unit: 'mm',
+    format: [pdfWidth, Math.min(pdfHeight, 297 * 3)],
+  });
+  pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+  pdf.save(`${entry.option.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}-zenspace.pdf`);
+}
+
+function saveVisualization(entry: LookbookEntry) {
+  if (!entry.option.visualizationImage) return;
+  const link = document.createElement('a');
+  link.download = `${entry.option.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}-visualization.png`;
+  link.href = `data:image/png;base64,${entry.option.visualizationImage}`;
+  link.click();
+}
+
+/* ═══════════════════════════════════════════════════
+   Main DesignStudio Component
+   ═══════════════════════════════════════════════════ */
+
+export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignStudioProps) {
+  const [isIterating, setIsIterating] = useState(false);
+  const [activeIterationLabel, setActiveIterationLabel] = useState<string | null>(null);
+  const [sharing, setSharing] = useState(false);
+  const [savingPdf, setSavingPdf] = useState(false);
+  const studioTopRef = useRef<HTMLDivElement>(null);
+
+  // Infer type mood and load fonts
+  const typeMood = useMemo(() => inferTypeMood(entry.option), [entry.option]);
+  const tp = useMemo(() => getTypePalette(typeMood), [typeMood]);
+  const accent = useAccentColor(entry.option.palette);
+
+  useEffect(() => {
+    loadStudioFonts(typeMood);
+  }, [typeMood]);
+
+  const handleIterate = useCallback(async (prompt: string) => {
+    if (!onIterate || isIterating || !prompt.trim()) return;
+    setIsIterating(true);
+    setActiveIterationLabel(prompt);
+    try {
+      await onIterate(prompt);
+      studioTopRef.current?.scrollIntoView({ behavior: 'smooth' });
+    } catch (err) {
+      console.error('Iteration failed:', err);
+    } finally {
+      setIsIterating(false);
+      setActiveIterationLabel(null);
+    }
+  }, [onIterate, isIterating]);
+
+  const handleShare = useCallback(async () => {
+    if (!entry.option.visualizationImage) return;
+    setSharing(true);
+    try {
+      const byteString = atob(entry.option.visualizationImage);
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+      const blob = new Blob([ab], { type: 'image/png' });
+      if (navigator.share) {
+        const file = new File([blob], `${entry.option.name}.png`, { type: 'image/png' });
+        await navigator.share({ title: entry.option.name, text: entry.option.mood, files: [file] });
+      } else {
+        const link = document.createElement('a');
+        link.download = `${entry.option.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}.png`;
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }
+    } catch (err) {
+      console.error('Share failed:', err);
+    } finally {
+      setSharing(false);
+    }
+  }, [entry.option.name, entry.option.mood, entry.option.visualizationImage]);
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        ref={studioTopRef}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.6 }}
+        className="min-h-screen bg-neutral-950 text-neutral-100 selection:bg-neutral-700"
+        id="design-studio-content"
+      >
+        {/* Iteration loading overlay */}
+        {isIterating && (
+          <div className="fixed inset-0 z-[60] pointer-events-none">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-neutral-800 overflow-hidden">
+              <motion.div
+                className="h-full bg-white/60"
+                initial={{ x: '-100%' }}
+                animate={{ x: '100%' }}
+                transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
+                style={{ width: '40%' }}
+              />
+            </div>
+            <div className="absolute top-16 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-xl border border-white/10 rounded-full px-5 py-2.5 flex items-center gap-3 pointer-events-auto">
+              <Loader2 size={16} className="animate-spin text-white" />
+              <span className="text-sm text-neutral-200" style={{ fontFamily: tp.body }}>Iterating…</span>
+            </div>
+          </div>
+        )}
+
+        {/* Fixed Navigation */}
+        <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 sm:px-8 py-4">
+          <motion.button
+            onClick={onBack}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-black/70 transition-colors"
+            aria-label="Back to lookbook"
+          >
+            <ArrowLeft size={18} className="text-white" />
+          </motion.button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => saveVisualization(entry)}
+              className="h-10 px-4 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center gap-2 hover:bg-black/70 transition-colors text-xs uppercase tracking-widest text-neutral-300"
+            >
+              <Download size={16} className="text-neutral-300" />
+              <span className="hidden sm:inline">Image</span>
+            </button>
+            <button
+              onClick={async () => { setSavingPdf(true); try { await generatePDF(entry); } finally { setSavingPdf(false); } }}
+              disabled={savingPdf}
+              className="h-10 px-4 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center gap-2 hover:bg-black/70 transition-colors text-xs uppercase tracking-widest text-neutral-300"
+            >
+              {savingPdf ? <Loader2 size={16} className="animate-spin text-neutral-300" /> : <Download size={16} className="text-neutral-300" />}
+              <span className="hidden sm:inline">PDF</span>
+            </button>
             <button
               onClick={handleShare}
               disabled={sharing}
-              className="w-full sm:w-auto px-8 py-3 rounded-full border border-neutral-700 text-sm text-neutral-300 hover:bg-neutral-900 hover:border-neutral-500 transition-all flex items-center justify-center gap-2"
+              className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-black/70 transition-colors"
+              aria-label="Share design"
             >
-              <SoIcon name="share" size={16} style={{ filter: 'brightness(0) invert(0.7)' }} />
-              {sharing ? 'Sharing…' : 'Share This Design'}
-            </button>
-            <button
-              onClick={handleSave}
-              className="w-full sm:w-auto px-8 py-3 rounded-full border border-neutral-700 text-sm text-neutral-300 hover:bg-neutral-900 hover:border-neutral-500 transition-all flex items-center justify-center gap-2"
-            >
-              <Download size={16} className="text-neutral-400" />
-              Save Image
-            </button>
-            <button
-              onClick={handlePDF}
-              disabled={savingPdf}
-              className="w-full sm:w-auto px-8 py-3 rounded-full border border-neutral-700 text-sm text-neutral-300 hover:bg-neutral-900 hover:border-neutral-500 transition-all flex items-center justify-center gap-2"
-            >
-              {savingPdf ? <Loader2 size={16} className="animate-spin text-neutral-400" /> : <Download size={16} className="text-neutral-400" />}
-              {savingPdf ? 'Generating PDF…' : 'Export PDF'}
+              <SoIcon name="share" size={18} style={{ filter: 'brightness(0) invert(1)' }} />
             </button>
           </div>
-        </RevealSection>
-      </div>
+        </nav>
 
-      {/* Bottom spacer */}
-      <div className="h-24" />
-    </div>
+        {/* Hero */}
+        <StudioHero entry={entry} tp={tp} accent={accent} />
+
+        {/* Divider */}
+        <div className="max-w-5xl mx-auto px-6 sm:px-12 lg:px-20">
+          <div className="border-t border-neutral-800" />
+        </div>
+
+        {/* Brief */}
+        <StudioBrief entry={entry} tp={tp} accent={accent} />
+
+        {/* Iterate */}
+        <StudioIterate
+          tp={tp}
+          onIterate={handleIterate}
+          isIterating={isIterating}
+          activeLabel={activeIterationLabel}
+        />
+
+        {/* Save / Share bar */}
+        <div className="max-w-5xl mx-auto px-6 sm:px-12 lg:px-20 pb-16">
+          <RevealSection>
+            <div className="flex flex-col sm:flex-row items-center gap-4 pt-8 pb-4">
+              <button
+                onClick={handleShare}
+                disabled={sharing}
+                className="w-full sm:w-auto px-8 py-3 rounded-full border border-neutral-700 text-sm text-neutral-300 hover:bg-neutral-900 hover:border-neutral-500 transition-all flex items-center justify-center gap-2"
+                style={{ fontFamily: tp.body }}
+              >
+                <SoIcon name="share" size={16} style={{ filter: 'brightness(0) invert(0.7)' }} />
+                {sharing ? 'Sharing…' : 'Share This Design'}
+              </button>
+              <button
+                onClick={() => saveVisualization(entry)}
+                className="w-full sm:w-auto px-8 py-3 rounded-full border border-neutral-700 text-sm text-neutral-300 hover:bg-neutral-900 hover:border-neutral-500 transition-all flex items-center justify-center gap-2"
+                style={{ fontFamily: tp.body }}
+              >
+                <Download size={16} className="text-neutral-400" />
+                Save Image
+              </button>
+            </div>
+          </RevealSection>
+        </div>
+
+        <div className="h-24" />
+      </motion.div>
+    </AnimatePresence>
   );
 }
 

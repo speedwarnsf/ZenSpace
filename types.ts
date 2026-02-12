@@ -139,6 +139,8 @@ export interface DesignAnalysis {
 /**
  * Application state machine states
  */
+export type TypeMood = 'warm-editorial' | 'stark-minimal' | 'bold-expressive' | 'classic-refined' | 'raw-industrial';
+
 export type DesignRating = 'never' | 'not-now' | 'like' | 'good' | 'the-one';
 
 export interface LookbookEntry {
