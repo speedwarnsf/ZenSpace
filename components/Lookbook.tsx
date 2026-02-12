@@ -717,7 +717,7 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
       {/* Cards grid */}
       <motion.div
         layout
-        className="columns-2 lg:columns-3 gap-4 space-y-4"
+        className="columns-1 lg:columns-2 gap-6 space-y-6"
       >
         <AnimatePresence mode="popLayout">
           {sortedEntries.map(entry => (
