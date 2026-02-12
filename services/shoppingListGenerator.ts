@@ -60,18 +60,19 @@ RESPONSE FORMAT (STRICT JSON, NO MARKDOWN FENCES):
       "price_high": 150,
       "quantity": 1,
       "design_theory_justification": "Biophilic design: natural materials and warm, varied lighting reduce stress (light pools vs uniform flat lighting)",
-      "search_term": "rattan floor lamp warm light"
+      "search_term": "rattan floor lamp warm light",
+      "retailer_url": "https://www.westelm.com/search/results.html?words=rattan+floor+lamp"
     }
   ]
 }
 
 RULES:
 - 8-15 items total, spread across at least 4 categories
-- price_low and price_high in USD (realistic Amazon prices)
-- search_term: 3-6 word Amazon search query (no brands)
+- price_low and price_high in USD (realistic retail prices)
+- search_term: 3-6 word search query
+- retailer_url: link to a REAL product search page on a major retailer. Rotate across: westelm.com, cb2.com, anthropologie.com, wayfair.com, ikea.com, crateandbarrel.com, serenaandlily.com, article.com, potterybarn.com. Match the retailer to the product's price point and style
 - design_theory_justification: reference specific framework principles
 - Be room-specific based on the analysis
-- No brand names
 
 Return ONLY the JSON object.`;
 
@@ -118,7 +119,7 @@ Return ONLY the JSON object.`;
           low: Math.max(1, Math.round(item.price_low || 10)),
           high: Math.max(2, Math.round(item.price_high || 50)),
         },
-        affiliateUrl: `https://www.amazon.com/s?k=${encodeURIComponent(item.search_term || item.name)}&tag=zenspace-20`,
+        affiliateUrl: (item as any).retailer_url || `https://www.amazon.com/s?k=${encodeURIComponent(item.search_term || item.name)}&tag=zenspace-20`,
         searchTerm: (item.search_term || item.name).slice(0, 60),
         quantity: Math.max(1, Math.min(10, item.quantity || 1)),
         designTheoryJustification: (item.design_theory_justification || 'Supports the overall design direction').slice(0, 300),
@@ -181,7 +182,7 @@ function createFallbackShoppingList(
       description: 'Set of 2-3 coordinated throw pillows in design palette colors',
       category: 'textiles',
       priceEstimate: { low: 25, high: 45 },
-      affiliateUrl: 'https://www.amazon.com/s?k=decorative+throw+pillow+set&tag=zenspace-20',
+      affiliateUrl: 'https://www.westelm.com/search/results.html?words=decorative+throw+pillow+set',
       searchTerm: 'decorative throw pillow set',
       quantity: 1,
       designTheoryJustification: 'Adds tactile warmth and color cohesion (Phenomenological: multi-sensory experience)',
@@ -194,7 +195,7 @@ function createFallbackShoppingList(
       description: 'Low-maintenance green plant in a ceramic pot',
       category: 'plants',
       priceEstimate: { low: 15, high: 35 },
-      affiliateUrl: 'https://www.amazon.com/s?k=indoor+potted+plant+ceramic&tag=zenspace-20',
+      affiliateUrl: 'https://www.anthropologie.com/search?q=indoor+potted+plant+ceramic',
       searchTerm: 'indoor potted plant ceramic',
       quantity: 2,
       designTheoryJustification: 'Biophilic design: living greenery reduces stress and improves air quality',
@@ -207,7 +208,7 @@ function createFallbackShoppingList(
       description: 'Dimmable table lamp with warm white light (2700K)',
       category: 'lighting',
       priceEstimate: { low: 30, high: 60 },
-      affiliateUrl: 'https://www.amazon.com/s?k=warm+led+table+lamp+dimmable&tag=zenspace-20',
+      affiliateUrl: 'https://www.cb2.com/search?query=warm+led+table+lamp+dimmable',
       searchTerm: 'warm led table lamp dimmable',
       quantity: 1,
       designTheoryJustification: 'Biophilic: varied lighting with warm pools instead of uniform flat lighting',
