@@ -46,7 +46,7 @@ import { AnalysisResult, AppState, ChatMessage, AppError, UploadedImage, DesignA
 import { generateShoppingList, shoppingListFromProducts } from './services/shoppingListGenerator';
 import { Chat } from '@google/genai';
 import { ModeSelect } from './components/ModeSelect';
-import { LayoutGrid, ArrowLeft, AlertCircle, RefreshCw, WifiOff, Clock, Home } from 'lucide-react';
+import { LayoutGrid, ArrowLeft, AlertCircle, RefreshCw, WifiOff, Clock, Home, Camera, Palette, Wand2 } from 'lucide-react';
 
 /**
  * Main application component wrapper with enhanced providers
@@ -970,13 +970,13 @@ function AppContent() {
               </button>
             )}
             <UserMenu onOpenPricing={() => setShowPricing(true)} onOpenAuth={() => setShowAuthGate(true)} />
-            {(appState === AppState.HOME || appState === AppState.RESULTS) && (
+            {appState === AppState.RESULTS && (
               <Suspense fallback={null}>
                 <SessionManager
                   currentSessionId={currentSessionId}
                   onLoadSession={handleLoadSession}
                   onSaveSession={handleSaveSession}
-                  hasUnsavedChanges={appState === AppState.RESULTS && !!analysis}
+                  hasUnsavedChanges={!!analysis}
                 />
               </Suspense>
             )}
@@ -1043,19 +1043,20 @@ function AppContent() {
                 You have saved designs. Resume your lookbook?
               </button>
             )}
-            <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-center opacity-80">
-              <div>
-                <div className="font-bold text-stone-800 dark:text-stone-200 mb-2">Snap</div>
-                <p className="text-sm text-stone-500 dark:text-stone-400">Take a photo of your room</p>
-              </div>
-              <div>
-                <div className="font-bold text-stone-800 dark:text-stone-200 mb-2">Choose</div>
-                <p className="text-sm text-stone-500 dark:text-stone-400">Clean it up or redesign it</p>
-              </div>
-              <div>
-                <div className="font-bold text-stone-800 dark:text-stone-200 mb-2">Transform</div>
-                <p className="text-sm text-stone-500 dark:text-stone-400">Get your personalized plan</p>
-              </div>
+            <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-10 text-center max-w-3xl">
+              {[
+                { icon: Camera, title: 'Snap', desc: 'Take a photo of your room', color: 'text-emerald-500' },
+                { icon: Palette, title: 'Choose', desc: 'Clean it up or redesign it', color: 'text-violet-500' },
+                { icon: Wand2, title: 'Transform', desc: 'Get your personalized plan', color: 'text-amber-500' },
+              ].map(({ icon: Icon, title, desc, color }) => (
+                <div key={title} className="flex flex-col items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center">
+                    <Icon className={`w-5 h-5 ${color}`} />
+                  </div>
+                  <div className="font-bold text-stone-800 dark:text-stone-200">{title}</div>
+                  <p className="text-sm text-stone-500 dark:text-stone-400">{desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -1274,10 +1275,13 @@ function AppContent() {
         )}
       </main>
 
-      {/* Footer - only on home */}
-      {appState === AppState.HOME && (
-        <footer className="py-8 text-center text-sm text-stone-400 dark:text-stone-500">
-          <p>Powered by Google Gemini AI</p>
+      {/* Footer */}
+      {(appState === AppState.HOME || appState === AppState.MODE_SELECT) && (
+        <footer className="border-t border-stone-200 dark:border-stone-800 py-8 mt-auto">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-400 dark:text-stone-500">
+            <p>© {new Date().getFullYear()} ZenSpace · AI-powered interior design</p>
+            <p>Powered by Google Gemini AI</p>
+          </div>
         </footer>
       )}
 

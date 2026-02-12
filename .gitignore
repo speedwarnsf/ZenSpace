@@ -27,3 +27,4 @@ dist-ssr
 # Test coverage
 coverage/
 .env*.local
+.env.vercel

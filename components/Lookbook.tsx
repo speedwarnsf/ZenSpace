@@ -349,14 +349,23 @@ function FullScreenCard({
           {/* Frameworks */}
           {entry.option.frameworks.length > 0 && (
             <div className="flex flex-wrap gap-2">
-              {entry.option.frameworks.map((fw, i) => (
-                <span
-                  key={i}
-                  className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300"
-                >
-                  {fw}
-                </span>
-              ))}
+              {entry.option.frameworks.map((fw, i) => {
+                const colors: Record<string, string> = {
+                  'Aesthetic Order': 'bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300',
+                  'Human-Centric': 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300',
+                  'Universal Design': 'bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300',
+                  'Biophilic': 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300',
+                  'Phenomenological': 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300',
+                };
+                return (
+                  <span
+                    key={i}
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${colors[fw] || 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'}`}
+                  >
+                    {fw}
+                  </span>
+                );
+              })}
             </div>
           )}
 
