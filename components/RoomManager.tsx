@@ -12,6 +12,7 @@ import {
   deleteRoom as deleteRoomFromStorage,
   updateRoom,
 } from '../services/houseRoomStorage';
+import { loadAllVisualizationImages } from '../services/lookbookStorage';
 
 interface RoomManagerProps {
   /** Navigate to the upload flow to add a new room */
@@ -26,10 +27,18 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ onAddRoom, onOpenDesig
   const [rooms, setRooms] = useState<Room[]>([]);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [vizImages, setVizImages] = useState<Map<string, string>>(new Map());
 
   const refresh = useCallback(() => setRooms(getRooms()), []);
 
   useEffect(() => { refresh(); }, [refresh]);
+
+  // Load visualization images from IndexedDB for all designs across all rooms
+  useEffect(() => {
+    const allIds = rooms.flatMap(r => r.designs.map(d => d.id));
+    if (allIds.length === 0) return;
+    loadAllVisualizationImages(allIds).then(setVizImages);
+  }, [rooms]);
 
   const selectedRoom = rooms.find(r => r.id === selectedRoomId) || null;
 
@@ -226,8 +235,8 @@ const RoomDesigns: React.FC<{
               className="w-full flex items-center gap-4 p-4 text-left hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
             >
               <div className="w-20 h-20 rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-700 flex-shrink-0">
-                {chosen.option.visualizationImage || chosen.option.visualizationThumb ? (
-                  <img src={chosen.option.visualizationImage ? `data:image/png;base64,${chosen.option.visualizationImage}` : chosen.option.visualizationThumb!} alt="" className="w-full h-full object-cover" />
+                {vizImages.get(chosen.id) || chosen.option.visualizationImage || chosen.option.visualizationThumb ? (
+                  <img src={vizImages.get(chosen.id) ? `data:image/png;base64,${vizImages.get(chosen.id)}` : chosen.option.visualizationImage ? `data:image/png;base64,${chosen.option.visualizationImage}` : chosen.option.visualizationThumb!} alt="" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center"><Palette className="w-6 h-6 text-stone-300" /></div>
                 )}
@@ -267,8 +276,8 @@ const RoomDesigns: React.FC<{
                 className="w-full text-left"
               >
                 <div className="aspect-[4/3] bg-stone-100 dark:bg-stone-700 overflow-hidden">
-                  {entry.option.visualizationImage || entry.option.visualizationThumb ? (
-                    <img src={entry.option.visualizationImage ? `data:image/png;base64,${entry.option.visualizationImage}` : entry.option.visualizationThumb!} alt="" className="w-full h-full object-cover" />
+                  {vizImages.get(entry.id) || entry.option.visualizationImage || entry.option.visualizationThumb ? (
+                    <img src={vizImages.get(entry.id) ? `data:image/png;base64,${vizImages.get(entry.id)}` : entry.option.visualizationImage ? `data:image/png;base64,${entry.option.visualizationImage}` : entry.option.visualizationThumb!} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <Palette className="w-8 h-8 text-stone-300 dark:text-stone-600" />
