@@ -8,6 +8,9 @@ import { ShareableCard } from './ShareableCard';
 import ReactMarkdown from 'react-markdown';
 import { SaveToRoomPicker } from './SaveToRoomPicker';
 import { ProductShelf } from './ProductShelf';
+import { GoldBurstEffect, NeverAgainEffect } from './RatingEffects';
+import { TasteRadarChart } from './TasteRadarChart';
+import { calculateTasteProfile, saveTasteProfile } from '../services/tasteProfile';
 import type { LookbookEntry, DesignRating } from '../types';
 
 interface LookbookProps {
@@ -59,7 +62,10 @@ const LookbookCard = memo(function LookbookCard({
   onSaveToRoom: (entry: LookbookEntry) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [showGoldBurst, setShowGoldBurst] = useState(false);
+  const [showNeverEffect, setShowNeverEffect] = useState(false);
   const dragDistRef = useRef(0);
+  const prevRatingRef = useRef(entry.rating);
   const x = useMotionValue(0);
   const redOpacity = useTransform(x, [-DRAG_THRESHOLD, 0], [0.5, 0]);
   const goldOpacity = useTransform(x, [0, DRAG_THRESHOLD], [0, 0.5]);
@@ -71,11 +77,20 @@ const LookbookCard = memo(function LookbookCard({
   const isTheOne = entry.rating === 'the-one';
   const dimmed = isNever || isNotNow;
 
+  // Trigger effects when rating changes
+  const handleRateWithEffect = useCallback((id: string, rating: DesignRating) => {
+    if (rating === 'the-one') setShowGoldBurst(true);
+    if (rating === 'never') setShowNeverEffect(true);
+    onRate(id, rating);
+  }, [onRate]);
+
   const handleDragEnd = useCallback((_: any, info: { offset: { x: number }; velocity: { x: number } }) => {
     const swipeThreshold = Math.abs(info.velocity.x) > 500 ? 60 : DRAG_THRESHOLD;
     if (info.offset.x < -swipeThreshold) {
+      setShowNeverEffect(true);
       onRate(entry.id, 'never');
     } else if (info.offset.x > swipeThreshold) {
+      setShowGoldBurst(true);
       onRate(entry.id, 'the-one');
     }
   }, [entry.id, onRate]);
@@ -120,6 +135,10 @@ const LookbookCard = memo(function LookbookCard({
       >
         <SoIcon name="stars" size={48} style={{ filter: 'brightness(0) invert(1)' }} />
       </motion.div>
+
+      {/* Rating effects */}
+      <GoldBurstEffect show={showGoldBurst} onComplete={() => setShowGoldBurst(false)} />
+      <NeverAgainEffect show={showNeverEffect} onComplete={() => setShowNeverEffect(false)} />
 
       {/* THE ONE star burst */}
       {isTheOne && (
@@ -219,7 +238,7 @@ const LookbookCard = memo(function LookbookCard({
           {RATINGS.map(r => (
             <button
               key={r.value}
-              onClick={(e) => { e.stopPropagation(); onRate(entry.id, r.value); }}
+              onClick={(e) => { e.stopPropagation(); handleRateWithEffect(entry.id, r.value); }}
               className={`flex-1 text-center py-1.5 rounded-lg text-lg transition-all ${
                 entry.rating === r.value
                   ? 'bg-stone-100 dark:bg-stone-700 scale-110'
@@ -487,13 +506,32 @@ function FullScreenCard({
   );
 }
 
+const ITERATION_BRANCHES = [
+  { emoji: '🎨', label: 'Same palette, different layout' },
+  { emoji: '🌡️', label: 'Dial up the warmth' },
+  { emoji: '🪵', label: 'Same mood, bolder materials' },
+  { emoji: '💡', label: 'Change the lighting dramatically' },
+  { emoji: '🔊', label: 'Make it more dramatic' },
+  { emoji: '🤫', label: 'Make it more subtle' },
+  { emoji: '🌿', label: 'Add more biophilic elements' },
+  { emoji: '🏗️', label: 'More architectural / structural' },
+];
+
 export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore, isGenerating, uploadedImageUrl }: LookbookProps) {
   const [filter, setFilter] = useState<FilterTab>('all');
   const [expandedEntry, setExpandedEntry] = useState<LookbookEntry | null>(null);
   const [sharingEntryId, setSharingEntryId] = useState<string | null>(null);
   const [downloadingEntryId, setDownloadingEntryId] = useState<string | null>(null);
   const [saveToRoomEntry, setSaveToRoomEntry] = useState<LookbookEntry | null>(null);
+  const [showTasteProfile, setShowTasteProfile] = useState(false);
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  // Calculate taste profile from all rated entries
+  const tasteProfile = useMemo(() => {
+    const profile = calculateTasteProfile(entries);
+    if (profile.totalRatings > 0) saveTasteProfile(profile);
+    return profile;
+  }, [entries]);
 
   const handleShare = useCallback(async (entry: LookbookEntry) => {
     setSharingEntryId(entry.id);
@@ -624,6 +662,57 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
           </button>
         ))}
       </div>
+
+      {/* Taste Profile toggle + chart */}
+      {tasteProfile.totalRatings >= 2 && (
+        <div className="space-y-4">
+          <button
+            onClick={() => setShowTasteProfile(prev => !prev)}
+            className="mx-auto flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
+          >
+            <span>{showTasteProfile ? 'Hide' : 'See'} Your Taste Profile</span>
+            <span className="text-xs opacity-60">({tasteProfile.totalRatings} ratings)</span>
+          </button>
+          <AnimatePresence>
+            {showTasteProfile && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className="overflow-hidden"
+              >
+                <div className="bg-white dark:bg-stone-800 rounded-2xl border border-stone-200 dark:border-stone-700 p-6 max-w-sm mx-auto">
+                  <TasteRadarChart profile={tasteProfile} />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
+
+      {/* Iteration branches for top-rated designs */}
+      {entries.some(e => e.rating === 'the-one' || e.rating === 'good') && filter === 'good' && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/10 rounded-2xl border border-amber-200/50 dark:border-amber-700/30 p-5 space-y-3"
+        >
+          <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+            ✨ Go deeper on your favorites
+          </h3>
+          <p className="text-xs text-amber-600 dark:text-amber-400/70">
+            Tap "Go Deeper" on any card, then explore iteration branches:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {ITERATION_BRANCHES.slice(0, 4).map(({ emoji, label }) => (
+              <span key={label} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/60 dark:bg-stone-800/60 text-xs text-amber-700 dark:text-amber-300 border border-amber-200/50 dark:border-amber-700/30">
+                <span>{emoji}</span> {label}
+              </span>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* Cards grid */}
       <motion.div
