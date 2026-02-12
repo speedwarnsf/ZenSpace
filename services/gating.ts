@@ -14,9 +14,9 @@ export interface UserTier {
 }
 
 export const FREE_TIER: Pick<UserTier, 'generationsLimit' | 'iterationsLimit' | 'roomsLimit'> = {
-  generationsLimit: 999,
-  iterationsLimit: 999,
-  roomsLimit: 999,
+  generationsLimit: 3,
+  iterationsLimit: 0,
+  roomsLimit: 1,
 };
 
 export const PRO_TIER: Pick<UserTier, 'generationsLimit' | 'iterationsLimit' | 'roomsLimit'> = {
@@ -30,6 +30,7 @@ export function canGenerate(tier: UserTier): boolean {
 }
 
 export function canIterate(tier: UserTier): boolean {
+  if (tier.tier === 'free') return false;
   return tier.iterationsUsed < tier.iterationsLimit;
 }
 
@@ -39,11 +40,11 @@ export function canSaveRoom(tier: UserTier): boolean {
 }
 
 export function canExport(tier: UserTier): boolean {
-  return true;
+  return tier.tier === 'pro';
 }
 
 export function canAccessStudio(tier: UserTier): boolean {
-  return true;
+  return tier.tier === 'pro';
 }
 
 export function getGateMessage(feature: string): string {
