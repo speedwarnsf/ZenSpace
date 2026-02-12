@@ -32,6 +32,9 @@ export default defineConfig(({ mode }) => {
               'vendor-react': ['react', 'react-dom'],
               'vendor-gemini': ['@google/genai'],
               'vendor-icons': ['lucide-react'],
+              'vendor-motion': ['framer-motion'],
+              'vendor-markdown': ['react-markdown'],
+              'vendor-supabase': ['@supabase/supabase-js'],
             }
           }
         }

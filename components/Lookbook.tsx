@@ -120,7 +120,15 @@ const LookbookCard = memo(function LookbookCard({
       onDrag={(_: any, info: { offset: { x: number } }) => { dragDistRef.current = Math.abs(info.offset.x); }}
       onDragEnd={handleDragEnd}
       onClick={() => { if (dragDistRef.current < 5) onExpand(entry); dragDistRef.current = 0; }}
-      className={`relative group bg-white dark:bg-stone-800 rounded-2xl shadow-sm overflow-hidden cursor-grab active:cursor-grabbing ${borderClass} select-none`}
+      role="article"
+      aria-label={`Design: ${entry.option.name}${entry.rating ? `, rated ${entry.rating}` : ''}`}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onExpand(entry); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); handleRateWithEffect(entry.id, 'the-one'); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); handleRateWithEffect(entry.id, 'never'); }
+      }}
+      className={`relative group bg-white dark:bg-stone-800 rounded-2xl shadow-sm overflow-hidden cursor-grab active:cursor-grabbing focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900 ${borderClass} select-none`}
     >
       {/* Drag overlays */}
       <motion.div
@@ -234,17 +242,19 @@ const LookbookCard = memo(function LookbookCard({
         </AnimatePresence>
 
         {/* Rating buttons */}
-        <div className="flex gap-1 pt-1">
+        <div className="flex gap-1 pt-1" role="group" aria-label="Rate this design">
           {RATINGS.map(r => (
             <button
               key={r.value}
               onClick={(e) => { e.stopPropagation(); handleRateWithEffect(entry.id, r.value); }}
-              className={`flex-1 text-center py-1.5 rounded-lg text-lg transition-all ${
+              className={`flex-1 text-center py-1.5 rounded-lg text-lg transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
                 entry.rating === r.value
                   ? 'bg-stone-100 dark:bg-stone-700 scale-110'
                   : 'hover:bg-stone-50 dark:hover:bg-stone-700/50'
               }`}
               title={r.label}
+              aria-label={`Rate as ${r.label}`}
+              aria-pressed={entry.rating === r.value}
             >
               <SoIcon name={r.icon as any} size={22} />
             </button>
@@ -309,6 +319,10 @@ function FullScreenCard({
       transition={{ duration: 0.2 }}
       className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/60 backdrop-blur-sm p-4 sm:p-8"
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Design detail: ${entry.option.name}`}
+      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 30 }}
@@ -606,14 +620,15 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
   ];
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-5 sm:space-y-6 animate-in fade-in duration-500 px-1 sm:px-0">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h2 style={{ fontFamily: "'Playfair Display', serif" }} className="text-3xl font-bold text-stone-800 dark:text-stone-100">
+        <h2 style={{ fontFamily: "'Playfair Display', serif" }} className="text-2xl sm:text-3xl font-bold text-stone-800 dark:text-stone-100">
           Your Lookbook
         </h2>
-        <p className="text-stone-500 dark:text-stone-400 text-sm">
-          Swipe right to love, left to dismiss — or tap to rate
+        <p className="text-stone-500 dark:text-stone-400 text-xs sm:text-sm">
+          <span className="sm:hidden">Tap to explore, swipe to rate</span>
+          <span className="hidden sm:inline">Swipe right to love, left to dismiss — or tap to rate</span>
         </p>
       </div>
 
@@ -639,12 +654,14 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-2 justify-center">
+      <div className="flex gap-2 justify-center" role="tablist" aria-label="Filter designs">
         {tabs.map(tab => (
           <button
             key={tab.key}
+            role="tab"
+            aria-selected={filter === tab.key}
             onClick={() => setFilter(tab.key)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
               filter === tab.key
                 ? 'bg-stone-800 dark:bg-stone-100 text-white dark:text-stone-900'
                 : 'bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-600'
@@ -717,7 +734,9 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
       {/* Cards grid */}
       <motion.div
         layout
-        className="columns-1 lg:columns-2 gap-6 space-y-6"
+        className="columns-1 sm:columns-2 xl:columns-3 gap-4 sm:gap-6 space-y-4 sm:space-y-6"
+        role="feed"
+        aria-label="Design lookbook cards"
       >
         <AnimatePresence mode="popLayout">
           {sortedEntries.map(entry => (

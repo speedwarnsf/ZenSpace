@@ -3,7 +3,7 @@
  * Dark theme, consistent with the rest of the ZenSpace UI.
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Home, Plus, Trash2, ArrowLeft, Star, Check, X, Palette } from 'lucide-react';
 import { Room, LookbookEntry } from '../types';
@@ -118,13 +118,17 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ onAddRoom, onOpenDesig
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
-                    className="group relative bg-white dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 overflow-hidden hover:shadow-lg hover:-transtone-y-0.5 transition-all cursor-pointer"
+                    className="group relative bg-white dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer focus-within:ring-2 focus-within:ring-emerald-500"
                     onClick={() => setSelectedRoomId(room.id)}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`Open room: ${room.name}, ${room.designs.length} designs`}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedRoomId(room.id); } }}
                   >
                     {/* Thumbnail */}
                     <div className="h-36 bg-stone-100 dark:bg-stone-700 overflow-hidden">
                       {room.sourceImageThumb ? (
-                        <img src={room.sourceImageThumb} alt={room.name} className="w-full h-full object-cover" />
+                        <img src={room.sourceImageThumb} alt={`Room: ${room.name}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <Home className="w-10 h-10 text-stone-300 dark:text-stone-600" />

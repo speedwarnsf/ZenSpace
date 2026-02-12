@@ -76,7 +76,7 @@ function StudioHero({
   return (
     <>
       {/* Full-bleed hero image */}
-      <div ref={heroRef} className="relative h-screen overflow-hidden">
+      <div ref={heroRef} className="relative h-[70vh] sm:h-screen overflow-hidden">
         {imgSrc ? (
           <motion.div className="absolute inset-0" style={{ y: imageY }}>
             <motion.img
@@ -107,7 +107,7 @@ function StudioHero({
       </div>
 
       {/* Title section — typographically styled */}
-      <div className="bg-neutral-950 px-6 sm:px-12 lg:px-20 pt-12 sm:pt-16 pb-8 sm:pb-12">
+      <div className="bg-neutral-950 px-4 sm:px-12 lg:px-20 pt-8 sm:pt-16 pb-6 sm:pb-12">
         {categoryLabel && (
           <motion.span
             initial={{ opacity: 0, y: 10 }}
@@ -131,10 +131,10 @@ function StudioHero({
             textTransform: tp.capsHeadings ? 'uppercase' : 'none',
           }}
         >
-          <span className="text-7xl sm:text-[120px] lg:text-[160px] font-bold">
+          <span className="text-5xl sm:text-[120px] lg:text-[160px] font-bold">
             {firstLetter}
           </span>
-          <span className="text-5xl sm:text-7xl lg:text-8xl font-bold">
+          <span className="text-3xl sm:text-7xl lg:text-8xl font-bold">
             {restOfName}
           </span>
         </motion.h1>
@@ -188,7 +188,7 @@ function StudioBrief({
   }, [option]);
 
   return (
-    <div className="max-w-5xl mx-auto px-6 sm:px-12 lg:px-20 py-16 sm:py-24 space-y-20 sm:space-y-28">
+    <div className="max-w-5xl mx-auto px-4 sm:px-12 lg:px-20 py-10 sm:py-24 space-y-14 sm:space-y-28">
 
       {/* ── Pull Quote ── */}
       <RevealSection>
@@ -426,9 +426,9 @@ function StudioIterate({
           </p>
 
           {/* Paired sliders */}
-          <div className="space-y-4 mb-10">
+          <div className="space-y-3 sm:space-y-4 mb-10">
             {ITERATION_PAIRS.map(({ left, right, leftIcon, rightIcon }) => (
-              <div key={left} className="flex items-center gap-3">
+              <div key={left} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                 <button
                   disabled={isIterating}
                   onClick={() => onIterate(left)}
@@ -448,7 +448,7 @@ function StudioIterate({
                   )}
                   {left}
                 </button>
-                <span className="text-neutral-700 text-xs">or</span>
+                <span className="text-neutral-700 text-xs text-center hidden sm:block">or</span>
                 <button
                   disabled={isIterating}
                   onClick={() => onIterate(right)}
@@ -481,7 +481,8 @@ function StudioIterate({
               onKeyDown={(e) => { if (e.key === 'Enter' && customPrompt.trim()) { onIterate(customPrompt); setCustomPrompt(''); } }}
               placeholder="Or describe your own variation…"
               disabled={isIterating}
-              className="flex-1 bg-transparent border-b border-neutral-800 px-1 py-3 text-sm text-neutral-200 placeholder-neutral-700 focus:outline-none focus:border-neutral-500 transition-colors disabled:opacity-40"
+              aria-label="Custom iteration prompt"
+              className="flex-1 bg-transparent border-b border-neutral-800 px-1 py-3 text-sm text-neutral-200 placeholder-neutral-700 focus:outline-none focus:border-neutral-500 focus:ring-0 transition-colors disabled:opacity-40"
               style={{ fontFamily: tp.body }}
             />
             <button
@@ -634,9 +635,11 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="min-h-screen bg-neutral-950 text-neutral-100 selection:bg-neutral-700"
         id="design-studio-content"
+        role="article"
+        aria-label={`Design Studio: ${entry.option.name}`}
       >
         {/* Iteration loading overlay */}
         {isIterating && (
@@ -658,12 +661,12 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
         )}
 
         {/* Fixed Navigation */}
-        <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 sm:px-8 py-4">
+        <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4" role="navigation" aria-label="Design studio controls">
           <motion.button
             onClick={onBack}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-black/70 transition-colors"
+            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-black/70 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
             aria-label="Back to lookbook"
           >
             <ArrowLeft size={18} className="text-white" />
