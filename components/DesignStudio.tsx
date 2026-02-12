@@ -1,11 +1,13 @@
 import { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
-import { ArrowLeft, Download, Loader2 } from 'lucide-react';
+import { ArrowLeft, Download, Loader2, ShoppingCart } from 'lucide-react';
 import { SoIcon } from './SoIcon';
 import { ProductShelf } from './ProductShelf';
+import { ShoppingList } from './ShoppingList';
 import { inferTypeMood, getTypePalette, loadStudioFonts } from '../services/studioTypography';
-import type { LookbookEntry, TypeMood } from '../types';
+import { generateShoppingList } from '../services/shoppingListGenerator';
+import type { LookbookEntry, TypeMood, ShoppingListData } from '../types';
 import type { TypePalette } from '../services/studioTypography';
 
 interface DesignStudioProps {
@@ -550,6 +552,8 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
   const [activeIterationLabel, setActiveIterationLabel] = useState<string | null>(null);
   const [sharing, setSharing] = useState(false);
   const [savingPdf, setSavingPdf] = useState(false);
+  const [shoppingList, setShoppingList] = useState<ShoppingListData | null>(null);
+  const [shoppingListLoading, setShoppingListLoading] = useState(false);
   const studioTopRef = useRef<HTMLDivElement>(null);
 
   // Infer type mood and load fonts
@@ -560,6 +564,27 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
   useEffect(() => {
     loadStudioFonts(typeMood);
   }, [typeMood]);
+
+  // Generate shopping list on entry change
+  const handleGenerateShoppingList = useCallback(async () => {
+    if (shoppingListLoading) return;
+    setShoppingListLoading(true);
+    try {
+      const sessionId = `studio-${entry.id}-${Date.now()}`;
+      const list = await generateShoppingList(
+        entry.option.name,
+        entry.option.mood,
+        entry.option.fullPlan,
+        entry.option.keyChanges.join('\n'),
+        sessionId
+      );
+      setShoppingList(list);
+    } catch (err) {
+      console.error('Shopping list generation failed:', err);
+    } finally {
+      setShoppingListLoading(false);
+    }
+  }, [entry, shoppingListLoading]);
 
   const handleIterate = useCallback(async (prompt: string) => {
     if (!onIterate || isIterating || !prompt.trim()) return;
@@ -688,6 +713,43 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
           isIterating={isIterating}
           activeLabel={activeIterationLabel}
         />
+
+        {/* Shop This Look */}
+        <div className="max-w-5xl mx-auto px-6 sm:px-12 lg:px-20 pb-16">
+          <RevealSection>
+            <div className="border-t border-neutral-800/50 pt-14">
+              <h2
+                className="text-[10px] uppercase tracking-[0.25em] text-neutral-600 mb-2"
+                style={{ fontFamily: tp.body }}
+              >
+                Shop This Look
+              </h2>
+              <p className="text-sm text-neutral-500 mb-8 italic" style={{ fontFamily: tp.body }}>
+                Everything you need to bring this design to life
+              </p>
+
+              {shoppingList ? (
+                <div className="[&_section]:bg-neutral-900 [&_section]:border-neutral-800 [&_h2]:text-neutral-100 [&_p]:text-neutral-400">
+                  <ShoppingList shoppingList={shoppingList} sessionId={shoppingList.sessionId} />
+                </div>
+              ) : (
+                <button
+                  onClick={handleGenerateShoppingList}
+                  disabled={shoppingListLoading}
+                  className="flex items-center gap-3 px-8 py-4 rounded-xl border border-neutral-800 text-neutral-300 hover:bg-neutral-900 hover:border-neutral-600 transition-all disabled:opacity-50"
+                  style={{ fontFamily: tp.body }}
+                >
+                  {shoppingListLoading ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : (
+                    <ShoppingCart size={18} />
+                  )}
+                  {shoppingListLoading ? 'Generating shopping list…' : 'Generate Shopping List'}
+                </button>
+              )}
+            </div>
+          </RevealSection>
+        </div>
 
         {/* Save / Share bar */}
         <div className="max-w-5xl mx-auto px-6 sm:px-12 lg:px-20 pb-16">

@@ -27,7 +27,7 @@ function generateParticles(count: number): Particle[] {
     distance: 40 + Math.random() * 80,
     size: 4 + Math.random() * 8,
     delay: Math.random() * 0.15,
-    type: (['star', 'circle', 'spark'] as const)[Math.floor(Math.random() * 3)],
+    type: (['star', 'circle', 'spark'] as const)[Math.floor(Math.random() * 3)] ?? 'star',
   }));
 }
 
@@ -35,10 +35,9 @@ export function GoldBurstEffect({ show, onComplete }: { show: boolean; onComplet
   const [particles] = useState(() => generateParticles(16));
 
   useEffect(() => {
-    if (show) {
-      const timer = setTimeout(() => onComplete?.(), 800);
-      return () => clearTimeout(timer);
-    }
+    if (!show) return;
+    const timer = setTimeout(() => onComplete?.(), 800);
+    return () => clearTimeout(timer);
   }, [show, onComplete]);
 
   return (
@@ -101,10 +100,9 @@ export function GoldBurstEffect({ show, onComplete }: { show: boolean; onComplet
 
 export function NeverAgainEffect({ show, onComplete }: { show: boolean; onComplete?: () => void }) {
   useEffect(() => {
-    if (show) {
-      const timer = setTimeout(() => onComplete?.(), 500);
-      return () => clearTimeout(timer);
-    }
+    if (!show) return;
+    const timer = setTimeout(() => onComplete?.(), 500);
+    return () => clearTimeout(timer);
   }, [show, onComplete]);
 
   return (

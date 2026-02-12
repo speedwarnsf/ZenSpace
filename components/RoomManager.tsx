@@ -206,6 +206,13 @@ const RoomDesigns: React.FC<{
   onOpenDesign: (entry: LookbookEntry) => void;
   onSelectDesign: (designId: string) => void;
 }> = ({ room, onOpenDesign, onSelectDesign }) => {
+  const [vizImages, setVizImages] = useState<Map<string, string>>(new Map());
+
+  useEffect(() => {
+    const ids = room.designs.map(d => d.id);
+    if (ids.length === 0) return;
+    loadAllVisualizationImages(ids).then(setVizImages);
+  }, [room.designs]);
   if (room.designs.length === 0) {
     return (
       <div className="text-center py-16">

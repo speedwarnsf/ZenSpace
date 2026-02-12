@@ -34,13 +34,14 @@ function ProductCard({ product }: { product: ProductRecommendation }) {
       {/* Price + Shop */}
       <div className="flex items-center justify-between pt-1 border-t border-neutral-800">
         <span className="text-xs font-medium text-neutral-300">{product.priceRange}</span>
-        <button
-          disabled
-          className="text-[10px] uppercase tracking-widest text-neutral-600 cursor-not-allowed"
-          title="Shopping links coming soon"
+        <a
+          href={`https://www.google.com/search?tbm=shop&q=${encodeURIComponent(product.searchQuery || product.name)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[10px] uppercase tracking-widest text-neutral-400 hover:text-neutral-200 transition-colors"
         >
           Shop →
-        </button>
+        </a>
       </div>
     </div>
   );
@@ -86,7 +87,14 @@ export function ProductShelf({ products, title = 'The Edit', light = false }: Pr
               </p>
               <div className="flex items-center justify-between pt-1 border-t border-stone-200 dark:border-stone-600">
                 <span className="text-xs font-medium text-stone-700 dark:text-stone-300">{product.priceRange}</span>
-                <span className="text-[10px] uppercase tracking-widest text-stone-400 cursor-not-allowed">Shop →</span>
+                <a
+                  href={`https://www.google.com/search?tbm=shop&q=${encodeURIComponent(product.searchQuery || product.name)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] uppercase tracking-widest text-stone-400 hover:text-emerald-500 transition-colors"
+                >
+                  Shop →
+                </a>
               </div>
             </div>
           ))}
