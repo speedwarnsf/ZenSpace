@@ -4,7 +4,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { User } from '@supabase/supabase-js';
-import { getCurrentUser, onAuthStateChange, signOut as authSignOut, signInWithGoogle, signInWithApple, signInWithMagicLink } from '../services/auth';
+import { getCurrentUser, onAuthStateChange, signOut as authSignOut, signInWithGoogle, signInWithApple, signInWithMagicLink, signInWithPassword } from '../services/auth';
 import { getSubscription, getUserUsage, getFreeUsage, Subscription, UsageData } from '../services/subscription';
 import { UserTier, FREE_TIER, PRO_TIER } from '../services/gating';
 
@@ -16,6 +16,7 @@ interface AuthContextType {
   signInGoogle: () => Promise<void>;
   signInApple: () => Promise<void>;
   signInMagic: (email: string) => Promise<void>;
+  signInPassword: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshTier: () => Promise<void>;
 }
@@ -126,6 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signInGoogle: async () => { await signInWithGoogle(); },
     signInApple: async () => { await signInWithApple(); },
     signInMagic: async (email: string) => { await signInWithMagicLink(email); },
+    signInPassword: async (email: string, password: string) => { await signInWithPassword(email, password); },
     signOut: async () => {
       await authSignOut();
       setUser(null);
