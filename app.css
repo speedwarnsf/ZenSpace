@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+/* Use class-based dark mode (was darkMode: 'class' in v3 config) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Custom theme configuration (migrated from CDN tailwind.config) */
+@theme {
+  --color-stone-850: #201e1c;
+  --color-stone-950: #0c0a09;
+}

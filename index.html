@@ -48,27 +48,11 @@
       }
     }
     </script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            colors: {
-              stone: {
-                850: '#201e1c',
-                950: '#0c0a09'
-              }
-            }
-          }
-        }
-      }
-    </script>
+    <!-- Tailwind CSS is now built via @tailwindcss/vite plugin -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" as="style">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="preload" href="/index.tsx" as="script" crossorigin>
     <style>
       /* ═══════════════════════════════════════════════════════════
          ZenSpace Design Tokens — The Single Source of Truth
@@ -361,11 +345,7 @@
   <body class="bg-stone-50 dark:bg-stone-900 text-stone-900 dark:text-stone-100 antialiased transition-colors duration-300">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
-    <!-- Skimlinks affiliate monetization — replace XXXXX with publisher ID after approval -->
-    <script type="text/javascript">
-      var defined_skimlinks_domain = 'zenspace.design';
-    </script>
-    <script type="text/javascript" src="https://s.skimresources.com/js/XXXXX.skimlinks.js"></script>
+    <!-- Skimlinks: add script back once publisher ID is approved -->
     <script>
       // Register service worker for PWA support
       if ('serviceWorker' in navigator) {
