@@ -33,7 +33,7 @@ export function ShareButton({ analysis, roomType = 'room', onShare }: ShareButto
       !line.startsWith('#') && 
       !line.startsWith('**') && 
       line.length > 50
-    ) || `I just organized my ${roomType} with ZenSpace! 🏠`;
+    ) || `I just organized my ${roomType} with ZenSpace`;
     
     // Truncate if too long
     const truncated = summaryLine.length > 200 

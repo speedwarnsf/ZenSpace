@@ -2,12 +2,12 @@ import { useRef } from 'react';
 import type { ProductRecommendation } from '../types';
 
 const CATEGORY_LABELS: Record<string, string> = {
-  furniture: '🪑 Furniture',
+  furniture: 'Furniture',
   lighting: 'Lighting',
-  textiles: '🧵 Textiles',
-  decor: '✦ Decor',
-  rugs: '◼ Rugs',
-  hardware: '⚙ Hardware',
+  textiles: 'Textiles',
+  decor: 'Decor',
+  rugs: 'Rugs',
+  hardware: 'Hardware',
 };
 
 function ProductCard({ product }: { product: ProductRecommendation }) {

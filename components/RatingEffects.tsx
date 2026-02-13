@@ -1,7 +1,7 @@
 /**
  * RatingEffects — Visual feedback for rating actions.
  * Gold burst + star particles for THE ONE 
- * Red crumple flash for Never Again 🚫
+ * Red crumple flash for Never Again
  */
 
 import { useEffect, useState } from 'react';

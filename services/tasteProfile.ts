@@ -2,7 +2,7 @@
  * Taste Profile Engine
  * Calculates aesthetic preferences from lookbook ratings.
  * Every rating is a data point — positive signals from positive and top-rated,
- * negative signals from 🚫 (stronger weight).
+ * negative signals from Never Again (stronger weight).
  */
 
 import type { LookbookEntry, DesignRating } from '../types';
