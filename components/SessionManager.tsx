@@ -199,7 +199,7 @@ export function SessionManager({
             {/* Search & Import */}
             <div className="px-6 py-3 border-b border-stone-100 dark:border-stone-700 flex gap-3">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -transtone-y-1/2 w-4 h-4 text-stone-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
                 <input
                   type="text"
                   placeholder="Search sessions..."

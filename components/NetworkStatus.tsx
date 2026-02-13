@@ -165,7 +165,7 @@ export function NetworkStatus({ onNetworkChange, showIndicator = true, className
       {/* Offline Message Toast */}
       {showOfflineMessage && (
         <div 
-          className="fixed top-4 left-1/2 transform -transtone-x-1/2 z-50 animate-in slide-in-from-top-4 duration-300"
+          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-in slide-in-from-top-4 duration-300"
           role="alert"
           aria-live="assertive"
         >

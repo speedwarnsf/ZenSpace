@@ -32,7 +32,7 @@ export function LoadingSkeleton({
 
   // Shimmer animation for enhanced loading
   const shimmerClasses = animate 
-    ? 'relative overflow-hidden before:absolute before:inset-0 before:-transtone-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent'
+    ? 'relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent'
     : '';
 
   switch (variant) {
@@ -377,7 +377,7 @@ export function FadeInImage({
 export const shimmerCSS = `
   @keyframes shimmer {
     100% {
-      transform: transtoneX(100%);
+      transform: translateX(100%);
     }
   }
 `;

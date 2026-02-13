@@ -184,7 +184,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           <button
             type="submit"
             disabled={!input.trim() || isTyping}
-            className="absolute right-2 top-1/2 -transtone-y-1/2 p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-800"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-800"
             aria-label="Send message"
           >
             <Send className="w-4 h-4" aria-hidden="true" />

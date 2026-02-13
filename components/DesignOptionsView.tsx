@@ -132,7 +132,7 @@ const DesignCard: React.FC<DesignCardProps> = ({ option, index, onSelect, isGene
   return (
     <button
       onClick={onSelect}
-      className={`group relative text-left bg-gradient-to-br ${cardAccents[index]} bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-stone-200 dark:border-stone-700 p-6 transition-all duration-300 hover:shadow-lg hover:-transtone-y-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900`}
+      className={`group relative text-left bg-gradient-to-br ${cardAccents[index]} bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-stone-200 dark:border-stone-700 p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900`}
       aria-label={`Select ${option.name} design`}
     >
       {/* Visualization preview */}

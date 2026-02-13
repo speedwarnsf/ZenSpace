@@ -196,7 +196,7 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   <div className="p-6">
     {/* Search */}
     <div className="relative mb-6">
-      <Search className="absolute left-3 top-1/2 -transtone-y-1/2 w-4 h-4 text-stone-400" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
       <input
         type="text"
         placeholder="Search rooms..."
@@ -268,7 +268,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
     new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   return (
-    <div className="group relative bg-white dark:bg-stone-700/50 rounded-xl border border-stone-200 dark:border-stone-600 overflow-hidden hover:shadow-lg hover:-transtone-y-0.5 transition-all duration-200">
+    <div className="group relative bg-white dark:bg-stone-700/50 rounded-xl border border-stone-200 dark:border-stone-600 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
       {/* Thumbnail — clickable */}
       <button onClick={onSelect} className="w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-inset">
         <div className="relative h-36 bg-stone-100 dark:bg-stone-700">

@@ -95,7 +95,7 @@ export function PricingPage({ onClose, onNeedAuth }: PricingPageProps) {
 
           {/* Annual */}
           <div className="bg-stone-900 border border-emerald-500/30 rounded-2xl p-6 flex flex-col relative">
-            <div className="absolute -top-3 left-1/2 -transtone-x-1/2 px-3 py-0.5 rounded-full bg-emerald-600 text-white text-xs font-medium">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-emerald-600 text-white text-xs font-medium">
               Save 33%
             </div>
             <h3 className="text-lg font-semibold text-white mb-1">Annual</h3>

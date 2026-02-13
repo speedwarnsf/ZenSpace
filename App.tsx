@@ -910,8 +910,8 @@ function AppContent() {
             <span className="font-serif text-xl font-bold text-stone-800 dark:text-stone-100 tracking-tight">ZenSpace</span>
           </button>
           
-          <div className="flex items-center gap-1 sm:gap-3 overflow-x-auto flex-shrink min-w-0">
-            {/* Network Status - hide on mobile when in results */}
+          <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink min-w-0">
+            {/* Network Status - desktop only */}
             <span className="hidden sm:inline-flex">
               <NetworkStatus showIndicator={true} />
             </span>
@@ -921,44 +921,35 @@ function AppContent() {
               <ThemeToggle />
             </span>
             
-            {/* Session Manager - available on home and results */}
-            {(appState === AppState.MODE_SELECT || appState === AppState.DESIGN_OPTIONS || appState === AppState.LOOKBOOK) && (
+            {/* Back / Start Over — shown in sub-flows */}
+            {(appState === AppState.MODE_SELECT || appState === AppState.DESIGN_OPTIONS || appState === AppState.LOOKBOOK || appState === AppState.RESULTS) && (
               <button 
                 onClick={resetApp}
-                className="text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-800 rounded-lg px-2 sm:px-3 py-2 whitespace-nowrap"
+                className="text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-800 px-2 sm:px-3 py-2 whitespace-nowrap"
                 aria-label="Start over with a new image"
               >
                 <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-                <span className="hidden sm:inline">Start Over</span>
+                <span className="hidden sm:inline">New</span>
               </button>
             )}
-            {/* My Rooms button — navigates to room manager */}
-            {(appState === AppState.HOME || appState === AppState.RESULTS || appState === AppState.MODE_SELECT || appState === AppState.DESIGN_OPTIONS || appState === AppState.LOOKBOOK) && (
+
+            {/* My Rooms */}
+            {(appState === AppState.HOME || appState === AppState.RESULTS || appState === AppState.MODE_SELECT || appState === AppState.LOOKBOOK) && (
               <button
                 onClick={() => setAppState(AppState.ROOMS)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-sm font-medium bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                 title="My Rooms"
               >
                 <Home className="w-4 h-4" />
-                <span className="hidden sm:inline">My Rooms</span>
+                <span className="hidden sm:inline">Rooms</span>
               </button>
             )}
-            {/* Legacy rooms gallery button (from results) */}
-            {appState === AppState.RESULTS && (
-              <button
-                onClick={() => setIsGalleryOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-                title="Saved Projects"
-              >
-                <Home className="w-4 h-4" />
-                <span className="hidden sm:inline">Projects</span>
-              </button>
-            )}
-            {/* Save Room button */}
+
+            {/* Save Room — only on results with a design selected */}
             {appState === AppState.RESULTS && designAnalysis && selectedDesignIndex !== null && uploadedImage && (
               <button
                 onClick={handleSaveRoom}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${
+                className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${
                   currentRoomId
                     ? 'bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-200'
                     : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
@@ -966,39 +957,35 @@ function AppContent() {
                 title={currentRoomId ? 'Update Room' : 'Save Room'}
               >
                 <Home className="w-4 h-4" />
-                <span className="hidden sm:inline">{currentRoomId ? 'Update' : 'Save Room'}</span>
+                <span className="hidden sm:inline">{currentRoomId ? 'Saved' : 'Save'}</span>
               </button>
             )}
-            <UserMenu onOpenPricing={() => setShowPricing(true)} onOpenAuth={() => setShowAuthGate(true)} />
+
+            {/* Session Manager + Share — results only, desktop-prioritized */}
             {appState === AppState.RESULTS && (
-              <Suspense fallback={null}>
-                <SessionManager
-                  currentSessionId={currentSessionId}
-                  onLoadSession={handleLoadSession}
-                  onSaveSession={handleSaveSession}
-                  hasUnsavedChanges={!!analysis}
-                />
-              </Suspense>
-            )}
-            
-            {appState === AppState.RESULTS && analysis && (
               <>
-                <Suspense fallback={null}>
-                  <ShareButton 
-                    analysis={analysis.rawText} 
-                    roomType="room"
-                  />
-                </Suspense>
-                <button 
-                  onClick={resetApp}
-                  className="text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-800 rounded-lg px-2 sm:px-3 py-2 whitespace-nowrap"
-                  aria-label="Start over with a new image"
-                >
-                  <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-                  <span className="hidden sm:inline">Start Over</span>
-                </button>
+                <span className="hidden sm:inline-flex">
+                  <Suspense fallback={null}>
+                    <SessionManager
+                      currentSessionId={currentSessionId}
+                      onLoadSession={handleLoadSession}
+                      onSaveSession={handleSaveSession}
+                      hasUnsavedChanges={!!analysis}
+                    />
+                  </Suspense>
+                </span>
+                {analysis && (
+                  <Suspense fallback={null}>
+                    <ShareButton 
+                      analysis={analysis.rawText} 
+                      roomType="room"
+                    />
+                  </Suspense>
+                )}
               </>
             )}
+
+            <UserMenu onOpenPricing={() => setShowPricing(true)} onOpenAuth={() => setShowAuthGate(true)} />
           </div>
         </div>
       </header>
@@ -1006,7 +993,7 @@ function AppContent() {
       {/* Rate Limit Toast */}
       {rateLimitMessage && (
         <div 
-          className="fixed top-20 left-1/2 transform -transtone-x-1/2 z-50 animate-in slide-in-from-top-4 duration-300"
+          className="fixed top-20 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top-4 duration-300"
           role="alert"
         >
           <div className="bg-amber-50 dark:bg-amber-900/50 border border-amber-200 dark:border-amber-700 text-amber-800 dark:text-amber-200 px-4 py-3 rounded-lg shadow-lg flex items-center gap-3">
@@ -1037,24 +1024,24 @@ function AppContent() {
             {hasSavedLookbook && (
               <button
                 onClick={handleResumeLookbook}
-                className="mt-6 px-6 py-3 rounded-xl bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors text-sm font-medium flex items-center gap-2"
+                className="mt-6 px-6 py-3 bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors text-sm font-medium flex items-center gap-2"
               >
                 <LayoutGrid className="w-4 h-4 text-emerald-500" />
-                You have saved designs. Resume your lookbook?
+                Resume your lookbook
               </button>
             )}
-            <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-10 text-center max-w-3xl">
+            <div className="mt-16 grid grid-cols-3 gap-6 sm:gap-10 text-center max-w-3xl">
               {[
-                { icon: Camera, title: 'Snap', desc: 'Take a photo of your room', color: 'text-emerald-500' },
-                { icon: Palette, title: 'Choose', desc: 'Clean it up or redesign it', color: 'text-violet-500' },
-                { icon: Wand2, title: 'Transform', desc: 'Get your personalized plan', color: 'text-amber-500' },
+                { icon: Camera, title: 'Snap', desc: 'Photo of your room', color: 'text-emerald-500' },
+                { icon: Palette, title: 'Choose', desc: 'Clean or redesign', color: 'text-violet-500' },
+                { icon: Wand2, title: 'Transform', desc: 'Your personalized plan', color: 'text-amber-500' },
               ].map(({ icon: Icon, title, desc, color }) => (
                 <div key={title} className="flex flex-col items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center">
+                  <div className="w-12 h-12 bg-stone-100 dark:bg-stone-800 flex items-center justify-center">
                     <Icon className={`w-5 h-5 ${color}`} />
                   </div>
-                  <div className="font-bold text-stone-800 dark:text-stone-200">{title}</div>
-                  <p className="text-sm text-stone-500 dark:text-stone-400">{desc}</p>
+                  <div className="font-bold text-sm text-stone-800 dark:text-stone-200 tracking-wide uppercase">{title}</div>
+                  <p className="text-xs text-stone-500 dark:text-stone-400">{desc}</p>
                 </div>
               ))}
             </div>

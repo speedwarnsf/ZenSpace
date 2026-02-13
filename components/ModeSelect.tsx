@@ -15,7 +15,7 @@ export function ModeSelect({ onSelectMode, uploadedImage }: ModeSelectProps) {
           <img
             src={uploadedImage}
             alt="Your uploaded room"
-            className="w-32 h-32 sm:w-40 sm:h-40 object-cover rounded-2xl shadow-md border-2 border-stone-200 dark:border-stone-700"
+            className="w-32 h-32 sm:w-40 sm:h-40 object-cover shadow-md border-2 border-stone-200 dark:border-stone-700"
           />
         </div>
       )}
@@ -31,32 +31,32 @@ export function ModeSelect({ onSelectMode, uploadedImage }: ModeSelectProps) {
         {/* Clean My Space */}
         <button
           onClick={() => onSelectMode('clean')}
-          className="group relative bg-white dark:bg-stone-800 rounded-2xl border-2 border-stone-200 dark:border-stone-700 hover:border-emerald-400 dark:hover:border-emerald-500 p-8 text-left transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900"
+          className="group relative bg-white dark:bg-stone-800 border-2 border-stone-200 dark:border-stone-700 hover:border-emerald-400 dark:hover:border-emerald-500 p-8 text-left transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900"
         >
-          <div className="bg-emerald-100 dark:bg-emerald-900/40 rounded-xl w-14 h-14 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
+          <div className="bg-emerald-100 dark:bg-emerald-900/40 w-14 h-14 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
             <Sparkles className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
           </div>
           <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100 font-serif mb-2">
             Clean My Space
           </h3>
           <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed">
-            Get a step-by-step decluttering plan and organization tips
+            Step-by-step decluttering plan and organization tips
           </p>
         </button>
 
         {/* Redesign My Space */}
         <button
           onClick={() => onSelectMode('redesign')}
-          className="group relative bg-white dark:bg-stone-800 rounded-2xl border-2 border-stone-200 dark:border-stone-700 hover:border-violet-400 dark:hover:border-violet-500 p-8 text-left transition-all duration-300 hover:shadow-lg hover:shadow-violet-500/10 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900"
+          className="group relative bg-white dark:bg-stone-800 border-2 border-stone-200 dark:border-stone-700 hover:border-violet-400 dark:hover:border-violet-500 p-8 text-left transition-all duration-300 hover:shadow-lg hover:shadow-violet-500/10 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900"
         >
-          <div className="bg-violet-100 dark:bg-violet-900/40 rounded-xl w-14 h-14 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
+          <div className="bg-violet-100 dark:bg-violet-900/40 w-14 h-14 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
             <Palette className="w-7 h-7 text-violet-600 dark:text-violet-400" />
           </div>
           <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100 font-serif mb-2">
             Redesign My Space
           </h3>
           <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed">
-            Get 3 bold design directions from world-class design thinkers
+            3 bold design directions grounded in design theory
           </p>
         </button>
       </div>
