@@ -50,6 +50,7 @@ export async function captureShareableCard(
     // Small delay for layout
     await new Promise(r => setTimeout(r, 100));
 
+    const { default: html2canvas } = await import('html2canvas');
     const canvas = await html2canvas(container.firstElementChild as HTMLElement, {
       backgroundColor: '#0f172a',
       scale: 2,
