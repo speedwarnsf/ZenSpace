@@ -1,6 +1,6 @@
 /**
  * RatingEffects — Visual feedback for rating actions.
- * Gold burst + star particles for THE ONE ⭐
+ * Gold burst + star particles for THE ONE 
  * Red crumple flash for Never Again 🚫
  */
 

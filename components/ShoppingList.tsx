@@ -101,7 +101,7 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessio
       if (!catItems?.length) continue;
       lines.push(`## ${CATEGORY_META[cat].label}`);
       for (const item of catItems) {
-        const check = purchasedIds.has(item.id) ? '✅' : '⬜';
+        const check = purchasedIds.has(item.id) ? '[x]' : '[ ]';
         lines.push(`${check} ${item.name} (x${item.quantity}) — $${item.priceEstimate.low}–$${item.priceEstimate.high}`);
         lines.push(`   ${item.description}`);
       }
@@ -214,7 +214,7 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessio
                             </div>
                             <p className="text-sm text-stone-500 dark:text-stone-400 mt-1">{item.description}</p>
                             <p className="text-xs text-stone-400 dark:text-stone-500 mt-1 italic">
-                              🎨 {item.designTheoryJustification}
+                              {item.designTheoryJustification}
                             </p>
                           </div>
 

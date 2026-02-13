@@ -1,7 +1,7 @@
 /**
  * Taste Profile Engine
  * Calculates aesthetic preferences from lookbook ratings.
- * Every rating is a data point — positive signals from 🔥 and ⭐,
+ * Every rating is a data point — positive signals from positive and top-rated,
  * negative signals from 🚫 (stronger weight).
  */
 

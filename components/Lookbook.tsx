@@ -521,14 +521,14 @@ function FullScreenCard({
 }
 
 const ITERATION_BRANCHES = [
-  { emoji: '🎨', label: 'Same palette, different layout' },
-  { emoji: '🌡️', label: 'Dial up the warmth' },
-  { emoji: '🪵', label: 'Same mood, bolder materials' },
-  { emoji: '💡', label: 'Change the lighting dramatically' },
-  { emoji: '🔊', label: 'Make it more dramatic' },
-  { emoji: '🤫', label: 'Make it more subtle' },
-  { emoji: '🌿', label: 'Add more biophilic elements' },
-  { emoji: '🏗️', label: 'More architectural / structural' },
+  { emoji: 'palette', label: 'Same palette, different layout' },
+  { emoji: 'warmth', label: 'Dial up the warmth' },
+  { emoji: 'materials', label: 'Same mood, bolder materials' },
+  { emoji: 'light', label: 'Change the lighting dramatically' },
+  { emoji: 'bold', label: 'Make it more dramatic' },
+  { emoji: 'subtle', label: 'Make it more subtle' },
+  { emoji: 'nature', label: 'Add more biophilic elements' },
+  { emoji: 'structure', label: 'More architectural / structural' },
 ];
 
 export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore, isGenerating, uploadedImageUrl }: LookbookProps) {
@@ -716,7 +716,7 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
           className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/10 rounded-2xl border border-amber-200/50 dark:border-amber-700/30 p-5 space-y-3"
         >
           <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300">
-            ✨ Go deeper on your favorites
+            Go deeper on your favorites
           </h3>
           <p className="text-xs text-amber-600 dark:text-amber-400/70">
             Tap "Go Deeper" on any card, then explore iteration branches:

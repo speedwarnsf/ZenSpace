@@ -15,7 +15,7 @@ export function AuthGate({ onClose, message }: AuthGateProps) {
   const { signInGoogle, signInApple, signInMagic, signInPassword } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [mode, setMode] = useState<'main' | 'password'>('main');
+  const [mode, setMode] = useState<'main' | 'password'>('password');
   const [magicSent, setMagicSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

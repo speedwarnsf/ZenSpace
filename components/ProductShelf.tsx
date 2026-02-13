@@ -3,7 +3,7 @@ import type { ProductRecommendation } from '../types';
 
 const CATEGORY_LABELS: Record<string, string> = {
   furniture: '🪑 Furniture',
-  lighting: '💡 Lighting',
+  lighting: 'Lighting',
   textiles: '🧵 Textiles',
   decor: '✦ Decor',
   rugs: '◼ Rugs',
