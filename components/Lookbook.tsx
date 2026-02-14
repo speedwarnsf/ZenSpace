@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useRef, memo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { Loader2, ChevronDown, ChevronUp, Home } from 'lucide-react';
+import { Loader2, ChevronDown, ChevronUp, Home, Palette, Sun, Layers, Lightbulb } from 'lucide-react';
 import { SoIcon } from './SoIcon';
 import { captureShareableCard, shareCard, downloadCard } from '../services/shareService';
 import { createRoot } from 'react-dom/client';
@@ -521,14 +521,10 @@ function FullScreenCard({
 }
 
 const ITERATION_BRANCHES = [
-  { emoji: 'palette', label: 'Same palette, different layout' },
-  { emoji: 'warmth', label: 'Dial up the warmth' },
-  { emoji: 'materials', label: 'Same mood, bolder materials' },
-  { emoji: 'light', label: 'Change the lighting dramatically' },
-  { emoji: 'bold', label: 'Make it more dramatic' },
-  { emoji: 'subtle', label: 'Make it more subtle' },
-  { emoji: 'nature', label: 'Add more biophilic elements' },
-  { emoji: 'structure', label: 'More architectural / structural' },
+  { icon: Palette, label: 'Same palette, different layout' },
+  { icon: Sun, label: 'Dial up the warmth' },
+  { icon: Layers, label: 'Same mood, bolder materials' },
+  { icon: Lightbulb, label: 'Change the lighting dramatically' },
 ];
 
 export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore, isGenerating, uploadedImageUrl }: LookbookProps) {
@@ -722,9 +718,9 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
             Tap "Go Deeper" on any card, then explore iteration branches:
           </p>
           <div className="flex flex-wrap gap-2">
-            {ITERATION_BRANCHES.slice(0, 4).map(({ emoji, label }) => (
+            {ITERATION_BRANCHES.map(({ icon: Icon, label }) => (
               <span key={label} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/60 dark:bg-stone-800/60 text-xs text-amber-700 dark:text-amber-300 border border-amber-200/50 dark:border-amber-700/30">
-                <span>{emoji}</span> {label}
+                <Icon className="w-3 h-3" /> {label}
               </span>
             ))}
           </div>
