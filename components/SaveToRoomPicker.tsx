@@ -21,12 +21,13 @@ export const SaveToRoomPicker: React.FC<SaveToRoomPickerProps> = ({ entry, sourc
   const [newName, setNewName] = useState('');
   const [savedToId, setSavedToId] = useState<string | null>(null);
 
-  useEffect(() => { setRooms(getRooms()); }, []);
+  useEffect(() => { getRooms().then(setRooms); }, []);
 
   const handleSaveToExisting = useCallback(async (roomId: string) => {
     await saveDesignToRoom(roomId, entry);
     setSavedToId(roomId);
-    const room = getRooms().find(r => r.id === roomId);
+    const allRooms = await getRooms();
+    const room = allRooms.find(r => r.id === roomId);
     if (room) {
       setTimeout(() => onSaved(room), 600);
     }

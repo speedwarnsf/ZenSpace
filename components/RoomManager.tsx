@@ -29,7 +29,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ onAddRoom, onOpenDesig
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [vizImages, setVizImages] = useState<Map<string, string>>(new Map());
 
-  const refresh = useCallback(() => setRooms(getRooms()), []);
+  const refresh = useCallback(() => { getRooms().then(setRooms); }, []);
 
   useEffect(() => { refresh(); }, [refresh]);
 
@@ -43,10 +43,11 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ onAddRoom, onOpenDesig
   const selectedRoom = rooms.find(r => r.id === selectedRoomId) || null;
 
   const handleDelete = useCallback((id: string) => {
-    deleteRoomFromStorage(id);
-    setConfirmDeleteId(null);
-    if (selectedRoomId === id) setSelectedRoomId(null);
-    refresh();
+    deleteRoomFromStorage(id).then(() => {
+      setConfirmDeleteId(null);
+      if (selectedRoomId === id) setSelectedRoomId(null);
+      refresh();
+    });
   }, [selectedRoomId, refresh]);
 
   const handleSelectDesign = useCallback((room: Room, designId: string) => {

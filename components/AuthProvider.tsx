@@ -5,6 +5,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { User } from '@supabase/supabase-js';
 import { getCurrentUser, onAuthStateChange, signOut as authSignOut, signInWithGoogle, signInWithApple, signInWithMagicLink, signInWithPassword } from '../services/auth';
+import { migrateLocalRoomsToSupabase } from '../services/houseRoomStorage';
 import { getSubscription, getUserUsage, getFreeUsage, Subscription, UsageData } from '../services/subscription';
 import { UserTier, FREE_TIER, PRO_TIER } from '../services/gating';
 
@@ -105,6 +106,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (mounted) {
         setUser(newUser);
         setIsLoading(false);
+        if (newUser) {
+          migrateLocalRoomsToSupabase().catch(console.warn);
+        }
       }
     });
 
