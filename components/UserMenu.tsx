@@ -52,18 +52,18 @@ export function UserMenu({ onOpenPricing, onOpenAuth }: UserMenuProps) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
       >
         {userTier.tier === 'pro' && (
-          <span className="flex items-center gap-1 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+          <span className="flex items-center gap-1 px-1.5 py-0.5 text-emerald-500 text-xs font-medium">
             <Crown className="w-3 h-3" />
             Pro
           </span>
         )}
         {avatarUrl ? (
-          <img src={avatarUrl} alt="" className="w-8 h-8 border border-stone-600" />
+          <img src={avatarUrl} alt="" className="w-8 h-8" />
         ) : (
-          <div className="w-8 h-8 bg-stone-700 border border-stone-600 flex items-center justify-center text-xs font-medium text-stone-300">
+          <div className="w-8 h-8 bg-stone-200 dark:bg-stone-700 flex items-center justify-center text-xs font-medium text-stone-600 dark:text-stone-300">
             {initials}
           </div>
         )}

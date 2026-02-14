@@ -938,7 +938,7 @@ function AppContent() {
             {(appState === AppState.HOME || appState === AppState.RESULTS || appState === AppState.MODE_SELECT || appState === AppState.LOOKBOOK) && (
               <button
                 onClick={() => setAppState(AppState.ROOMS)}
-                className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-sm font-medium bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                className="p-2 text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                 title="My Rooms"
               >
                 <Home className="w-4 h-4" />
