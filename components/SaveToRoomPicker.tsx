@@ -44,13 +44,13 @@ export const SaveToRoomPicker: React.FC<SaveToRoomPickerProps> = ({ entry, sourc
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose} role="dialog" aria-modal="true" aria-label="Save design to room" onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}>
       <div
-        className="bg-white dark:bg-stone-800 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+        className="bg-white dark:bg-stone-800 shadow-2xl w-full max-w-sm overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
         <div className="px-5 py-4 border-b border-stone-200 dark:border-stone-700 flex items-center justify-between">
           <h3 className="font-serif text-lg font-bold text-stone-800 dark:text-stone-100">Save to Room</h3>
-          <button onClick={onClose} className="p-1.5 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-lg transition-colors">
+          <button onClick={onClose} className="p-1.5 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors">
             <X className="w-4 h-4 text-stone-500" />
           </button>
         </div>
@@ -62,13 +62,13 @@ export const SaveToRoomPicker: React.FC<SaveToRoomPickerProps> = ({ entry, sourc
               key={room.id}
               onClick={() => handleSaveToExisting(room.id)}
               disabled={savedToId !== null}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${
                 savedToId === room.id
                   ? 'bg-emerald-50 dark:bg-emerald-900/20'
                   : 'hover:bg-stone-50 dark:hover:bg-stone-700/50'
               }`}
             >
-              <div className="w-10 h-10 rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-700 flex-shrink-0">
+              <div className="w-10 h-10 overflow-hidden bg-stone-100 dark:bg-stone-700 flex-shrink-0">
                 {room.sourceImageThumb ? (
                   <img src={room.sourceImageThumb} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -102,13 +102,13 @@ export const SaveToRoomPicker: React.FC<SaveToRoomPickerProps> = ({ entry, sourc
                 onChange={e => setNewName(e.target.value)}
                 placeholder="Room name..."
                 autoFocus
-                className="flex-1 px-3 py-2 text-sm border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-700 text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="flex-1 px-3 py-2 text-sm border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-700 text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 onKeyDown={e => { if (e.key === 'Enter') handleCreateAndSave(); if (e.key === 'Escape') setIsCreating(false); }}
               />
               <button
                 onClick={handleCreateAndSave}
                 disabled={!newName.trim() || savedToId !== null}
-                className="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-medium transition-colors"
+                className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-medium transition-colors"
               >
                 Save
               </button>
@@ -117,7 +117,7 @@ export const SaveToRoomPicker: React.FC<SaveToRoomPickerProps> = ({ entry, sourc
             <button
               onClick={() => setIsCreating(true)}
               disabled={savedToId !== null}
-              className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
             >
               <Plus className="w-4 h-4" />
               New Room

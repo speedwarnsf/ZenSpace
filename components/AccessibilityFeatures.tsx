@@ -186,7 +186,7 @@ export function AccessibilityToolbar() {
       {/* Toggle button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-stone-800 text-white p-2 rounded-full shadow-lg hover:bg-stone-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        className="bg-stone-800 text-white p-2 shadow-lg hover:bg-stone-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         aria-label="Accessibility settings"
         aria-expanded={isOpen}
       >
@@ -196,7 +196,7 @@ export function AccessibilityToolbar() {
       {/* Toolbar panel */}
       {isOpen && (
         <div 
-          className="mb-2 absolute bottom-full left-0 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-lg shadow-xl p-4 w-64"
+          className="mb-2 absolute bottom-full left-0 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 shadow-xl p-4 w-64"
           role="dialog"
           aria-label="Accessibility Settings"
         >
@@ -211,7 +211,7 @@ export function AccessibilityToolbar() {
                 type="checkbox"
                 checked={settings.reducedMotion}
                 onChange={() => handleToggle('reducedMotion', settings.reducedMotion, 'Reduced motion')}
-                className="w-4 h-4 text-blue-600 border-stone-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-blue-600 border-stone-300 focus:ring-blue-500"
               />
               <span className="text-sm text-stone-700 dark:text-stone-300">
                 Reduce motion
@@ -224,7 +224,7 @@ export function AccessibilityToolbar() {
                 type="checkbox"
                 checked={settings.highContrast}
                 onChange={() => handleToggle('highContrast', settings.highContrast, 'High contrast')}
-                className="w-4 h-4 text-blue-600 border-stone-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-blue-600 border-stone-300 focus:ring-blue-500"
               />
               <span className="text-sm text-stone-700 dark:text-stone-300">
                 High contrast
@@ -237,7 +237,7 @@ export function AccessibilityToolbar() {
                 type="checkbox"
                 checked={settings.largeText}
                 onChange={() => handleToggle('largeText', settings.largeText, 'Large text')}
-                className="w-4 h-4 text-blue-600 border-stone-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-blue-600 border-stone-300 focus:ring-blue-500"
               />
               <span className="text-sm text-stone-700 dark:text-stone-300">
                 Large text
@@ -250,7 +250,7 @@ export function AccessibilityToolbar() {
                 type="checkbox"
                 checked={settings.soundEnabled}
                 onChange={() => handleToggle('soundEnabled', settings.soundEnabled, 'Sound feedback')}
-                className="w-4 h-4 text-blue-600 border-stone-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-blue-600 border-stone-300 focus:ring-blue-500"
               />
               <span className="text-sm text-stone-700 dark:text-stone-300 flex items-center gap-1">
                 {settings.soundEnabled ? <Volume2 className="w-3 h-3" /> : <VolumeX className="w-3 h-3" />}
@@ -264,7 +264,7 @@ export function AccessibilityToolbar() {
                 type="checkbox"
                 checked={settings.focusVisible}
                 onChange={() => handleToggle('focusVisible', settings.focusVisible, 'Focus indicators')}
-                className="w-4 h-4 text-blue-600 border-stone-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-blue-600 border-stone-300 focus:ring-blue-500"
               />
               <span className="text-sm text-stone-700 dark:text-stone-300">
                 Enhanced focus indicators

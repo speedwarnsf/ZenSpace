@@ -2,6 +2,24 @@ import { Type, Modality } from "@google/genai";
 import { AnalysisResult, ProductSuggestion, DesignAnalysis, DesignOption, DesignFramework } from '../types';
 import { createAnalysisPrompt, createChatContextPrompt, createDesignAnalysisPrompt, createIterationPrompt } from './promptTemplates';
 import { createTimeoutHandler } from './edgeCaseHandlers';
+import { retryAsync, getApiRetryConfig } from './retry';
+
+/**
+ * Wrapper that adds retry with exponential backoff to any async operation.
+ * 3 retries, exponential backoff, only retries network/server/rate-limit errors.
+ */
+async function withGeminiRetry<T>(operation: () => Promise<T>, label: string): Promise<T> {
+  const config = getApiRetryConfig({
+    onRetry: (attempt, error, delayMs) => {
+      console.warn(`[Gemini] ${label} retry ${attempt}, waiting ${delayMs}ms`, error);
+    },
+  });
+  const result = await retryAsync(operation, config);
+  if (!result.success) {
+    throw result.error;
+  }
+  return result.result as T;
+}
 
 // API calls go through our server-side proxy to keep the key safe
 const PROXY_URL = '/api/gemini';
@@ -25,6 +43,7 @@ export const getApiConfigError = (): string => {
 const ai = {
   models: {
     async generateContent(params: any) {
+      return withGeminiRetry(async () => {
       let response: Response;
       try {
         response = await fetch(PROXY_URL, {
@@ -54,6 +73,7 @@ const ai = {
         throw new GeminiApiError(errMsg, errCode, response.status >= 500);
       }
       return response.json();
+      }, 'generateContent');
     }
   },
   chats: {
@@ -61,6 +81,7 @@ const ai = {
       // Return a chat-like object that uses the proxy
       return {
         async sendMessage(msg: any) {
+          return withGeminiRetry(async () => {
           let response: Response;
           try {
             response = await fetch(PROXY_URL, {
@@ -82,6 +103,7 @@ const ai = {
           }
           const data = await response.json();
           return { text: data.text };
+          }, 'sendMessage');
         }
       };
     }

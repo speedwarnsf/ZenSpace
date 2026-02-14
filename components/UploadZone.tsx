@@ -153,7 +153,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelected, isAnaly
         aria-disabled={isAnalyzing}
         className={`
           relative w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96
-          rounded-full 
+          
           bg-zinc-900
           shadow-[0_25px_60px_-12px_rgba(0,0,0,0.6)]
           flex items-center justify-center
@@ -178,7 +178,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelected, isAnaly
 
         {/* Outer Barrel Ribs (Grip) */}
         <div 
-          className="absolute inset-0 rounded-full border-[12px] sm:border-[16px] border-zinc-900 shadow-[inset_0_0_20px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.05)]"
+          className="absolute inset-0 border-[12px] sm:border-[16px] border-zinc-900 shadow-[inset_0_0_20px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.05)]"
           style={{
             backgroundImage: `repeating-linear-gradient(
               45deg,
@@ -193,7 +193,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelected, isAnaly
 
         {/* Inner Metal Ring (Specs) */}
         <div 
-          className="absolute inset-[12px] sm:inset-[16px] rounded-full bg-zinc-900 border border-zinc-800 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]"
+          className="absolute inset-[12px] sm:inset-[16px] bg-zinc-900 border border-zinc-800 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]"
           aria-hidden="true"
         >
           {/* Rotating Text Ring */}
@@ -222,7 +222,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelected, isAnaly
 
         {/* Front Element Housing (Deep Black) */}
         <div 
-          className="absolute inset-[36px] sm:inset-[45px] rounded-full bg-black shadow-[inset_0_10px_30px_rgba(0,0,0,1)] overflow-hidden border-2 sm:border-4 border-zinc-800"
+          className="absolute inset-[36px] sm:inset-[45px] bg-black shadow-[inset_0_10px_30px_rgba(0,0,0,1)] overflow-hidden border-2 sm:border-4 border-zinc-800"
           aria-hidden="true"
         >
           {/* Lens Flare / Coating Simulation */}
@@ -240,8 +240,8 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelected, isAnaly
           {isAnalyzing && (
             <div className="absolute inset-0 z-30 bg-black/80 flex flex-col items-center justify-center backdrop-blur-[2px]">
               <div className="relative">
-                <div className="absolute inset-0 animate-ping rounded-full bg-emerald-500/20" />
-                <div className="absolute inset-0 animate-[spin_3s_linear_infinite] border-t-2 border-emerald-500 rounded-full" />
+                <div className="absolute inset-0 animate-ping bg-emerald-500/20" />
+                <div className="absolute inset-0 animate-[spin_3s_linear_infinite] border-t-2 border-emerald-500" />
                 <Loader2 className="w-10 h-10 text-emerald-500 relative z-10 animate-spin" />
               </div>
               <p className="mt-4 text-emerald-500 font-mono text-[10px] tracking-widest uppercase">
@@ -261,7 +261,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelected, isAnaly
               <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
                 <button 
                   onClick={clearImage}
-                  className="bg-red-600/90 text-white p-3 rounded-full transform hover:scale-110 transition-transform hover:bg-red-500 shadow-lg focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/40"
+                  className="bg-red-600/90 text-white p-3 transform hover:scale-110 transition-transform hover:bg-red-500 shadow-lg focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/40"
                   aria-label="Remove uploaded image"
                 >
                   <X className="w-6 h-6" />
@@ -286,7 +286,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelected, isAnaly
       {error && (
         <p 
           id={errorId} 
-          className="mt-4 text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-4 py-2 rounded-lg"
+          className="mt-4 text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-4 py-2"
           role="alert"
         >
           {error}

@@ -116,7 +116,7 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessio
 
   return (
     <section
-      className="bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-stone-100 dark:border-stone-700 p-6 md:p-8 transition-colors duration-300"
+      className="bg-white dark:bg-stone-800 shadow-sm border border-stone-100 dark:border-stone-700 p-6 md:p-8 transition-colors duration-300"
       aria-labelledby="shopping-list-heading"
     >
       {/* Header */}
@@ -129,7 +129,7 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessio
         </div>
         <button
           onClick={handleCopyList}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border border-stone-200 dark:border-stone-600 hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors text-stone-600 dark:text-stone-300"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-stone-200 dark:border-stone-600 hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors text-stone-600 dark:text-stone-300"
           aria-label="Copy shopping list to clipboard"
         >
           {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
@@ -143,7 +143,7 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessio
       </p>
 
       {/* Budget summary */}
-      <div className="flex flex-wrap items-center gap-4 mb-6 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800">
+      <div className="flex flex-wrap items-center gap-4 mb-6 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800">
         <div className="flex items-center gap-2">
           <DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
           <span className="font-bold text-emerald-800 dark:text-emerald-200 text-lg">
@@ -165,7 +165,7 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessio
           const meta = CATEGORY_META[cat];
 
           return (
-            <div key={cat} className="border border-stone-100 dark:border-stone-700 rounded-xl overflow-hidden">
+            <div key={cat} className="border border-stone-100 dark:border-stone-700 overflow-hidden">
               <button
                 onClick={() => toggleCategory(cat)}
                 className="w-full flex items-center gap-3 px-4 py-3 bg-stone-50 dark:bg-stone-700/50 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors text-left"
@@ -187,7 +187,7 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessio
                           {/* Checkbox */}
                           <button
                             onClick={() => togglePurchased(item.id)}
-                            className={`mt-1 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                            className={`mt-1 w-5 h-5 border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
                               isPurchased
                                 ? 'bg-emerald-500 border-emerald-500 text-white'
                                 : 'border-stone-300 dark:border-stone-600 hover:border-emerald-400'
@@ -204,7 +204,7 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessio
                                 {item.name}
                               </span>
                               {item.quantity > 1 && (
-                                <span className="text-xs px-1.5 py-0.5 rounded bg-stone-100 dark:bg-stone-700 text-stone-500 dark:text-stone-400">
+                                <span className="text-xs px-1.5 py-0.5 bg-stone-100 dark:bg-stone-700 text-stone-500 dark:text-stone-400">
                                   ×{item.quantity}
                                 </span>
                               )}
@@ -224,7 +224,7 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessio
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={() => handleBuyClick(item)}
-                            className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium transition-colors"
+                            className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium transition-colors"
                             aria-label={`Buy ${item.name} on Amazon`}
                           >
                             Buy <ExternalLink className="w-3 h-3" />

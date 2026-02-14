@@ -135,7 +135,7 @@ export function ShareButton({ analysis, roomType = 'room', onShare }: ShareButto
       <button
         onClick={handleNativeShare}
         disabled={isSharing}
-        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50"
+        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50"
         aria-label="Share analysis results"
       >
         <Share2 className="w-4 h-4" aria-hidden="true" />
@@ -149,7 +149,7 @@ export function ShareButton({ analysis, roomType = 'room', onShare }: ShareButto
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
         aria-label="Share analysis results"
         aria-expanded={isOpen}
         aria-haspopup="menu"
@@ -170,7 +170,7 @@ export function ShareButton({ analysis, roomType = 'room', onShare }: ShareButto
           
           {/* Menu */}
           <div 
-            className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-stone-200 py-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+            className="absolute right-0 mt-2 w-48 bg-white shadow-lg border border-stone-200 py-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
             role="menu"
             aria-orientation="vertical"
           >

@@ -130,7 +130,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <div className="max-w-md w-full text-center space-y-6">
             {/* Error Icon */}
             <div className="flex justify-center">
-              <div className="bg-red-50 dark:bg-red-900/30 rounded-full p-4">
+              <div className="bg-red-50 dark:bg-red-900/30 p-4">
                 <AlertTriangle className="w-12 h-12 text-red-500 dark:text-red-400" />
               </div>
             </div>
@@ -151,7 +151,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
             {/* Error Details (Development Only) */}
             {process.env.NODE_ENV === 'development' && this.state.error && (
-              <div className="bg-stone-100 dark:bg-stone-800 rounded-lg p-4 text-left">
+              <div className="bg-stone-100 dark:bg-stone-800 p-4 text-left">
                 <h3 className="font-medium text-stone-900 dark:text-stone-100 mb-2">
                   Error Details
                 </h3>
@@ -171,7 +171,7 @@ export class ErrorBoundary extends Component<Props, State> {
               {canRetry && !isQuotaExceeded && (
                 <button
                   onClick={this.handleRetry}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900 flex items-center justify-center gap-2"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900 flex items-center justify-center gap-2"
                 >
                   <RefreshCw className="w-4 h-4" />
                   Try Again ({this.maxRetries - this.state.retryCount} left)
@@ -180,7 +180,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
               <button
                 onClick={this.handleGoHome}
-                className="bg-stone-600 hover:bg-stone-700 text-white px-6 py-3 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900 flex items-center justify-center gap-2"
+                className="bg-stone-600 hover:bg-stone-700 text-white px-6 py-3 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900 flex items-center justify-center gap-2"
               >
                 <Home className="w-4 h-4" />
                 Go Home
@@ -188,7 +188,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
               <button
                 onClick={this.handleReload}
-                className="bg-stone-200 hover:bg-stone-300 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-700 dark:text-stone-200 px-6 py-3 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900 flex items-center justify-center gap-2"
+                className="bg-stone-200 hover:bg-stone-300 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-700 dark:text-stone-200 px-6 py-3 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900 flex items-center justify-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
                 Reload Page

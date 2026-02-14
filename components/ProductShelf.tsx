@@ -12,7 +12,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 function ProductCard({ product }: { product: ProductRecommendation }) {
   return (
-    <div className="flex-shrink-0 w-56 sm:w-64 bg-neutral-900 border border-neutral-800 rounded-xl p-4 flex flex-col gap-2.5 snap-start hover:border-neutral-600 transition-colors">
+    <div className="flex-shrink-0 w-56 sm:w-64 bg-neutral-900 border border-neutral-800 p-4 flex flex-col gap-2.5 snap-start hover:border-neutral-600 transition-colors">
       {/* Category */}
       <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-500">
         {CATEGORY_LABELS[product.category] || product.category}
@@ -73,7 +73,7 @@ export function ProductShelf({ products, title = 'The Edit', light = false }: Pr
           {products.map((product, i) => (
             <div
               key={i}
-              className="flex-shrink-0 w-52 bg-stone-50 dark:bg-stone-700/50 border border-stone-200 dark:border-stone-600 rounded-xl p-3.5 flex flex-col gap-2 snap-start"
+              className="flex-shrink-0 w-52 bg-stone-50 dark:bg-stone-700/50 border border-stone-200 dark:border-stone-600 p-3.5 flex flex-col gap-2 snap-start"
             >
               <span className="text-[10px] uppercase tracking-[0.15em] text-stone-400 dark:text-stone-500">
                 {CATEGORY_LABELS[product.category] || product.category}

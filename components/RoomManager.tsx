@@ -62,14 +62,14 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ onAddRoom, onOpenDesig
           {selectedRoom ? (
             <button
               onClick={() => setSelectedRoomId(null)}
-              className="p-2 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-lg transition-colors"
+              className="p-2 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors"
             >
               <ArrowLeft className="w-5 h-5 text-stone-500 dark:text-stone-400" />
             </button>
           ) : (
             <button
               onClick={onBack}
-              className="p-2 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-lg transition-colors"
+              className="p-2 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors"
             >
               <ArrowLeft className="w-5 h-5 text-stone-500 dark:text-stone-400" />
             </button>
@@ -83,7 +83,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ onAddRoom, onOpenDesig
         {!selectedRoom && (
           <button
             onClick={onAddRoom}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm transition-colors"
           >
             <Plus className="w-4 h-4" />
             Add Room
@@ -103,7 +103,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ onAddRoom, onOpenDesig
               </p>
               <button
                 onClick={onAddRoom}
-                className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium transition-colors"
+                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium transition-colors"
               >
                 Add Your First Room
               </button>
@@ -118,7 +118,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ onAddRoom, onOpenDesig
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
-                    className="group relative bg-white dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer focus-within:ring-2 focus-within:ring-emerald-500"
+                    className="group relative bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer focus-within:ring-2 focus-within:ring-emerald-500"
                     onClick={() => setSelectedRoomId(room.id)}
                     tabIndex={0}
                     role="button"
@@ -135,7 +135,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ onAddRoom, onOpenDesig
                         </div>
                       )}
                       {/* Design count badge */}
-                      <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                      <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 flex items-center gap-1">
                         <Palette className="w-3 h-3" />
                         {room.designs.length}
                       </div>
@@ -161,13 +161,13 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ onAddRoom, onOpenDesig
                         <div className="flex gap-1">
                           <button
                             onClick={(e) => { e.stopPropagation(); handleDelete(room.id); }}
-                            className="p-1.5 bg-red-500 text-white rounded-lg shadow-sm hover:bg-red-600"
+                            className="p-1.5 bg-red-500 text-white shadow-sm hover:bg-red-600"
                           >
                             <Check className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null); }}
-                            className="p-1.5 bg-white dark:bg-stone-600 rounded-lg shadow-sm"
+                            className="p-1.5 bg-white dark:bg-stone-600 shadow-sm"
                           >
                             <X className="w-3.5 h-3.5 text-stone-600 dark:text-stone-300" />
                           </button>
@@ -175,7 +175,7 @@ export const RoomManager: React.FC<RoomManagerProps> = ({ onAddRoom, onOpenDesig
                       ) : (
                         <button
                           onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(room.id); }}
-                          className="p-1.5 bg-white/90 dark:bg-stone-600/90 rounded-lg shadow-sm hover:bg-red-50"
+                          className="p-1.5 bg-white/90 dark:bg-stone-600/90 shadow-sm hover:bg-red-50"
                         >
                           <Trash2 className="w-3.5 h-3.5 text-stone-600 dark:text-stone-300" />
                         </button>
@@ -236,7 +236,7 @@ const RoomDesigns: React.FC<{
         const chosen = room.designs.find(d => d.id === room.selectedDesignId);
         if (!chosen) return null;
         return (
-          <div className="bg-emerald-50/50 dark:bg-emerald-900/10 border-2 border-emerald-300 dark:border-emerald-600 rounded-xl overflow-hidden">
+          <div className="bg-emerald-50/50 dark:bg-emerald-900/10 border-2 border-emerald-300 dark:border-emerald-600 overflow-hidden">
             <div className="p-3 flex items-center gap-2 border-b border-emerald-200 dark:border-emerald-700">
               <Star className="w-4 h-4 text-emerald-600 dark:text-emerald-400 fill-current" />
               <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Chosen Design</span>
@@ -245,7 +245,7 @@ const RoomDesigns: React.FC<{
               onClick={() => onOpenDesign(chosen)}
               className="w-full flex items-center gap-4 p-4 text-left hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
             >
-              <div className="w-20 h-20 rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-700 flex-shrink-0">
+              <div className="w-20 h-20 overflow-hidden bg-stone-100 dark:bg-stone-700 flex-shrink-0">
                 {vizImages.get(chosen.id) || chosen.option.visualizationImage || chosen.option.visualizationThumb ? (
                   <img src={vizImages.get(chosen.id) ? `data:image/png;base64,${vizImages.get(chosen.id)}` : chosen.option.visualizationImage ? `data:image/png;base64,${chosen.option.visualizationImage}` : chosen.option.visualizationThumb!} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -257,7 +257,7 @@ const RoomDesigns: React.FC<{
                 <p className="text-sm text-stone-500 dark:text-stone-400 line-clamp-2">{chosen.option.mood}</p>
                 <div className="flex gap-1 mt-2">
                   {chosen.option.palette.map((c, i) => (
-                    <div key={i} className="w-4 h-4 rounded-full border border-stone-200 dark:border-stone-600" style={{ backgroundColor: c }} />
+                    <div key={i} className="w-4 h-4 border border-stone-200 dark:border-stone-600" style={{ backgroundColor: c }} />
                   ))}
                 </div>
               </div>
@@ -276,7 +276,7 @@ const RoomDesigns: React.FC<{
           return (
             <div
               key={entry.id}
-              className={`bg-white dark:bg-stone-800 rounded-xl border overflow-hidden transition-all ${
+              className={`bg-white dark:bg-stone-800 border overflow-hidden transition-all ${
                 isChosen
                   ? 'border-emerald-300 dark:border-emerald-600'
                   : 'border-stone-200 dark:border-stone-700 hover:shadow-md'

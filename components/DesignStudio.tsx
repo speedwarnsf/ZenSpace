@@ -210,7 +210,7 @@ function StudioBrief({
         >
           Color Story
         </h2>
-        <div className="h-16 sm:h-20 rounded-lg overflow-hidden relative">
+        <div className="h-16 sm:h-20 overflow-hidden relative">
           <div
             className="absolute inset-0"
             style={{
@@ -222,7 +222,7 @@ function StudioBrief({
           {option.palette.map((color, i) => (
             <div key={i} className="flex-1 group cursor-crosshair">
               <div
-                className="aspect-square rounded-md transition-all duration-300 group-hover:scale-[1.05] group-hover:shadow-lg"
+                className="aspect-square transition-all duration-300 group-hover:scale-[1.05] group-hover:shadow-lg"
                 style={{ backgroundColor: color }}
               />
               <span
@@ -252,7 +252,7 @@ function StudioBrief({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.6 }}
-              className="bg-neutral-900 border border-neutral-800 rounded-xl p-5 hover:border-neutral-700 transition-colors"
+              className="bg-neutral-900 border border-neutral-800 p-5 hover:border-neutral-700 transition-colors"
             >
               <span
                 className="text-2xl font-bold block mb-3"
@@ -281,7 +281,7 @@ function StudioBrief({
             {materials.map((mat) => (
               <span
                 key={mat}
-                className="px-4 py-2 rounded-full border border-neutral-800 text-sm text-neutral-400 hover:text-neutral-200 hover:border-neutral-600 transition-colors"
+                className="px-4 py-2 border border-neutral-800 text-sm text-neutral-400 hover:text-neutral-200 hover:border-neutral-600 transition-colors"
                 style={{ fontFamily: tp.body }}
               >
                 {mat}
@@ -366,7 +366,7 @@ function StudioBrief({
       {/* ── Visualization detail ── */}
       {imgSrc && (
         <RevealSection>
-          <div className="relative rounded-lg overflow-hidden">
+          <div className="relative overflow-hidden">
             <img
               src={imgSrc}
               alt={`${option.name} visualization detail`}
@@ -432,7 +432,7 @@ function StudioIterate({
                 <button
                   disabled={isIterating}
                   onClick={() => onIterate(left)}
-                  className={`flex-1 px-4 py-3 rounded-xl border text-[13px] transition-all duration-300 flex items-center justify-center gap-2 ${
+                  className={`flex-1 px-4 py-3 border text-[13px] transition-all duration-300 flex items-center justify-center gap-2 ${
                     isIterating && activeLabel === left
                       ? 'border-white/30 bg-white/10 text-white'
                       : isIterating
@@ -452,7 +452,7 @@ function StudioIterate({
                 <button
                   disabled={isIterating}
                   onClick={() => onIterate(right)}
-                  className={`flex-1 px-4 py-3 rounded-xl border text-[13px] transition-all duration-300 flex items-center justify-center gap-2 ${
+                  className={`flex-1 px-4 py-3 border text-[13px] transition-all duration-300 flex items-center justify-center gap-2 ${
                     isIterating && activeLabel === right
                       ? 'border-white/30 bg-white/10 text-white'
                       : isIterating
@@ -653,7 +653,7 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
                 style={{ width: '40%' }}
               />
             </div>
-            <div className="absolute top-16 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-xl border border-white/10 rounded-full px-5 py-2.5 flex items-center gap-3 pointer-events-auto">
+            <div className="absolute top-16 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-xl border border-white/10 px-5 py-2.5 flex items-center gap-3 pointer-events-auto">
               <Loader2 size={16} className="animate-spin text-white" />
               <span className="text-sm text-neutral-200" style={{ fontFamily: tp.body }}>Iterating…</span>
             </div>
@@ -666,7 +666,7 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
             onClick={onBack}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-black/70 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
+            className="w-10 h-10 bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-black/70 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
             aria-label="Back to lookbook"
           >
             <ArrowLeft size={18} className="text-white" />
@@ -674,7 +674,7 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
           <div className="flex items-center gap-3">
             <button
               onClick={() => saveVisualization(entry)}
-              className="h-10 px-4 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center gap-2 hover:bg-black/70 transition-colors text-xs uppercase tracking-widest text-neutral-300"
+              className="h-10 px-4 bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center gap-2 hover:bg-black/70 transition-colors text-xs uppercase tracking-widest text-neutral-300"
             >
               <Download size={16} className="text-neutral-300" />
               <span className="hidden sm:inline">Image</span>
@@ -682,7 +682,7 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
             <button
               onClick={async () => { setSavingPdf(true); try { await generatePDF(entry); } finally { setSavingPdf(false); } }}
               disabled={savingPdf}
-              className="h-10 px-4 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center gap-2 hover:bg-black/70 transition-colors text-xs uppercase tracking-widest text-neutral-300"
+              className="h-10 px-4 bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center gap-2 hover:bg-black/70 transition-colors text-xs uppercase tracking-widest text-neutral-300"
             >
               {savingPdf ? <Loader2 size={16} className="animate-spin text-neutral-300" /> : <Download size={16} className="text-neutral-300" />}
               <span className="hidden sm:inline">PDF</span>
@@ -690,7 +690,7 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
             <button
               onClick={handleShare}
               disabled={sharing}
-              className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-black/70 transition-colors"
+              className="w-10 h-10 bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-black/70 transition-colors"
               aria-label="Share design"
             >
               <SoIcon name="share" size={18} style={{ filter: 'brightness(0) invert(1)' }} />
@@ -739,7 +739,7 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
                 <button
                   onClick={handleGenerateShoppingList}
                   disabled={shoppingListLoading}
-                  className="flex items-center gap-3 px-8 py-4 rounded-xl border border-neutral-800 text-neutral-300 hover:bg-neutral-900 hover:border-neutral-600 transition-all disabled:opacity-50"
+                  className="flex items-center gap-3 px-8 py-4 border border-neutral-800 text-neutral-300 hover:bg-neutral-900 hover:border-neutral-600 transition-all disabled:opacity-50"
                   style={{ fontFamily: tp.body }}
                 >
                   {shoppingListLoading ? (
@@ -761,7 +761,7 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
               <button
                 onClick={handleShare}
                 disabled={sharing}
-                className="w-full sm:w-auto px-8 py-3 rounded-full border border-neutral-700 text-sm text-neutral-300 hover:bg-neutral-900 hover:border-neutral-500 transition-all flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-8 py-3 border border-neutral-700 text-sm text-neutral-300 hover:bg-neutral-900 hover:border-neutral-500 transition-all flex items-center justify-center gap-2"
                 style={{ fontFamily: tp.body }}
               >
                 <SoIcon name="share" size={16} style={{ filter: 'brightness(0) invert(0.7)' }} />
@@ -769,7 +769,7 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
               </button>
               <button
                 onClick={() => saveVisualization(entry)}
-                className="w-full sm:w-auto px-8 py-3 rounded-full border border-neutral-700 text-sm text-neutral-300 hover:bg-neutral-900 hover:border-neutral-500 transition-all flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-8 py-3 border border-neutral-700 text-sm text-neutral-300 hover:bg-neutral-900 hover:border-neutral-500 transition-all flex items-center justify-center gap-2"
                 style={{ fontFamily: tp.body }}
               >
                 <Download size={16} className="text-neutral-400" />

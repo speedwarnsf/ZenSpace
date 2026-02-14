@@ -42,7 +42,7 @@ export function LoadingSkeleton({
           {Array.from({ length: lines }, (_, i) => (
             <div
               key={i}
-              className={`h-4 rounded-lg ${baseClasses} ${shimmerClasses}`}
+              className={`h-4 ${baseClasses} ${shimmerClasses}`}
               style={{ 
                 width: i === lines - 1 ? '75%' : '100%',
                 animationDelay: `${i * 0.1}s` 
@@ -55,7 +55,7 @@ export function LoadingSkeleton({
     case 'image':
       return (
         <div className={`${className}`}>
-          <div className={`aspect-video rounded-xl ${baseClasses} ${shimmerClasses} flex items-center justify-center`}>
+          <div className={`aspect-video ${baseClasses} ${shimmerClasses} flex items-center justify-center`}>
             {showIcon && <Image className="w-12 h-12 text-stone-400 dark:text-stone-500" />}
           </div>
           {message && (
@@ -65,9 +65,9 @@ export function LoadingSkeleton({
           )}
           {progress !== undefined && (
             <div className="mt-3">
-              <div className="w-full bg-stone-200 dark:bg-stone-700 rounded-full h-2">
+              <div className="w-full bg-stone-200 dark:bg-stone-700 h-2">
                 <div 
-                  className="bg-emerald-500 h-2 rounded-full transition-all duration-300 ease-out"
+                  className="bg-emerald-500 h-2 transition-all duration-300 ease-out"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -81,7 +81,7 @@ export function LoadingSkeleton({
 
     case 'button':
       return (
-        <div className={`${baseClasses} ${shimmerClasses} h-11 rounded-lg ${className}`} />
+        <div className={`${baseClasses} ${shimmerClasses} h-11 ${className}`} />
       );
 
     case 'chat':
@@ -94,10 +94,10 @@ export function LoadingSkeleton({
               style={{ animationDelay: `${i * 0.2}s` }}
             >
               <div className={`max-w-xs ${i % 2 === 0 ? 'order-2' : 'order-1'}`}>
-                <div className={`h-12 rounded-2xl ${baseClasses} ${shimmerClasses}`} />
+                <div className={`h-12 ${baseClasses} ${shimmerClasses}`} />
               </div>
               {i % 2 === 0 && (
-                <div className={`w-8 h-8 rounded-full ${baseClasses} ${shimmerClasses} order-1 flex-shrink-0`} />
+                <div className={`w-8 h-8 ${baseClasses} ${shimmerClasses} order-1 flex-shrink-0`} />
               )}
             </div>
           ))}
@@ -109,26 +109,26 @@ export function LoadingSkeleton({
         <div className={`space-y-6 ${className}`}>
           {/* Header */}
           <div className="space-y-3">
-            <div className={`h-8 w-3/4 rounded-lg ${baseClasses} ${shimmerClasses}`} />
-            <div className={`h-4 w-full rounded-lg ${baseClasses} ${shimmerClasses}`} />
-            <div className={`h-4 w-5/6 rounded-lg ${baseClasses} ${shimmerClasses}`} />
+            <div className={`h-8 w-3/4 ${baseClasses} ${shimmerClasses}`} />
+            <div className={`h-4 w-full ${baseClasses} ${shimmerClasses}`} />
+            <div className={`h-4 w-5/6 ${baseClasses} ${shimmerClasses}`} />
           </div>
 
           {/* Sections */}
           {Array.from({ length: 3 }, (_, i) => (
             <div key={i} className="space-y-3" style={{ animationDelay: `${i * 0.3}s` }}>
-              <div className={`h-6 w-1/2 rounded-lg ${baseClasses} ${shimmerClasses}`} />
+              <div className={`h-6 w-1/2 ${baseClasses} ${shimmerClasses}`} />
               <div className="space-y-2">
-                <div className={`h-4 w-full rounded-lg ${baseClasses} ${shimmerClasses}`} />
-                <div className={`h-4 w-4/5 rounded-lg ${baseClasses} ${shimmerClasses}`} />
+                <div className={`h-4 w-full ${baseClasses} ${shimmerClasses}`} />
+                <div className={`h-4 w-4/5 ${baseClasses} ${shimmerClasses}`} />
               </div>
             </div>
           ))}
 
           {/* Action buttons */}
           <div className="flex gap-3 pt-4">
-            <div className={`h-11 w-32 rounded-lg ${baseClasses} ${shimmerClasses}`} />
-            <div className={`h-11 w-24 rounded-lg ${baseClasses} ${shimmerClasses}`} />
+            <div className={`h-11 w-32 ${baseClasses} ${shimmerClasses}`} />
+            <div className={`h-11 w-24 ${baseClasses} ${shimmerClasses}`} />
           </div>
         </div>
       );
@@ -136,13 +136,13 @@ export function LoadingSkeleton({
     default: // card
       return (
         <div className={`${className}`}>
-          <div className={`p-6 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-4`}>
-            <div className={`h-6 w-1/3 rounded-lg ${baseClasses} ${shimmerClasses}`} />
+          <div className={`p-6 border border-stone-200 dark:border-stone-700 space-y-4`}>
+            <div className={`h-6 w-1/3 ${baseClasses} ${shimmerClasses}`} />
             <div className="space-y-3">
               {Array.from({ length: lines }, (_, i) => (
                 <div
                   key={i}
-                  className={`h-4 rounded-lg ${baseClasses} ${shimmerClasses}`}
+                  className={`h-4 ${baseClasses} ${shimmerClasses}`}
                   style={{ 
                     width: i === lines - 1 ? '60%' : '100%',
                     animationDelay: `${i * 0.1}s` 
@@ -212,7 +212,7 @@ export function AnalysisLoading({ stage, progress = 0, className = '' }: Analysi
   return (
     <div className={`text-center space-y-6 ${className}`}>
       {/* Animated Icon */}
-      <div className={`mx-auto w-20 h-20 rounded-full ${config.bgColor} flex items-center justify-center`}>
+      <div className={`mx-auto w-20 h-20 ${config.bgColor} flex items-center justify-center`}>
         <Icon className={`w-10 h-10 ${config.color} animate-pulse`} />
       </div>
 
@@ -229,9 +229,9 @@ export function AnalysisLoading({ stage, progress = 0, className = '' }: Analysi
       {/* Progress Bar */}
       {progress > 0 && (
         <div className="w-full max-w-xs mx-auto">
-          <div className="w-full bg-stone-200 dark:bg-stone-700 rounded-full h-2">
+          <div className="w-full bg-stone-200 dark:bg-stone-700 h-2">
             <div 
-              className={`h-2 rounded-full transition-all duration-500 ease-out bg-gradient-to-r ${
+              className={`h-2 transition-all duration-500 ease-out bg-gradient-to-r ${
                 stage === 'uploading' ? 'from-blue-400 to-blue-500' :
                 stage === 'processing' ? 'from-purple-400 to-purple-500' :
                 stage === 'analyzing' ? 'from-emerald-400 to-emerald-500' :
@@ -259,7 +259,7 @@ export function ChatTypingIndicator({ className = '' }: { className?: string }) 
         {[0, 1, 2].map(i => (
           <div
             key={i}
-            className="w-2 h-2 bg-stone-400 dark:bg-stone-500 rounded-full animate-bounce"
+            className="w-2 h-2 bg-stone-400 dark:bg-stone-500 animate-bounce"
             style={{ animationDelay: `${i * 0.1}s` }}
           />
         ))}
@@ -293,7 +293,7 @@ export function LoadingButton({
   onClick,
   type = 'button',
 }: LoadingButtonProps) {
-  const baseClasses = 'relative inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseClasses = 'relative inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
   
   const variantClasses = {
     primary: 'bg-emerald-600 hover:bg-emerald-700 text-white focus:ring-emerald-500',
@@ -316,7 +316,7 @@ export function LoadingButton({
     >
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+          <div className="w-4 h-4 border-2 border-current border-t-transparent animate-spin" />
         </div>
       )}
       <span className={loading ? 'invisible' : 'visible'}>

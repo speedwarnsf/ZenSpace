@@ -155,7 +155,7 @@ export function SessionManager({
       <div className="flex items-center gap-2">
         <button
           onClick={onSaveSession}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2
             ${hasUnsavedChanges 
               ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' 
               : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
@@ -167,7 +167,7 @@ export function SessionManager({
         
         <button
           onClick={handleOpen}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-stone-100 text-stone-600 hover:bg-stone-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-stone-100 text-stone-600 hover:bg-stone-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
           title="Open Sessions"
         >
           <FolderOpen className="w-4 h-4" />
@@ -182,7 +182,7 @@ export function SessionManager({
           onClick={handleClose}
         >
           <div 
-            className="bg-white dark:bg-stone-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col"
+            className="bg-white dark:bg-stone-800 shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col"
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
@@ -190,7 +190,7 @@ export function SessionManager({
               <h2 className="text-xl font-bold text-stone-800 dark:text-stone-100">Saved Sessions</h2>
               <button
                 onClick={handleClose}
-                className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-stone-100 transition-colors"
               >
                 <X className="w-5 h-5 text-stone-500" />
               </button>
@@ -205,12 +205,12 @@ export function SessionManager({
                   placeholder="Search sessions..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-stone-200 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-700 text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+                  className="w-full pl-10 pr-4 py-2 border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-700 text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
                 />
               </div>
               <button
                 onClick={handleImport}
-                className="flex items-center gap-2 px-4 py-2 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 dark:hover:bg-stone-600 rounded-lg text-sm font-medium text-stone-700 dark:text-stone-200 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 dark:hover:bg-stone-600 text-sm font-medium text-stone-700 dark:text-stone-200 transition-colors"
               >
                 <Upload className="w-4 h-4" />
                 Import
@@ -227,7 +227,7 @@ export function SessionManager({
                 sessions.map(session => (
                   <div
                     key={session.id}
-                    className={`group bg-stone-50 dark:bg-stone-700/50 rounded-xl p-3 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors ${
+                    className={`group bg-stone-50 dark:bg-stone-700/50 p-3 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors ${
                       session.id === currentSessionId ? 'ring-2 ring-emerald-500' : ''
                     }`}
                   >
@@ -236,7 +236,7 @@ export function SessionManager({
                       <img
                         src={session.thumbnail}
                         alt=""
-                        className="w-16 h-16 rounded-lg object-cover bg-stone-200 flex-shrink-0"
+                        className="w-16 h-16 object-cover bg-stone-200 flex-shrink-0"
                       />
                       
                       {/* Info */}
@@ -247,7 +247,7 @@ export function SessionManager({
                               type="text"
                               value={editName}
                               onChange={e => setEditName(e.target.value)}
-                              className="flex-1 px-2 py-1 text-sm border border-stone-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                              className="flex-1 px-2 py-1 text-sm border border-stone-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                               autoFocus
                               onKeyDown={e => {
                                 if (e.key === 'Enter') handleSaveRename();
@@ -256,13 +256,13 @@ export function SessionManager({
                             />
                             <button 
                               onClick={handleSaveRename}
-                              className="p-1 hover:bg-emerald-100 rounded"
+                              className="p-1 hover:bg-emerald-100"
                             >
                               <Check className="w-4 h-4 text-emerald-600" />
                             </button>
                             <button 
                               onClick={() => setEditingId(null)}
-                              className="p-1 hover:bg-stone-200 rounded"
+                              className="p-1 hover:bg-stone-200"
                             >
                               <X className="w-4 h-4 text-stone-500" />
                             </button>
@@ -289,7 +289,7 @@ export function SessionManager({
                             {session.tags.map(tag => (
                               <span
                                 key={tag}
-                                className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded-full"
+                                className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs"
                               >
                                 {tag}
                               </span>
@@ -304,14 +304,14 @@ export function SessionManager({
                           <>
                             <button
                               onClick={() => handleDelete(session.id)}
-                              className="p-2 bg-red-100 hover:bg-red-200 rounded-lg text-red-600"
+                              className="p-2 bg-red-100 hover:bg-red-200 text-red-600"
                               title="Confirm delete"
                             >
                               <Check className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => setConfirmDeleteId(null)}
-                              className="p-2 bg-stone-100 hover:bg-stone-200 rounded-lg"
+                              className="p-2 bg-stone-100 hover:bg-stone-200"
                               title="Cancel"
                             >
                               <X className="w-4 h-4" />
@@ -321,28 +321,28 @@ export function SessionManager({
                           <>
                             <button
                               onClick={() => handleLoad(session.id)}
-                              className="p-2 bg-emerald-100 hover:bg-emerald-200 rounded-lg text-emerald-600"
+                              className="p-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-600"
                               title="Open session"
                             >
                               <FolderOpen className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleStartRename(session)}
-                              className="p-2 hover:bg-stone-200 rounded-lg"
+                              className="p-2 hover:bg-stone-200"
                               title="Rename"
                             >
                               <Edit2 className="w-4 h-4 text-stone-500" />
                             </button>
                             <button
                               onClick={() => handleExport(session.id)}
-                              className="p-2 hover:bg-stone-200 rounded-lg"
+                              className="p-2 hover:bg-stone-200"
                               title="Export"
                             >
                               <Download className="w-4 h-4 text-stone-500" />
                             </button>
                             <button
                               onClick={() => setConfirmDeleteId(session.id)}
-                              className="p-2 hover:bg-red-100 rounded-lg"
+                              className="p-2 hover:bg-red-100"
                               title="Delete"
                             >
                               <Trash2 className="w-4 h-4 text-stone-500" />

@@ -97,7 +97,7 @@ export function ComparisonSlider({
   return (
     <div
       ref={containerRef}
-      className={`relative w-full overflow-hidden rounded-xl select-none ${className}`}
+      className={`relative w-full overflow-hidden select-none ${className}`}
       style={{ aspectRatio: '16/9' }}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
@@ -162,7 +162,7 @@ export function ComparisonSlider({
           {/* Handle button */}
           <div
             className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
-              w-10 h-10 rounded-full bg-white shadow-lg border-2 border-gray-300
+              w-10 h-10 bg-white shadow-lg border-2 border-gray-300
               flex items-center justify-center transition-all duration-200
               ${isDragging ? 'scale-110 border-blue-500' : 'hover:scale-105 hover:border-blue-400'}`}
           >
@@ -176,14 +176,14 @@ export function ComparisonSlider({
       {allLoaded && (
         <>
           <div 
-            className={`absolute top-3 left-3 px-2 py-1 rounded-md text-xs font-medium
+            className={`absolute top-3 left-3 px-2 py-1 text-xs font-medium
               bg-black/60 text-white backdrop-blur-sm transition-opacity
               ${sliderPosition < 15 ? 'opacity-0' : 'opacity-100'}`}
           >
             {beforeLabel}
           </div>
           <div 
-            className={`absolute top-3 right-3 px-2 py-1 rounded-md text-xs font-medium
+            className={`absolute top-3 right-3 px-2 py-1 text-xs font-medium
               bg-black/60 text-white backdrop-blur-sm transition-opacity
               ${sliderPosition > 85 ? 'opacity-0' : 'opacity-100'}`}
           >
@@ -195,7 +195,7 @@ export function ComparisonSlider({
       {/* Instructions overlay (shows briefly) */}
       {allLoaded && (
         <div 
-          className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full
+          className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1.5
             bg-black/60 text-white text-xs backdrop-blur-sm flex items-center gap-2
             animate-fade-out pointer-events-none"
         >

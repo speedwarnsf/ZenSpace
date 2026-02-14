@@ -67,7 +67,7 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
     <div className="space-y-8">
       {/* Main Analysis Card */}
       <section 
-        className="bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-stone-100 dark:border-stone-700 p-6 md:p-8 transition-colors duration-300"
+        className="bg-white dark:bg-stone-800 shadow-sm border border-stone-100 dark:border-stone-700 p-6 md:p-8 transition-colors duration-300"
         aria-labelledby="analysis-heading"
       >
         <div className="flex items-center gap-2 mb-6 border-b border-stone-100 dark:border-stone-700 pb-4">
@@ -122,7 +122,7 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
 
       {/* Visualization Section */}
       <section 
-        className="bg-zinc-900 rounded-2xl shadow-lg overflow-hidden text-white"
+        className="bg-zinc-900 shadow-lg overflow-hidden text-white"
         aria-labelledby="visualization-heading"
       >
         <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
@@ -141,7 +141,7 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowComparison(!showComparison)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2
+                className={`px-3 py-1.5 text-sm font-medium transition-all flex items-center gap-2
                   ${showComparison 
                     ? 'bg-purple-600 text-white' 
                     : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'}`}
@@ -183,7 +183,7 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
               </div>
             ) : (
               /* Single View */
-              <div className="relative rounded-xl overflow-hidden border border-zinc-700 group">
+              <div className="relative overflow-hidden border border-zinc-700 group">
                 <img 
                   src={`data:image/png;base64,${visualizationImage}`} 
                   alt="AI-generated visualization of your organized room" 
@@ -199,7 +199,7 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
               </div>
             )
           ) : (
-            <div className="bg-zinc-800/50 rounded-xl p-8 text-center border border-zinc-700 border-dashed">
+            <div className="bg-zinc-800/50 p-8 text-center border border-zinc-700 border-dashed">
               {/* Loading State */}
               {isVisualizing ? (
                 <div 
@@ -220,7 +220,7 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
               ) : visualizationError ? (
                 /* Error State */
                 <div className="flex flex-col items-center py-4" role="alert">
-                  <div className="bg-red-500/20 rounded-full p-3 mb-4">
+                  <div className="bg-red-500/20 p-3 mb-4">
                     <AlertTriangle className="w-8 h-8 text-red-400" aria-hidden="true" />
                   </div>
                   <p className="text-zinc-300 font-medium mb-2">Visualization Failed</p>
@@ -230,7 +230,7 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
                   {onRetryVisualization && (
                     <button 
                       onClick={onRetryVisualization}
-                      className="px-4 py-2 rounded-lg bg-zinc-700 hover:bg-zinc-600 text-white text-sm font-medium transition-colors flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-zinc-900"
+                      className="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-white text-sm font-medium transition-colors flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-zinc-900"
                       aria-label="Try generating visualization again"
                     >
                       <RefreshCw className="w-4 h-4" aria-hidden="true" />
@@ -251,7 +251,7 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
                   </p>
                   <button 
                     onClick={onVisualize}
-                    className="group relative px-6 py-3 rounded-full bg-purple-600 hover:bg-purple-500 text-white font-semibold transition-all shadow-[0_0_20px_-5px_rgba(147,51,234,0.5)] hover:shadow-[0_0_25px_-5px_rgba(147,51,234,0.7)] flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-zinc-900"
+                    className="group relative px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold transition-all shadow-[0_0_20px_-5px_rgba(147,51,234,0.5)] hover:shadow-[0_0_25px_-5px_rgba(147,51,234,0.7)] flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-zinc-900"
                     aria-label="Generate AI visualization of organized room"
                   >
                     <Sparkles 
@@ -270,7 +270,7 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
       {/* Product Recommendations */}
       {products.length > 0 && (
         <section 
-          className="bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-stone-100 dark:border-stone-700 p-6 md:p-8 transition-colors duration-300"
+          className="bg-white dark:bg-stone-800 shadow-sm border border-stone-100 dark:border-stone-700 p-6 md:p-8 transition-colors duration-300"
           aria-labelledby="products-heading"
         >
           <div className="flex items-center gap-2 mb-6">
@@ -290,7 +290,7 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
                   href={generateAmazonLink(product.searchTerm)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex flex-col justify-between p-5 rounded-xl border border-stone-200 dark:border-stone-600 hover:border-orange-200 dark:hover:border-orange-700 hover:shadow-md transition-all group bg-stone-50/50 dark:bg-stone-700/50 hover:bg-white dark:hover:bg-stone-700 h-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-stone-800"
+                  className="flex flex-col justify-between p-5 border border-stone-200 dark:border-stone-600 hover:border-orange-200 dark:hover:border-orange-700 hover:shadow-md transition-all group bg-stone-50/50 dark:bg-stone-700/50 hover:bg-white dark:hover:bg-stone-700 h-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-stone-800"
                   aria-label={`${product.name} - ${product.reason}. Opens Amazon search in new tab.`}
                 >
                   <div>

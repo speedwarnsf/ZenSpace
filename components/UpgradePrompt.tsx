@@ -13,7 +13,7 @@ interface UpgradePromptProps {
 export function UpgradePrompt({ message, onUpgrade, onDismiss }: UpgradePromptProps) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="relative w-full max-w-sm mx-4 bg-stone-900 border border-stone-700 rounded-2xl p-8 shadow-2xl text-center">
+      <div className="relative w-full max-w-sm mx-4 bg-stone-900 border border-stone-700 p-8 shadow-2xl text-center">
         <button
           onClick={onDismiss}
           className="absolute top-4 right-4 text-stone-400 hover:text-stone-200 transition-colors"
@@ -22,7 +22,7 @@ export function UpgradePrompt({ message, onUpgrade, onDismiss }: UpgradePromptPr
           <X className="w-5 h-5" />
         </button>
 
-        <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-5">
+        <div className="w-12 h-12 bg-emerald-500/10 flex items-center justify-center mx-auto mb-5">
           <Sparkles className="w-6 h-6 text-emerald-400" />
         </div>
 
@@ -33,7 +33,7 @@ export function UpgradePrompt({ message, onUpgrade, onDismiss }: UpgradePromptPr
 
         <button
           onClick={onUpgrade}
-          className="w-full px-6 py-3 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-500 transition-colors mb-3"
+          className="w-full px-6 py-3 bg-emerald-600 text-white font-medium hover:bg-emerald-500 transition-colors mb-3"
         >
           Upgrade to Pro
         </button>

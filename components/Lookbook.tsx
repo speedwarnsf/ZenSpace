@@ -128,17 +128,17 @@ const LookbookCard = memo(function LookbookCard({
         if (e.key === 'ArrowRight') { e.preventDefault(); handleRateWithEffect(entry.id, 'the-one'); }
         if (e.key === 'ArrowLeft') { e.preventDefault(); handleRateWithEffect(entry.id, 'never'); }
       }}
-      className={`relative group bg-white dark:bg-stone-800 rounded-2xl shadow-sm overflow-hidden cursor-grab active:cursor-grabbing focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900 ${borderClass} select-none`}
+      className={`relative group bg-white dark:bg-stone-800 shadow-sm overflow-hidden cursor-grab active:cursor-grabbing focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900 ${borderClass} select-none`}
     >
       {/* Drag overlays */}
       <motion.div
-        className="absolute inset-0 bg-red-500 rounded-2xl z-10 pointer-events-none flex items-center justify-center"
+        className="absolute inset-0 bg-red-500 z-10 pointer-events-none flex items-center justify-center"
         style={{ opacity: redOpacity }}
       >
         <SoIcon name="close-circle" size={48} style={{ filter: 'brightness(0) invert(1)' }} />
       </motion.div>
       <motion.div
-        className="absolute inset-0 bg-yellow-400 rounded-2xl z-10 pointer-events-none flex items-center justify-center"
+        className="absolute inset-0 bg-yellow-400 z-10 pointer-events-none flex items-center justify-center"
         style={{ opacity: goldOpacity }}
       >
         <SoIcon name="stars" size={48} style={{ filter: 'brightness(0) invert(1)' }} />
@@ -163,7 +163,7 @@ const LookbookCard = memo(function LookbookCard({
       {/* Share button (top-right, visible on hover) */}
       <button
         onClick={(e) => { e.stopPropagation(); onShare(entry); }}
-        className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute top-3 right-3 z-20 w-8 h-8 bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
         title="Share"
       >
         {isSharing ? <Loader2 className="w-4 h-4 animate-spin" /> : <SoIcon name="share" size={16} style={{ filter: 'brightness(0) invert(1)' }} />}
@@ -211,7 +211,7 @@ const LookbookCard = memo(function LookbookCard({
           {entry.option.palette.map((color, i) => (
             <div
               key={i}
-              className="w-5 h-5 rounded-full border border-stone-200 dark:border-stone-600"
+              className="w-5 h-5 border border-stone-200 dark:border-stone-600"
               style={{ backgroundColor: color }}
               title={color}
             />
@@ -247,7 +247,7 @@ const LookbookCard = memo(function LookbookCard({
             <button
               key={r.value}
               onClick={(e) => { e.stopPropagation(); handleRateWithEffect(entry.id, r.value); }}
-              className={`flex-1 text-center py-1.5 rounded-lg text-lg transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+              className={`flex-1 text-center py-1.5 text-lg transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
                 entry.rating === r.value
                   ? 'bg-stone-100 dark:bg-stone-700 scale-110'
                   : 'hover:bg-stone-50 dark:hover:bg-stone-700/50'
@@ -264,7 +264,7 @@ const LookbookCard = memo(function LookbookCard({
         {/* Save to Room */}
         <button
           onClick={(e) => { e.stopPropagation(); onSaveToRoom(entry); }}
-          className="w-full py-1.5 rounded-lg text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors flex items-center justify-center gap-1"
+          className="w-full py-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors flex items-center justify-center gap-1"
         >
           <Home className="w-3 h-3" />
           Save to Room
@@ -276,7 +276,7 @@ const LookbookCard = memo(function LookbookCard({
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
             onClick={(e) => { e.stopPropagation(); onSelectForIteration(entry.id); }}
-            className="w-full py-2 rounded-xl text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white transition-colors flex items-center justify-center gap-2"
+            className="w-full py-2 text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white transition-colors flex items-center justify-center gap-2"
           >
             <SoIcon name="eye" size={16} style={{ filter: 'brightness(0) invert(1)' }} />
             Go Deeper
@@ -329,13 +329,13 @@ function FullScreenCard({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 30 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        className="relative bg-white dark:bg-stone-800 rounded-2xl shadow-2xl max-w-2xl w-full my-4 overflow-hidden"
+        className="relative bg-white dark:bg-stone-800 shadow-2xl max-w-2xl w-full my-4 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-colors"
+          className="absolute top-4 right-4 z-10 w-8 h-8 bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-colors"
         >
           <SoIcon name="shrink-content" size={16} style={{ filter: 'brightness(0) invert(1)' }} />
         </button>
@@ -371,7 +371,7 @@ function FullScreenCard({
             {entry.option.palette.map((color, i) => (
               <div key={i} className="flex flex-col items-center gap-1">
                 <div
-                  className="w-8 h-8 rounded-full border-2 border-stone-200 dark:border-stone-600"
+                  className="w-8 h-8 border-2 border-stone-200 dark:border-stone-600"
                   style={{ backgroundColor: color }}
                 />
                 <span className="text-[10px] text-stone-400 dark:text-stone-500 font-mono">{color}</span>
@@ -393,7 +393,7 @@ function FullScreenCard({
                 return (
                   <span
                     key={i}
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${colors[fw] || 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'}`}
+                    className={`px-3 py-1 text-xs font-medium ${colors[fw] || 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'}`}
                   >
                     {fw}
                   </span>
@@ -404,7 +404,7 @@ function FullScreenCard({
 
           {/* Framework Rationale */}
           {entry.option.frameworkRationale && (
-            <div className="bg-stone-50 dark:bg-stone-700/50 rounded-xl p-4 border border-stone-200 dark:border-stone-600">
+            <div className="bg-stone-50 dark:bg-stone-700/50 p-4 border border-stone-200 dark:border-stone-600">
               <h4 className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-3">Design Reasoning</h4>
               <div className="text-[13px] leading-[1.75] text-stone-600 dark:text-stone-300">
                 <ReactMarkdown>{entry.option.frameworkRationale}</ReactMarkdown>
@@ -461,7 +461,7 @@ function FullScreenCard({
               <button
                 key={r.value}
                 onClick={() => onRate(entry.id, r.value)}
-                className={`flex-1 text-center py-2 rounded-xl text-xl transition-all ${
+                className={`flex-1 text-center py-2 text-xl transition-all ${
                   entry.rating === r.value
                     ? 'bg-stone-100 dark:bg-stone-700 scale-110 ring-2 ring-emerald-400'
                     : 'hover:bg-stone-50 dark:hover:bg-stone-700/50'
@@ -478,7 +478,7 @@ function FullScreenCard({
             <button
               onClick={() => onDownload(entry)}
               disabled={isDownloading}
-              className="flex-1 py-2.5 rounded-xl text-sm font-medium border border-stone-200 dark:border-stone-600 text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-700/50 transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-2.5 text-sm font-medium border border-stone-200 dark:border-stone-600 text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-700/50 transition-colors flex items-center justify-center gap-2"
               title="Save Image"
             >
               {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <SoIcon name="save" size={16} />}
@@ -487,7 +487,7 @@ function FullScreenCard({
             <button
               onClick={() => onShare(entry)}
               disabled={isSharing}
-              className="flex-1 py-2.5 rounded-xl text-sm font-medium border border-stone-200 dark:border-stone-600 text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-700/50 transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-2.5 text-sm font-medium border border-stone-200 dark:border-stone-600 text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-700/50 transition-colors flex items-center justify-center gap-2"
               title="Share"
             >
               {isSharing ? <Loader2 className="w-4 h-4 animate-spin" /> : <SoIcon name="share" size={16} />}
@@ -498,7 +498,7 @@ function FullScreenCard({
           {/* Save to Room */}
           <button
             onClick={() => onSaveToRoom(entry)}
-            className="w-full py-2.5 rounded-xl text-sm font-medium border border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors flex items-center justify-center gap-2"
+            className="w-full py-2.5 text-sm font-medium border border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors flex items-center justify-center gap-2"
           >
             <Home className="w-4 h-4" />
             Save to Room
@@ -508,7 +508,7 @@ function FullScreenCard({
           {(isGood || isTheOne) && (
             <button
               onClick={() => { onSelectForIteration(entry.id); onClose(); }}
-              className="w-full py-3 rounded-xl text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3 text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white transition-colors flex items-center justify-center gap-2"
             >
               <SoIcon name="eye" size={16} style={{ filter: 'brightness(0) invert(1)' }} />
               Go Deeper →
@@ -637,7 +637,7 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
         <button
           onClick={onGenerateMore}
           disabled={isGenerating}
-          className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-600/50 text-white font-medium transition-colors flex items-center gap-2 shadow-lg shadow-emerald-600/20"
+          className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-600/50 text-white font-medium transition-colors flex items-center gap-2 shadow-lg shadow-emerald-600/20"
         >
           {isGenerating ? (
             <>
@@ -661,7 +661,7 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
             role="tab"
             aria-selected={filter === tab.key}
             onClick={() => setFilter(tab.key)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+            className={`px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
               filter === tab.key
                 ? 'bg-stone-800 dark:bg-stone-100 text-white dark:text-stone-900'
                 : 'bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-600'
@@ -672,7 +672,7 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
               {tab.label}
             </span>
             {tab.count > 0 && (
-              <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 rounded-full text-xs bg-stone-200 dark:bg-stone-600 text-stone-700 dark:text-stone-200">
+              <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 text-xs bg-stone-200 dark:bg-stone-600 text-stone-700 dark:text-stone-200">
                 {tab.count}
               </span>
             )}
@@ -685,7 +685,7 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
         <div className="space-y-4">
           <button
             onClick={() => setShowTasteProfile(prev => !prev)}
-            className="mx-auto flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
+            className="mx-auto flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
           >
             <span>{showTasteProfile ? 'Hide' : 'See'} Your Taste Profile</span>
             <span className="text-xs opacity-60">({tasteProfile.totalRatings} ratings)</span>
@@ -699,7 +699,7 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 className="overflow-hidden"
               >
-                <div className="bg-white dark:bg-stone-800 rounded-2xl border border-stone-200 dark:border-stone-700 p-6 max-w-sm mx-auto">
+                <div className="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 p-6 max-w-sm mx-auto">
                   <TasteRadarChart profile={tasteProfile} />
                 </div>
               </motion.div>
@@ -713,7 +713,7 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/10 rounded-2xl border border-amber-200/50 dark:border-amber-700/30 p-5 space-y-3"
+          className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/10 border border-amber-200/50 dark:border-amber-700/30 p-5 space-y-3"
         >
           <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300">
             Go deeper on your favorites
@@ -723,7 +723,7 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
           </p>
           <div className="flex flex-wrap gap-2">
             {ITERATION_BRANCHES.slice(0, 4).map(({ emoji, label }) => (
-              <span key={label} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/60 dark:bg-stone-800/60 text-xs text-amber-700 dark:text-amber-300 border border-amber-200/50 dark:border-amber-700/30">
+              <span key={label} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/60 dark:bg-stone-800/60 text-xs text-amber-700 dark:text-amber-300 border border-amber-200/50 dark:border-amber-700/30">
                 <span>{emoji}</span> {label}
               </span>
             ))}

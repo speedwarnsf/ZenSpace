@@ -105,14 +105,14 @@ export const MyRoomsGallery: React.FC<MyRoomsGalleryProps> = ({ isOpen, onClose,
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="bg-white dark:bg-stone-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col"
+        className="bg-white dark:bg-stone-800 shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
         <div className="px-6 py-4 border-b border-stone-200 dark:border-stone-700 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-3">
             {selectedRoom && (
-              <button onClick={handleBack} className="p-1.5 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-lg transition-colors">
+              <button onClick={handleBack} className="p-1.5 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors">
                 <ArrowLeft className="w-5 h-5 text-stone-500" />
               </button>
             )}
@@ -121,7 +121,7 @@ export const MyRoomsGallery: React.FC<MyRoomsGalleryProps> = ({ isOpen, onClose,
               {selectedRoom ? selectedRoom.name : 'My Rooms'}
             </h2>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-lg transition-colors">
+          <button onClick={onClose} className="p-2 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors">
             <X className="w-5 h-5 text-stone-500" />
           </button>
         </div>
@@ -202,7 +202,7 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
         placeholder="Search rooms..."
         value={searchQuery}
         onChange={e => onSearchChange(e.target.value)}
-        className="w-full pl-10 pr-4 py-2.5 border border-stone-200 dark:border-stone-600 rounded-xl bg-white dark:bg-stone-700 text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+        className="w-full pl-10 pr-4 py-2.5 border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-700 text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
       />
     </div>
 
@@ -268,20 +268,20 @@ const RoomCard: React.FC<RoomCardProps> = ({
     new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   return (
-    <div className="group relative bg-white dark:bg-stone-700/50 rounded-xl border border-stone-200 dark:border-stone-600 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+    <div className="group relative bg-white dark:bg-stone-700/50 border border-stone-200 dark:border-stone-600 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
       {/* Thumbnail — clickable */}
       <button onClick={onSelect} className="w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-inset">
         <div className="relative h-36 bg-stone-100 dark:bg-stone-700">
           <img src={room.thumbnail} alt="" className="w-full h-full object-cover" />
           {/* Completion overlay */}
           {room.completionPercent > 0 && (
-            <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
+            <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs font-bold px-2 py-1 flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3 text-emerald-400" />
               {room.completionPercent}%
             </div>
           )}
           {/* Design count badge */}
-          <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+          <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 flex items-center gap-1">
             <Palette className="w-3 h-3" />
             {room.designCount} design{room.designCount !== 1 ? 's' : ''}
           </div>
@@ -296,11 +296,11 @@ const RoomCard: React.FC<RoomCardProps> = ({
               type="text"
               value={editName}
               onChange={e => onEditNameChange(e.target.value)}
-              className="flex-1 px-2 py-1 text-sm border border-stone-300 dark:border-stone-500 rounded bg-white dark:bg-stone-600 text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="flex-1 px-2 py-1 text-sm border border-stone-300 dark:border-stone-500 bg-white dark:bg-stone-600 text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               autoFocus
               onKeyDown={e => { if (e.key === 'Enter') onSaveEdit(); if (e.key === 'Escape') onCancelEdit(); }}
             />
-            <button onClick={onSaveEdit} className="p-1 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded">
+            <button onClick={onSaveEdit} className="p-1 hover:bg-emerald-100 dark:hover:bg-emerald-900/30">
               <Check className="w-4 h-4 text-emerald-600" />
             </button>
           </div>
@@ -327,9 +327,9 @@ const RoomCard: React.FC<RoomCardProps> = ({
         {/* Progress bar */}
         {room.completionPercent > 0 && (
           <div className="mt-2">
-            <div className="h-1.5 bg-stone-100 dark:bg-stone-600 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-stone-100 dark:bg-stone-600 overflow-hidden">
               <div
-                className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                className="h-full bg-emerald-500 transition-all duration-500"
                 style={{ width: `${room.completionPercent}%` }}
               />
             </div>
@@ -341,19 +341,19 @@ const RoomCard: React.FC<RoomCardProps> = ({
       <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
         {isConfirmingDelete ? (
           <>
-            <button onClick={onDelete} className="p-1.5 bg-red-500 text-white rounded-lg shadow-sm hover:bg-red-600" title="Confirm">
+            <button onClick={onDelete} className="p-1.5 bg-red-500 text-white shadow-sm hover:bg-red-600" title="Confirm">
               <Check className="w-3.5 h-3.5" />
             </button>
-            <button onClick={onCancelDelete} className="p-1.5 bg-white dark:bg-stone-600 rounded-lg shadow-sm hover:bg-stone-100" title="Cancel">
+            <button onClick={onCancelDelete} className="p-1.5 bg-white dark:bg-stone-600 shadow-sm hover:bg-stone-100" title="Cancel">
               <X className="w-3.5 h-3.5 text-stone-600 dark:text-stone-300" />
             </button>
           </>
         ) : (
           <>
-            <button onClick={onStartEdit} className="p-1.5 bg-white/90 dark:bg-stone-600/90 rounded-lg shadow-sm hover:bg-white" title="Rename">
+            <button onClick={onStartEdit} className="p-1.5 bg-white/90 dark:bg-stone-600/90 shadow-sm hover:bg-white" title="Rename">
               <Edit2 className="w-3.5 h-3.5 text-stone-600 dark:text-stone-300" />
             </button>
-            <button onClick={onConfirmDelete} className="p-1.5 bg-white/90 dark:bg-stone-600/90 rounded-lg shadow-sm hover:bg-red-50" title="Delete">
+            <button onClick={onConfirmDelete} className="p-1.5 bg-white/90 dark:bg-stone-600/90 shadow-sm hover:bg-red-50" title="Delete">
               <Trash2 className="w-3.5 h-3.5 text-stone-600 dark:text-stone-300" />
             </button>
           </>
@@ -387,7 +387,7 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
   return (
     <div className="p-6 space-y-6">
       {/* Room image */}
-      <div className="rounded-xl overflow-hidden h-48 bg-stone-100 dark:bg-stone-700">
+      <div className="overflow-hidden h-48 bg-stone-100 dark:bg-stone-700">
         <img src={room.imageDataUrl || room.thumbnail} alt={room.name} className="w-full h-full object-cover" />
       </div>
 
@@ -410,7 +410,7 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
             return (
               <div
                 key={design.index}
-                className={`border rounded-xl overflow-hidden transition-colors ${
+                className={`border overflow-hidden transition-colors ${
                   isChosen
                     ? 'border-emerald-300 dark:border-emerald-600 bg-emerald-50/50 dark:bg-emerald-900/10'
                     : 'border-stone-200 dark:border-stone-600'
@@ -422,7 +422,7 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
                   className="w-full flex items-center gap-3 p-4 text-left hover:bg-stone-50 dark:hover:bg-stone-700/50 transition-colors"
                 >
                   {/* Mini visualization */}
-                  <div className="w-14 h-14 rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-700 flex-shrink-0">
+                  <div className="w-14 h-14 overflow-hidden bg-stone-100 dark:bg-stone-700 flex-shrink-0">
                     {design.visualizationImage ? (
                       <img src={`data:image/png;base64,${design.visualizationImage}`} alt="" className="w-full h-full object-cover" />
                     ) : (
@@ -436,7 +436,7 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-stone-800 dark:text-stone-100 truncate">{design.name}</span>
                       {isChosen && (
-                        <span className="flex items-center gap-1 text-xs bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full font-medium">
+                        <span className="flex items-center gap-1 text-xs bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 font-medium">
                           <Star className="w-3 h-3 fill-current" /> Chosen
                         </span>
                       )}
@@ -446,7 +446,7 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
                     {/* Palette dots */}
                     <div className="flex items-center gap-1 mt-1.5">
                       {design.palette.map((hex, i) => (
-                        <div key={i} className="w-4 h-4 rounded-full border border-white dark:border-stone-600 shadow-sm" style={{ backgroundColor: hex }} />
+                        <div key={i} className="w-4 h-4 border border-white dark:border-stone-600 shadow-sm" style={{ backgroundColor: hex }} />
                       ))}
                     </div>
                   </div>
@@ -480,14 +480,14 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
                       {!isChosen && (
                         <button
                           onClick={() => onChooseDesign(room.id, design.index)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 font-medium transition-colors"
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 font-medium transition-colors"
                         >
                           <Star className="w-3.5 h-3.5" /> Set as Chosen
                         </button>
                       )}
                       <button
                         onClick={() => onLoadDesign(room, design.index)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-stone-100 dark:bg-stone-700 text-stone-700 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-stone-600 font-medium transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-stone-100 dark:bg-stone-700 text-stone-700 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-stone-600 font-medium transition-colors"
                       >
                         <ChevronRight className="w-3.5 h-3.5" /> Open in Editor
                       </button>
@@ -519,13 +519,13 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
                               <button
                                 key={item.id}
                                 onClick={() => handleTogglePurchased(design, item.id)}
-                                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm transition-colors ${
+                                className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm transition-colors ${
                                   isPurchased
                                     ? 'bg-emerald-50 dark:bg-emerald-900/20 text-stone-400 dark:text-stone-500'
                                     : 'hover:bg-stone-50 dark:hover:bg-stone-700/50 text-stone-700 dark:text-stone-200'
                                 }`}
                               >
-                                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                                <div className={`w-4 h-4 border-2 flex items-center justify-center flex-shrink-0 ${
                                   isPurchased
                                     ? 'bg-emerald-500 border-emerald-500 text-white'
                                     : 'border-stone-300 dark:border-stone-600'

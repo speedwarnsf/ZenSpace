@@ -31,7 +31,7 @@ export function UserMenu({ onOpenPricing, onOpenAuth }: UserMenuProps) {
           if (onOpenAuth) onOpenAuth();
           else onOpenPricing();
         }}
-        className="fixed bottom-5 right-5 z-40 w-10 h-10 rounded-full bg-stone-800/80 dark:bg-stone-700/80 backdrop-blur-sm border border-stone-600/50 flex items-center justify-center text-stone-400 hover:text-white hover:bg-stone-700 dark:hover:bg-stone-600 transition-all shadow-lg"
+        className="fixed bottom-5 right-5 z-40 w-10 h-10 bg-stone-800/80 dark:bg-stone-700/80 backdrop-blur-sm border border-stone-600/50 flex items-center justify-center text-stone-400 hover:text-white hover:bg-stone-700 dark:hover:bg-stone-600 transition-all shadow-lg"
         aria-label="Sign in"
       >
         <UserIcon className="w-4 h-4" />
@@ -52,25 +52,25 @@ export function UserMenu({ onOpenPricing, onOpenAuth }: UserMenuProps) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
       >
         {userTier.tier === 'pro' && (
-          <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+          <span className="flex items-center gap-1 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
             <Crown className="w-3 h-3" />
             Pro
           </span>
         )}
         {avatarUrl ? (
-          <img src={avatarUrl} alt="" className="w-8 h-8 rounded-full border border-stone-600" />
+          <img src={avatarUrl} alt="" className="w-8 h-8 border border-stone-600" />
         ) : (
-          <div className="w-8 h-8 rounded-full bg-stone-700 border border-stone-600 flex items-center justify-center text-xs font-medium text-stone-300">
+          <div className="w-8 h-8 bg-stone-700 border border-stone-600 flex items-center justify-center text-xs font-medium text-stone-300">
             {initials}
           </div>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-48 bg-stone-800 border border-stone-700 rounded-xl shadow-xl py-1 z-50">
+        <div className="absolute right-0 mt-2 w-48 bg-stone-800 border border-stone-700 shadow-xl py-1 z-50">
           <div className="px-4 py-2 border-b border-stone-700">
             <p className="text-sm text-white font-medium truncate">{user.user_metadata?.full_name || 'User'}</p>
             <p className="text-xs text-stone-400 truncate">{user.email}</p>

@@ -60,10 +60,10 @@ export const DesignOptionsView: React.FC<DesignOptionsViewProps> = ({
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Room Reading Toggle */}
-      <section className="bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-stone-100 dark:border-stone-700 p-6 md:p-8 transition-colors duration-300">
+      <section className="bg-white dark:bg-stone-800 shadow-sm border border-stone-100 dark:border-stone-700 p-6 md:p-8 transition-colors duration-300">
         <button
           onClick={() => setShowReading(!showReading)}
-          className="w-full flex items-center justify-between group focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-lg"
+          className="w-full flex items-center justify-between group focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
           <div className="flex items-center gap-3">
             <Eye className="w-6 h-6 text-emerald-500" aria-hidden="true" />
@@ -132,11 +132,11 @@ const DesignCard: React.FC<DesignCardProps> = ({ option, index, onSelect, isGene
   return (
     <button
       onClick={onSelect}
-      className={`group relative text-left bg-gradient-to-br ${cardAccents[index]} bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-stone-200 dark:border-stone-700 p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900`}
+      className={`group relative text-left bg-gradient-to-br ${cardAccents[index]} bg-white dark:bg-stone-800 shadow-sm border border-stone-200 dark:border-stone-700 p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900`}
       aria-label={`Select ${option.name} design`}
     >
       {/* Visualization preview */}
-      <div className="w-full h-40 rounded-xl mb-5 overflow-hidden bg-stone-100 dark:bg-stone-700 flex items-center justify-center">
+      <div className="w-full h-40 mb-5 overflow-hidden bg-stone-100 dark:bg-stone-700 flex items-center justify-center">
         {option.visualizationImage ? (
           <img
             src={`data:image/png;base64,${option.visualizationImage}`}
@@ -172,7 +172,7 @@ const DesignCard: React.FC<DesignCardProps> = ({ option, index, onSelect, isGene
         {option.palette.map((hex, i) => (
           <div
             key={i}
-            className="w-7 h-7 rounded-full border-2 border-white dark:border-stone-600 shadow-sm"
+            className="w-7 h-7 border-2 border-white dark:border-stone-600 shadow-sm"
             style={{ backgroundColor: hex }}
             title={hex}
             aria-label={`Color ${hex}`}
@@ -187,7 +187,7 @@ const DesignCard: React.FC<DesignCardProps> = ({ option, index, onSelect, isGene
           return (
             <span
               key={fw}
-              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium ${meta.color} ${meta.bg}`}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium ${meta.color} ${meta.bg}`}
             >
               {meta.icon}
               {fw}
@@ -239,13 +239,13 @@ export const DesignDetailView: React.FC<DesignDetailViewProps> = ({
       {/* Back button */}
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-lg px-2 py-1"
+        className="flex items-center gap-2 text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 px-2 py-1"
       >
         <ArrowLeft className="w-4 h-4" /> Back to 3 Designs
       </button>
 
       {/* Hero */}
-      <div className="bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-hidden transition-colors duration-300">
+      <div className="bg-white dark:bg-stone-800 shadow-sm border border-stone-100 dark:border-stone-700 overflow-hidden transition-colors duration-300">
         {/* Visualization or generate */}
         <div className="relative h-64 md:h-80 bg-stone-100 dark:bg-stone-700 flex items-center justify-center">
           {option.visualizationImage ? (
@@ -264,7 +264,7 @@ export const DesignDetailView: React.FC<DesignDetailViewProps> = ({
               ) : (
                 <button
                   onClick={onVisualize}
-                  className="px-6 py-3 rounded-full bg-purple-600 hover:bg-purple-500 text-white font-semibold transition-all shadow-[0_0_20px_-5px_rgba(147,51,234,0.5)] flex items-center gap-2"
+                  className="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold transition-all shadow-[0_0_20px_-5px_rgba(147,51,234,0.5)] flex items-center gap-2"
                 >
                   <Sparkles className="w-4 h-4" /> Generate Visualization
                 </button>
@@ -283,7 +283,7 @@ export const DesignDetailView: React.FC<DesignDetailViewProps> = ({
               {option.palette.map((hex, i) => (
                 <div
                   key={i}
-                  className="w-8 h-8 rounded-full border-2 border-white dark:border-stone-600 shadow-sm"
+                  className="w-8 h-8 border-2 border-white dark:border-stone-600 shadow-sm"
                   style={{ backgroundColor: hex }}
                   title={hex}
                 />
@@ -303,7 +303,7 @@ export const DesignDetailView: React.FC<DesignDetailViewProps> = ({
               return (
                 <span
                   key={fw}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${meta.color} ${meta.bg}`}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium ${meta.color} ${meta.bg}`}
                 >
                   {meta.icon}
                   {fw}

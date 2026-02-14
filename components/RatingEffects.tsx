@@ -52,7 +52,7 @@ export function GoldBurstEffect({ show, onComplete }: { show: boolean; onComplet
         >
           {/* Central flash */}
           <motion.div
-            className="absolute w-full h-full bg-yellow-400/30 rounded-2xl"
+            className="absolute w-full h-full bg-yellow-400/30"
             initial={{ opacity: 0.8, scale: 0.8 }}
             animate={{ opacity: 0, scale: 1.3 }}
             transition={{ duration: 0.5 }}
@@ -60,7 +60,7 @@ export function GoldBurstEffect({ show, onComplete }: { show: boolean; onComplet
 
           {/* Ring */}
           <motion.div
-            className="absolute w-24 h-24 rounded-full border-2 border-yellow-400"
+            className="absolute w-24 h-24 border-2 border-yellow-400"
             initial={{ opacity: 0.8, scale: 0.3 }}
             animate={{ opacity: 0, scale: 2.5 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
@@ -85,7 +85,7 @@ export function GoldBurstEffect({ show, onComplete }: { show: boolean; onComplet
                   <span className="text-yellow-300" style={{ fontSize: p.size + 2 }}>✦</span>
                 ) : (
                   <div
-                    className="rounded-full bg-yellow-400"
+                    className="bg-yellow-400"
                     style={{ width: p.size, height: p.size }}
                   />
                 )}
@@ -109,7 +109,7 @@ export function NeverAgainEffect({ show, onComplete }: { show: boolean; onComple
     <AnimatePresence>
       {show && (
         <motion.div
-          className="absolute inset-0 z-30 pointer-events-none rounded-2xl overflow-hidden"
+          className="absolute inset-0 z-30 pointer-events-none overflow-hidden"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >

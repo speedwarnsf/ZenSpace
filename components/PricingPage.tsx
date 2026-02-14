@@ -47,7 +47,7 @@ export function PricingPage({ onClose, onNeedAuth }: PricingPageProps) {
       <div className="relative w-full max-w-2xl mx-4">
         <button
           onClick={onClose}
-          className="absolute -top-2 -right-2 z-10 w-8 h-8 rounded-full bg-stone-800 border border-stone-600 flex items-center justify-center text-stone-400 hover:text-white transition-colors"
+          className="absolute -top-2 -right-2 z-10 w-8 h-8 bg-stone-800 border border-stone-600 flex items-center justify-center text-stone-400 hover:text-white transition-colors"
           aria-label="Close pricing"
         >
           <X className="w-4 h-4" />
@@ -55,7 +55,7 @@ export function PricingPage({ onClose, onNeedAuth }: PricingPageProps) {
 
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 mb-4">
             <Sparkles className="w-4 h-4 text-emerald-400" />
             <span className="text-emerald-400 text-sm font-medium">ZenSpace Pro</span>
           </div>
@@ -70,7 +70,7 @@ export function PricingPage({ onClose, onNeedAuth }: PricingPageProps) {
         {/* Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           {/* Monthly */}
-          <div className="bg-stone-900 border border-stone-700 rounded-2xl p-6 flex flex-col">
+          <div className="bg-stone-900 border border-stone-700 p-6 flex flex-col">
             <h3 className="text-lg font-semibold text-white mb-1">Monthly</h3>
             <div className="mb-4">
               <span className="text-3xl font-bold text-white">$10</span>
@@ -87,15 +87,15 @@ export function PricingPage({ onClose, onNeedAuth }: PricingPageProps) {
             <button
               onClick={() => handleCheckout('monthly')}
               disabled={!!loading}
-              className="w-full py-3 rounded-xl bg-stone-700 text-white font-medium hover:bg-stone-600 transition-colors disabled:opacity-50"
+              className="w-full py-3 bg-stone-700 text-white font-medium hover:bg-stone-600 transition-colors disabled:opacity-50"
             >
               {loading === 'monthly' ? 'Loading...' : 'Get Monthly'}
             </button>
           </div>
 
           {/* Annual */}
-          <div className="bg-stone-900 border border-emerald-500/30 rounded-2xl p-6 flex flex-col relative">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-emerald-600 text-white text-xs font-medium">
+          <div className="bg-stone-900 border border-emerald-500/30 p-6 flex flex-col relative">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-emerald-600 text-white text-xs font-medium">
               Save 33%
             </div>
             <h3 className="text-lg font-semibold text-white mb-1">Annual</h3>
@@ -115,7 +115,7 @@ export function PricingPage({ onClose, onNeedAuth }: PricingPageProps) {
             <button
               onClick={() => handleCheckout('annual')}
               disabled={!!loading}
-              className="w-full py-3 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-500 transition-colors disabled:opacity-50"
+              className="w-full py-3 bg-emerald-600 text-white font-medium hover:bg-emerald-500 transition-colors disabled:opacity-50"
             >
               {loading === 'annual' ? 'Loading...' : 'Get Annual'}
             </button>

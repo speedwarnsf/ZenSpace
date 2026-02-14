@@ -63,7 +63,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   return (
     <section 
-      className="flex flex-col h-[calc(100vh-12rem)] sm:h-[600px] max-h-[600px] bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-hidden transition-colors duration-300"
+      className="flex flex-col h-[calc(100vh-12rem)] sm:h-[600px] max-h-[600px] bg-white dark:bg-stone-800 shadow-sm border border-stone-100 dark:border-stone-700 overflow-hidden transition-colors duration-300"
       aria-labelledby="chat-heading"
     >
       {/* Header */}
@@ -103,12 +103,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           >
             <div
               className={`
-                max-w-[85%] rounded-2xl p-3 text-sm leading-relaxed
+                max-w-[85%] p-3 text-sm leading-relaxed
                 ${msg.role === 'user' 
-                  ? 'bg-emerald-600 text-white rounded-br-none' 
+                  ? 'bg-emerald-600 text-white-none' 
                   : msg.isError 
-                    ? 'bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded-bl-none border border-red-200 dark:border-red-700' 
-                    : 'bg-stone-100 dark:bg-stone-700 text-stone-800 dark:text-stone-100 rounded-bl-none'
+                    ? 'bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200-none border border-red-200 dark:border-red-700' 
+                    : 'bg-stone-100 dark:bg-stone-700 text-stone-800 dark:text-stone-100-none'
                 }
               `}
             >
@@ -141,7 +141,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             role="status"
             aria-label="ZenSpace is typing"
           >
-            <div className="bg-stone-100 dark:bg-stone-700 rounded-2xl rounded-bl-none p-4 flex items-center gap-2">
+            <div className="bg-stone-100 dark:bg-stone-700-none p-4 flex items-center gap-2">
               <Loader2 
                 className="w-4 h-4 animate-spin text-stone-400 dark:text-stone-500" 
                 aria-hidden="true" 
@@ -173,7 +173,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             onKeyDown={handleKeyDown}
             placeholder="Ask a follow-up question..."
             disabled={isTyping}
-            className="w-full pl-4 pr-12 py-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900/50 outline-none transition-all text-stone-700 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 disabled:bg-stone-50 dark:disabled:bg-stone-800 disabled:cursor-not-allowed"
+            className="w-full pl-4 pr-12 py-3 border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-700 focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900/50 outline-none transition-all text-stone-700 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 disabled:bg-stone-50 dark:disabled:bg-stone-800 disabled:cursor-not-allowed"
             aria-describedby={isTyping ? "typing-status" : undefined}
           />
           {isTyping && (
@@ -184,7 +184,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           <button
             type="submit"
             disabled={!input.trim() || isTyping}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-800"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-800"
             aria-label="Send message"
           >
             <Send className="w-4 h-4" aria-hidden="true" />

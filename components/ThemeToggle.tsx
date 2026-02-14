@@ -29,7 +29,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-lg bg-white/50 dark:bg-stone-800/50 
+      className="p-2 bg-white/50 dark:bg-stone-800/50 
                  hover:bg-white/80 dark:hover:bg-stone-800/80
                  text-stone-600 dark:text-stone-400
                  hover:text-stone-900 dark:hover:text-stone-100

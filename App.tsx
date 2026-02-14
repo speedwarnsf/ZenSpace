@@ -904,7 +904,7 @@ function AppContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <button 
             onClick={resetApp}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-800 rounded-lg p-1 flex-shrink-0"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-800 p-1 flex-shrink-0"
             aria-label="ZenSpace - Return to home"
           >
             <LayoutGrid className="w-6 h-6 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
@@ -997,7 +997,7 @@ function AppContent() {
           className="fixed top-20 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top-4 duration-300"
           role="alert"
         >
-          <div className="bg-amber-50 dark:bg-amber-900/50 border border-amber-200 dark:border-amber-700 text-amber-800 dark:text-amber-200 px-4 py-3 rounded-lg shadow-lg flex items-center gap-3">
+          <div className="bg-amber-50 dark:bg-amber-900/50 border border-amber-200 dark:border-amber-700 text-amber-800 dark:text-amber-200 px-4 py-3 shadow-lg flex items-center gap-3">
             <Clock className="w-5 h-5 flex-shrink-0" />
             <span className="text-sm font-medium">{rateLimitMessage}</span>
           </div>
@@ -1075,6 +1075,7 @@ function AppContent() {
 
         {/* Design Options State (V2 — 3 cards) */}
         {appState === AppState.DESIGN_OPTIONS && designAnalysis && (
+          <ErrorBoundary>
           <Suspense fallback={<div className="flex items-center justify-center min-h-[40vh]"><AnalysisLoading stage="generating" progress={95} className="max-w-md" /></div>}>
             <DesignOptionsView
               roomReading={designAnalysis.roomReading}
@@ -1083,10 +1084,12 @@ function AppContent() {
               isGeneratingVisuals={isGeneratingVisuals}
             />
           </Suspense>
+          </ErrorBoundary>
         )}
 
         {/* Lookbook State */}
         {appState === AppState.LOOKBOOK && (
+          <ErrorBoundary>
           <Suspense fallback={<div className="flex items-center justify-center min-h-[40vh]"><AnalysisLoading stage="generating" progress={95} className="max-w-md" /></div>}>
             <Lookbook
               entries={lookbookEntries}
@@ -1097,10 +1100,12 @@ function AppContent() {
               uploadedImageUrl={uploadedImage?.dataUrl || null}
             />
           </Suspense>
+          </ErrorBoundary>
         )}
 
         {/* Design Studio State */}
         {appState === AppState.DESIGN_STUDIO && studioEntry && (
+          <ErrorBoundary>
           <Suspense fallback={<div className="flex items-center justify-center min-h-[40vh]"><AnalysisLoading stage="generating" progress={95} className="max-w-md" /></div>}>
             <DesignStudio
               entry={studioEntry}
@@ -1121,6 +1126,7 @@ function AppContent() {
               }}
             />
           </Suspense>
+          </ErrorBoundary>
         )}
 
         {/* Rooms State */}
@@ -1144,7 +1150,7 @@ function AppContent() {
             role="alert"
             aria-live="assertive"
           >
-            <div className="bg-red-50 dark:bg-red-900/30 rounded-full p-4 mb-6">
+            <div className="bg-red-50 dark:bg-red-900/30 p-4 mb-6">
               {isNetworkError ? (
                 <WifiOff className="w-12 h-12 text-red-500 dark:text-red-400" aria-hidden="true" />
               ) : (
@@ -1167,16 +1173,16 @@ function AppContent() {
             )}
             
             {error.code === 'API_KEY_MISSING' ? (
-              <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg p-4 text-sm text-amber-800 dark:text-amber-200 mb-6">
+              <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 p-4 text-sm text-amber-800 dark:text-amber-200 mb-6">
                 <p className="font-medium mb-2">For Developers:</p>
-                <p>Add <code className="bg-amber-100 dark:bg-amber-800/50 px-1 rounded">GEMINI_API_KEY</code> to your environment variables.</p>
+                <p>Add <code className="bg-amber-100 dark:bg-amber-800/50 px-1">GEMINI_API_KEY</code> to your environment variables.</p>
               </div>
             ) : (
               <div className="flex flex-col sm:flex-row gap-4">
                 {error.isRetryable && (
                   <button 
                     onClick={handleRetry}
-                    className="bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900"
+                    className="bg-emerald-600 text-white px-6 py-3 hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900"
                     aria-label="Try analyzing the image again"
                   >
                     <RefreshCw className="w-4 h-4" aria-hidden="true" />
@@ -1185,7 +1191,7 @@ function AppContent() {
                 )}
                 <button 
                   onClick={resetApp}
-                  className="bg-stone-100 dark:bg-stone-700 text-stone-700 dark:text-stone-200 px-6 py-3 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-600 transition-colors focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900"
+                  className="bg-stone-100 dark:bg-stone-700 text-stone-700 dark:text-stone-200 px-6 py-3 hover:bg-stone-200 dark:hover:bg-stone-600 transition-colors focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900"
                   aria-label="Go back to home and start fresh"
                 >
                   Start Fresh
@@ -1216,17 +1222,17 @@ function AppContent() {
                   </button>
                 )}
                 {/* Image Preview Card */}
-                <div className="bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-hidden p-2 transition-colors duration-300">
+                <div className="bg-white dark:bg-stone-800 shadow-sm border border-stone-100 dark:border-stone-700 overflow-hidden p-2 transition-colors duration-300">
                   {uploadedImage?.dataUrl ? (
                     <img 
                       src={uploadedImage.dataUrl} 
                       alt="Your uploaded room photo" 
-                      className="w-full h-64 md:h-80 object-cover rounded-xl"
+                      className="w-full h-64 md:h-80 object-cover"
                       loading="lazy"
                       decoding="async"
                     />
                   ) : (
-                    <div className="w-full h-64 md:h-80 rounded-xl bg-stone-100 dark:bg-stone-700 flex items-center justify-center text-stone-500 dark:text-stone-300 text-sm">
+                    <div className="w-full h-64 md:h-80 bg-stone-100 dark:bg-stone-700 flex items-center justify-center text-stone-500 dark:text-stone-300 text-sm">
                       Original image not available. Upload a new photo to view it here.
                     </div>
                   )}
@@ -1250,11 +1256,13 @@ function AppContent() {
               {/* Right Column: Chat */}
               <div className="lg:col-span-5">
                 <div className="lg:sticky lg:top-24">
+                  <ErrorBoundary>
                   <ChatInterface 
                     messages={messages}
                     onSendMessage={handleSendMessage}
                     isTyping={isChatTyping}
                   />
+                  </ErrorBoundary>
                 </div>
               </div>
             </div>
@@ -1285,12 +1293,14 @@ function AppContent() {
 
       {/* Pricing Page Modal */}
       {showPricing && (
+        <ErrorBoundary>
         <Suspense fallback={null}>
           <PricingPage
             onClose={() => setShowPricing(false)}
             onNeedAuth={() => { setShowPricing(false); setShowAuthGate(true); }}
           />
         </Suspense>
+        </ErrorBoundary>
       )}
 
       {/* Auth Gate Modal */}
@@ -1304,6 +1314,7 @@ function AppContent() {
       )}
 
       {/* My Rooms Gallery Modal */}
+      <ErrorBoundary>
       <Suspense fallback={null}>
         <MyRoomsGallery
           isOpen={isGalleryOpen}
@@ -1311,6 +1322,7 @@ function AppContent() {
           onLoadRoom={handleLoadRoom}
         />
       </Suspense>
+      </ErrorBoundary>
     </div>
   );
 }

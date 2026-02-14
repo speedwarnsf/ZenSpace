@@ -149,7 +149,7 @@ export function NetworkStatus({ onNetworkChange, showIndicator = true, className
             {status.isSlowConnection ? (
               <div className="flex items-center gap-1" title="Slow connection detected">
                 <Wifi className="w-4 h-4" />
-                <div className="w-1 h-1 bg-orange-500 rounded-full animate-pulse" />
+                <div className="w-1 h-1 bg-orange-500 animate-pulse" />
               </div>
             ) : (
               <Wifi className="w-4 h-4" aria-label="Connected" />
@@ -169,7 +169,7 @@ export function NetworkStatus({ onNetworkChange, showIndicator = true, className
           role="alert"
           aria-live="assertive"
         >
-          <div className="bg-amber-50 dark:bg-amber-900/80 border border-amber-200 dark:border-amber-700 text-amber-800 dark:text-amber-200 px-4 py-3 rounded-lg shadow-lg max-w-sm">
+          <div className="bg-amber-50 dark:bg-amber-900/80 border border-amber-200 dark:border-amber-700 text-amber-800 dark:text-amber-200 px-4 py-3 shadow-lg max-w-sm">
             <div className="flex items-center gap-3">
               <CloudOff className="w-5 h-5 flex-shrink-0" />
               <div>
@@ -190,7 +190,7 @@ export function NetworkStatus({ onNetworkChange, showIndicator = true, className
           role="alert"
           aria-live="polite"
         >
-          <div className="bg-orange-50 dark:bg-orange-900/80 border border-orange-200 dark:border-orange-700 text-orange-800 dark:text-orange-200 px-4 py-3 rounded-lg shadow-lg max-w-sm">
+          <div className="bg-orange-50 dark:bg-orange-900/80 border border-orange-200 dark:border-orange-700 text-orange-800 dark:text-orange-200 px-4 py-3 shadow-lg max-w-sm">
             <div className="flex items-center gap-3">
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
               <div>
@@ -211,7 +211,7 @@ export function NetworkStatus({ onNetworkChange, showIndicator = true, className
           role="alert"
           aria-live="polite"
         >
-          <div className="bg-emerald-50 dark:bg-emerald-900/80 border border-emerald-200 dark:border-emerald-700 text-emerald-800 dark:text-emerald-200 px-4 py-3 rounded-lg shadow-lg max-w-sm">
+          <div className="bg-emerald-50 dark:bg-emerald-900/80 border border-emerald-200 dark:border-emerald-700 text-emerald-800 dark:text-emerald-200 px-4 py-3 shadow-lg max-w-sm">
             <div className="flex items-center gap-3">
               <CheckCircle className="w-5 h-5 flex-shrink-0" />
               <div>
