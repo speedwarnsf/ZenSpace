@@ -9,11 +9,18 @@
   --color-stone-950: #0c0a09;
 }
 
-/* ZenSpace design rules: NO rounded corners, text-wrap: balance on headings */
+/* ZenSpace design rules: NO rounded corners EXCEPT the camera lens, text-wrap: balance on headings */
 *,
 *::before,
 *::after {
   border-radius: 0 !important;
+}
+/* Camera lens must stay circular */
+.lens-circle,
+.lens-circle *,
+.lens-circle *::before,
+.lens-circle *::after {
+  border-radius: 50% !important;
 }
 
 h1, h2, h3, h4, h5, h6 {

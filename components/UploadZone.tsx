@@ -152,8 +152,9 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageSelected, isAnaly
         aria-describedby={describedBy}
         aria-disabled={isAnalyzing}
         className={`
+          lens-circle
           relative w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96
-          
+          rounded-full overflow-hidden
           bg-zinc-900
           shadow-[0_25px_60px_-12px_rgba(0,0,0,0.6)]
           flex items-center justify-center
