@@ -30,6 +30,7 @@ import {
   generateRoomVisualization,
   generateDesignOptions,
   generateDesignVisualization,
+  iterateDesign,
   isApiConfigured,
   GeminiApiError
 } from './services/geminiService';
@@ -1107,7 +1108,6 @@ function AppContent() {
               sourceImage={uploadedImage ? { base64: uploadedImage.base64, mimeType: uploadedImage.mimeType } : undefined}
               onIterate={async (prompt: string) => {
                 if (!uploadedImage || !studioEntry) return;
-                const { iterateDesign } = await import('./services/geminiService');
                 const newDesign = await iterateDesign(
                   uploadedImage.base64,
                   uploadedImage.mimeType,
