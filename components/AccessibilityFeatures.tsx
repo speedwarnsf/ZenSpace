@@ -186,7 +186,7 @@ export function AccessibilityToolbar() {
       {/* Toggle button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-stone-800 text-white p-2 shadow-lg hover:bg-stone-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        className="a11y-circle bg-stone-800 text-white p-2 shadow-lg hover:bg-stone-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         aria-label="Accessibility settings"
         aria-expanded={isOpen}
       >

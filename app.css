@@ -15,11 +15,12 @@
 *::after {
   border-radius: 0 !important;
 }
-/* Camera lens must stay circular */
+/* Camera lens and accessibility button must stay circular */
 .lens-circle,
 .lens-circle *,
 .lens-circle *::before,
-.lens-circle *::after {
+.lens-circle *::after,
+.a11y-circle {
   border-radius: 50% !important;
 }
 
