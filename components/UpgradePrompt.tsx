@@ -8,9 +8,10 @@ interface UpgradePromptProps {
   message: string;
   onUpgrade: () => void;
   onDismiss: () => void;
+  onSignIn?: () => void;
 }
 
-export function UpgradePrompt({ message, onUpgrade, onDismiss }: UpgradePromptProps) {
+export function UpgradePrompt({ message, onUpgrade, onDismiss, onSignIn }: UpgradePromptProps) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="relative w-full max-w-sm mx-4 bg-stone-900 border border-stone-700 p-8 shadow-2xl text-center">
@@ -37,6 +38,14 @@ export function UpgradePrompt({ message, onUpgrade, onDismiss }: UpgradePromptPr
         >
           Upgrade to Pro
         </button>
+        {onSignIn && (
+          <button
+            onClick={onSignIn}
+            className="w-full text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-colors py-2 mb-1"
+          >
+            Already have an account? Sign in
+          </button>
+        )}
         <button
           onClick={onDismiss}
           className="w-full text-stone-500 hover:text-stone-300 text-sm transition-colors py-2"

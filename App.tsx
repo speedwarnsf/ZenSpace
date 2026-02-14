@@ -1287,6 +1287,7 @@ function AppContent() {
             message={getGateMessage(showUpgradePrompt)}
             onUpgrade={() => { setShowUpgradePrompt(null); setShowPricing(true); }}
             onDismiss={() => setShowUpgradePrompt(null)}
+            onSignIn={() => { setShowUpgradePrompt(null); setShowAuthGate(true); }}
           />
         </Suspense>
       )}
