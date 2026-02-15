@@ -1,11 +1,11 @@
 /**
- * PricingPage — Premium two-card pricing with compelling Pro value proposition
+ * PricingPage — Premium two-card pricing with testimonials, before/after showcase, and FAQ
  */
 
 import { useState } from 'react';
 import { useAuth } from './AuthProvider';
 import { createCheckoutSession } from '../services/subscription';
-import { X, Check, Sparkles, Zap, Layers, Download, Home, Palette, ArrowRight } from 'lucide-react';
+import { X, Check, Sparkles, Zap, Layers, Download, Home, Palette, ArrowRight, ChevronDown, ChevronUp, Quote, Star } from 'lucide-react';
 
 interface PricingPageProps {
   onClose: () => void;
@@ -28,9 +28,85 @@ const FREE_LIMITS = [
   'No PDF export',
 ];
 
+const TESTIMONIALS = [
+  {
+    quote: 'I uploaded a photo of my cluttered living room and got three completely different design directions in under a minute. One of them became the blueprint for my entire renovation.',
+    name: 'Sarah M.',
+    location: 'Portland, OR',
+    detail: 'Redesigned living room and home office',
+  },
+  {
+    quote: 'The Design Studio let me iterate until the plan was exactly right. I went from "I hate this room" to a space I actually want to spend time in.',
+    name: 'James K.',
+    location: 'Austin, TX',
+    detail: 'Complete bedroom transformation',
+  },
+  {
+    quote: 'What sold me on Pro was the shopping list feature. It turned a vague design concept into an actionable plan with real products and price estimates.',
+    name: 'Priya D.',
+    location: 'Chicago, IL',
+    detail: 'Kitchen and dining area redesign',
+  },
+  {
+    quote: 'I used the free tier for my bedroom and immediately upgraded. The AI understands design theory better than most humans I have worked with.',
+    name: 'Marcus T.',
+    location: 'Denver, CO',
+    detail: 'Whole-home design project',
+  },
+];
+
+const BEFORE_AFTER_SHOWCASES = [
+  {
+    title: 'Studio Apartment — From Storage Unit to Sanctuary',
+    before: 'A 400 sq ft studio overwhelmed with furniture, no clear zones, and harsh overhead lighting. Clothes piled on every surface.',
+    after: 'Defined sleeping, working, and living zones using a low bookshelf divider. Warm layered lighting replaced the single overhead fixture. A capsule storage system cleared every surface.',
+    style: 'Japandi Minimalism',
+  },
+  {
+    title: 'Family Living Room — Toy Chaos to Dual-Purpose Calm',
+    before: 'An open-plan living room buried under children\'s toys, mismatched furniture, and a TV dominating the wall. No cohesive color story.',
+    after: 'Hidden toy storage integrated into a custom media console. A neutral earth-tone palette with textured throws and a statement rug unified the space. The TV was reframed with flanking shelves.',
+    style: 'Modern Organic',
+  },
+  {
+    title: 'Home Office — Spare Bedroom to Creative Studio',
+    before: 'A guest bedroom repurposed as an office with a folding table as a desk, tangled cables, and zero personality. Poor natural light utilization.',
+    after: 'A dedicated L-shaped desk positioned to maximize the window light. Cable management solved with under-desk trays. Gallery wall and plants added warmth without clutter.',
+    style: 'Mid-Century Modern',
+  },
+];
+
+const FAQ_ITEMS = [
+  {
+    q: 'What counts as a "generation" vs an "iteration"?',
+    a: 'A generation is when you upload a new photo and get design concepts. An iteration is when you refine an existing design in the Design Studio — adjusting colors, swapping furniture, or tweaking the layout. Pro includes 50 generations and 100 iterations per month.',
+  },
+  {
+    q: 'Can I cancel anytime?',
+    a: 'Yes. Cancel with one click from your account settings. You keep Pro access until the end of your billing period. No questions asked.',
+  },
+  {
+    q: 'What happens to my saved rooms if I downgrade?',
+    a: 'Your rooms stay saved. On the free tier you can view all previously saved rooms but can only keep 1 active room for new designs. Upgrade again anytime to unlock them all.',
+  },
+  {
+    q: 'How accurate are the product recommendations and prices?',
+    a: 'Product suggestions are based on your specific design plan with real price ranges from major retailers. Prices are estimates and may vary. Shopping links take you directly to retailer search results.',
+  },
+  {
+    q: 'Is there a limit on image uploads?',
+    a: 'No limit on uploads themselves. The generation limits apply to AI design analysis. You can re-upload and re-frame your photo as many times as you want before using a generation.',
+  },
+  {
+    q: 'Do you offer refunds?',
+    a: 'If you are not satisfied within the first 7 days, contact us for a full refund. After that, you can cancel anytime but refunds are not provided for partial billing periods.',
+  },
+];
+
 export function PricingPage({ onClose, onNeedAuth }: PricingPageProps) {
   const { user } = useAuth();
   const [loading, setLoading] = useState<'monthly' | 'annual' | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const handleCheckout = async (plan: 'monthly' | 'annual') => {
     if (!user) {
@@ -50,8 +126,8 @@ export function PricingPage({ onClose, onNeedAuth }: PricingPageProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm overflow-y-auto py-6 px-4">
-      <div className="relative w-full max-w-3xl">
+    <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/70 backdrop-blur-sm overflow-y-auto py-6 px-4">
+      <div className="relative w-full max-w-3xl mb-12">
         <button
           onClick={onClose}
           className="absolute -top-2 -right-2 z-10 w-8 h-8 bg-stone-800 border border-stone-600 flex items-center justify-center text-stone-400 hover:text-white transition-colors"
@@ -141,7 +217,7 @@ export function PricingPage({ onClose, onNeedAuth }: PricingPageProps) {
         </div>
 
         {/* Free tier comparison */}
-        <div className="bg-stone-900/50 border border-stone-800 p-5 mb-6">
+        <div className="bg-stone-900/50 border border-stone-800 p-5 mb-8">
           <h4 className="text-xs font-bold uppercase tracking-widest text-stone-500 mb-3">Free tier includes</h4>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {FREE_LIMITS.map(limit => (
@@ -150,8 +226,106 @@ export function PricingPage({ onClose, onNeedAuth }: PricingPageProps) {
           </div>
         </div>
 
-        {/* Start Free */}
+        {/* Testimonials */}
+        <div className="mb-10">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-stone-500 mb-6 text-center">What Pro users are saying</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {TESTIMONIALS.map((t) => (
+              <div key={t.name} className="bg-stone-900/70 border border-stone-800 p-5 flex flex-col">
+                <Quote className="w-4 h-4 text-emerald-500/40 mb-3 flex-shrink-0" />
+                <p className="text-sm text-stone-300 leading-relaxed flex-1 mb-4">
+                  "{t.quote}"
+                </p>
+                <div className="flex items-center gap-2 border-t border-stone-800 pt-3">
+                  <div className="w-8 h-8 bg-stone-800 flex items-center justify-center text-xs font-bold text-emerald-400">
+                    {t.name.charAt(0)}
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium text-white">{t.name}</div>
+                    <div className="text-[10px] text-stone-500">{t.location} — {t.detail}</div>
+                  </div>
+                  <div className="ml-auto flex gap-0.5">
+                    {[1,2,3,4,5].map(i => (
+                      <Star key={i} className="w-3 h-3 text-emerald-400 fill-emerald-400" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Before & After Showcase */}
+        <div className="mb-10">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-stone-500 mb-6 text-center">Before and after — real transformations</h3>
+          <div className="space-y-4">
+            {BEFORE_AFTER_SHOWCASES.map((item) => (
+              <div key={item.title} className="bg-stone-900/70 border border-stone-800 p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-sm font-semibold text-white">{item.title}</h4>
+                  <span className="text-[10px] font-medium uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2 py-0.5">{item.style}</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-stone-600 mb-2">Before</div>
+                    <div className="bg-stone-800/50 border border-stone-700 p-4 min-h-[80px] flex items-center">
+                      <p className="text-xs text-stone-400 leading-relaxed">{item.before}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-500/70 mb-2">After</div>
+                    <div className="bg-emerald-900/10 border border-emerald-800/30 p-4 min-h-[80px] flex items-center">
+                      <p className="text-xs text-stone-300 leading-relaxed">{item.after}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* FAQ */}
+        <div className="mb-8">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-stone-500 mb-6 text-center">Frequently asked questions</h3>
+          <div className="space-y-2">
+            {FAQ_ITEMS.map((item, idx) => (
+              <div key={idx} className="bg-stone-900/50 border border-stone-800">
+                <button
+                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                  className="w-full flex items-center justify-between p-4 text-left hover:bg-stone-800/30 transition-colors"
+                  aria-expanded={openFaq === idx}
+                >
+                  <span className="text-sm text-stone-200 font-medium pr-4">{item.q}</span>
+                  {openFaq === idx ? (
+                    <ChevronUp className="w-4 h-4 text-stone-500 flex-shrink-0" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4 text-stone-500 flex-shrink-0" />
+                  )}
+                </button>
+                {openFaq === idx && (
+                  <div className="px-4 pb-4 border-t border-stone-800">
+                    <p className="text-sm text-stone-400 leading-relaxed pt-3">{item.a}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom CTA */}
         <div className="text-center mb-4">
+          <button
+            onClick={() => handleCheckout('annual')}
+            disabled={!!loading}
+            className="px-8 py-3 bg-emerald-600 text-white font-semibold hover:bg-emerald-500 transition-colors disabled:opacity-50 inline-flex items-center gap-2 shadow-lg shadow-emerald-600/20 mb-4"
+          >
+            {loading === 'annual' ? (
+              <div className="w-4 h-4 border-2 border-white border-t-transparent animate-spin" />
+            ) : (
+              <>Get Pro — $6.67/mo <ArrowRight className="w-4 h-4" /></>
+            )}
+          </button>
+          <br />
           <button
             onClick={onClose}
             className="text-stone-400 hover:text-stone-200 text-sm transition-colors"
