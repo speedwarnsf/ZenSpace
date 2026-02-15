@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { Move, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ComparisonSliderProps {
   beforeImage: string;
@@ -11,7 +11,7 @@ interface ComparisonSliderProps {
 
 /**
  * Before/After comparison slider component
- * Allows users to drag a slider to compare original room with visualization
+ * Premium feel with smooth dragging and elegant handle
  */
 export function ComparisonSlider({
   beforeImage,
@@ -22,19 +22,20 @@ export function ComparisonSlider({
 }: ComparisonSliderProps) {
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState({ before: false, after: false });
 
   const handleMove = useCallback(
     (clientX: number) => {
       if (!containerRef.current) return;
-      
       const rect = containerRef.current.getBoundingClientRect();
       const x = clientX - rect.left;
-      const percentage = Math.min(Math.max((x / rect.width) * 100, 0), 100);
+      const percentage = Math.min(Math.max((x / rect.width) * 100, 2), 98);
       setSliderPosition(percentage);
+      if (!hasInteracted) setHasInteracted(true);
     },
-    []
+    [hasInteracted]
   );
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -52,28 +53,19 @@ export function ComparisonSlider({
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (isDragging) {
-        handleMove(e.clientX);
-      }
+      if (isDragging) handleMove(e.clientX);
     };
-
     const handleTouchMove = (e: TouchEvent) => {
-      if (isDragging && e.touches[0]) {
-        handleMove(e.touches[0].clientX);
-      }
+      if (isDragging && e.touches[0]) handleMove(e.touches[0].clientX);
     };
-
-    const handleEnd = () => {
-      setIsDragging(false);
-    };
+    const handleEnd = () => setIsDragging(false);
 
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleEnd);
-      document.addEventListener('touchmove', handleTouchMove);
+      document.addEventListener('touchmove', handleTouchMove, { passive: true });
       document.addEventListener('touchend', handleEnd);
     }
-
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleEnd);
@@ -84,9 +76,11 @@ export function ComparisonSlider({
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'ArrowLeft') {
-      setSliderPosition((prev) => Math.max(prev - 5, 0));
+      setSliderPosition((prev) => Math.max(prev - 5, 2));
+      setHasInteracted(true);
     } else if (e.key === 'ArrowRight') {
-      setSliderPosition((prev) => Math.min(prev + 5, 100));
+      setSliderPosition((prev) => Math.min(prev + 5, 98));
+      setHasInteracted(true);
     }
   }, []);
 
@@ -97,7 +91,7 @@ export function ComparisonSlider({
   return (
     <div
       ref={containerRef}
-      className={`relative w-full overflow-hidden select-none ${className}`}
+      className={`relative w-full overflow-hidden select-none cursor-ew-resize ${className}`}
       style={{ aspectRatio: '16/9' }}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
@@ -115,10 +109,11 @@ export function ComparisonSlider({
       <span id={instructionId} className="sr-only">
         Use left and right arrow keys or drag to compare before and after images.
       </span>
+
       {/* Loading state */}
       {!allLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-          <div className="animate-pulse text-gray-500 dark:text-gray-400">Loading comparison...</div>
+        <div className="absolute inset-0 flex items-center justify-center bg-stone-100 dark:bg-stone-800">
+          <div className="animate-pulse text-stone-500 dark:text-stone-400 text-sm">Loading comparison...</div>
         </div>
       )}
 
@@ -126,7 +121,7 @@ export function ComparisonSlider({
       <img
         src={afterImage}
         alt={afterLabel}
-        className={`absolute inset-0 w-full h-full object-cover ${allLoaded ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${allLoaded ? 'opacity-100' : 'opacity-0'}`}
         onLoad={() => setIsLoaded((prev) => ({ ...prev, after: true }))}
         draggable={false}
       />
@@ -139,7 +134,7 @@ export function ComparisonSlider({
         <img
           src={beforeImage}
           alt={beforeLabel}
-          className={`absolute inset-0 w-full h-full object-cover ${allLoaded ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${allLoaded ? 'opacity-100' : 'opacity-0'}`}
           style={{ 
             width: containerRef.current ? containerRef.current.offsetWidth : '100%',
             maxWidth: 'none'
@@ -152,22 +147,21 @@ export function ComparisonSlider({
       {/* Slider handle */}
       {allLoaded && (
         <div
-          className="absolute top-0 bottom-0 w-1 bg-white shadow-lg cursor-ew-resize transition-opacity"
+          className="absolute top-0 bottom-0 w-0.5 bg-white/90 shadow-[0_0_8px_rgba(0,0,0,0.3)] transition-shadow"
           style={{ 
             left: `${sliderPosition}%`, 
             transform: 'translateX(-50%)',
-            opacity: isDragging ? 1 : 0.9
           }}
         >
-          {/* Handle button */}
+          {/* Handle grip */}
           <div
             className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
-              w-10 h-10 bg-white shadow-lg border-2 border-gray-300
+              w-10 h-10 bg-white shadow-lg border border-stone-300
               flex items-center justify-center transition-all duration-200
-              ${isDragging ? 'scale-110 border-blue-500' : 'hover:scale-105 hover:border-blue-400'}`}
+              ${isDragging ? 'scale-110 shadow-xl border-emerald-400' : 'hover:scale-105 hover:border-emerald-400'}`}
           >
-            <ChevronLeft size={16} className="text-gray-600 -mr-1" />
-            <ChevronRight size={16} className="text-gray-600 -ml-1" />
+            <ChevronLeft size={14} className="text-stone-600 -mr-0.5" />
+            <ChevronRight size={14} className="text-stone-600 -ml-0.5" />
           </div>
         </div>
       )}
@@ -176,15 +170,15 @@ export function ComparisonSlider({
       {allLoaded && (
         <>
           <div 
-            className={`absolute top-3 left-3 px-2 py-1 text-xs font-medium
-              bg-black/60 text-white backdrop-blur-sm transition-opacity
+            className={`absolute top-3 left-3 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider
+              bg-black/50 text-white backdrop-blur-sm transition-opacity
               ${sliderPosition < 15 ? 'opacity-0' : 'opacity-100'}`}
           >
             {beforeLabel}
           </div>
           <div 
-            className={`absolute top-3 right-3 px-2 py-1 text-xs font-medium
-              bg-black/60 text-white backdrop-blur-sm transition-opacity
+            className={`absolute top-3 right-3 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider
+              bg-black/50 text-white backdrop-blur-sm transition-opacity
               ${sliderPosition > 85 ? 'opacity-0' : 'opacity-100'}`}
           >
             {afterLabel}
@@ -192,15 +186,16 @@ export function ComparisonSlider({
         </>
       )}
 
-      {/* Instructions overlay (shows briefly) */}
-      {allLoaded && (
+      {/* Instruction hint — fades after first interaction */}
+      {allLoaded && !hasInteracted && (
         <div 
           className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1.5
             bg-black/60 text-white text-xs backdrop-blur-sm flex items-center gap-2
-            animate-fade-out pointer-events-none"
+            animate-pulse pointer-events-none"
         >
-          <Move size={14} />
+          <ChevronLeft size={12} />
           <span>Drag to compare</span>
+          <ChevronRight size={12} />
         </div>
       )}
     </div>

@@ -178,7 +178,7 @@ describe('ComparisonSlider', () => {
       
       await waitFor(() => {
         const value = parseInt(slider.getAttribute('aria-valuenow') || '0', 10);
-        expect(value).toBe(0);
+        expect(value).toBe(2);
       });
     });
 
@@ -200,7 +200,7 @@ describe('ComparisonSlider', () => {
       
       await waitFor(() => {
         const value = parseInt(slider.getAttribute('aria-valuenow') || '100', 10);
-        expect(value).toBe(100);
+        expect(value).toBe(98);
       });
     });
   });

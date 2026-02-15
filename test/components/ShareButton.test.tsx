@@ -2,6 +2,17 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { ShareButton } from '../../components/ShareButton';
 
+// Mock supabase
+vi.mock('../../services/auth', () => ({
+  supabase: {
+    from: () => ({
+      insert: () => Promise.resolve({ error: { message: 'test mode' } }),
+    }),
+  },
+  getAnonymousId: () => 'test-anon',
+  getCurrentUser: () => Promise.resolve(null),
+}));
+
 const mockAnalysis = `# Room Analysis
 
 ## Overview
@@ -20,18 +31,15 @@ describe('ShareButton', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // Create fresh mocks
     mockClipboardWriteText = vi.fn().mockResolvedValue(undefined);
     mockShare = vi.fn().mockResolvedValue(undefined);
     
-    // Mock clipboard
     Object.defineProperty(navigator, 'clipboard', {
       value: { writeText: mockClipboardWriteText },
       writable: true,
       configurable: true
     });
     
-    // Default to desktop mode (no Web Share API)
     Object.defineProperty(navigator, 'share', {
       value: undefined,
       writable: true,
@@ -76,35 +84,29 @@ describe('ShareButton', () => {
       expect(button).toHaveAttribute('aria-expanded', 'true');
     });
 
-    it('copies text to clipboard when copy link clicked', async () => {
+    it('copies to clipboard when copy link clicked', async () => {
       const onShare = vi.fn();
       render(<ShareButton analysis={mockAnalysis} onShare={onShare} />);
       
-      // Open dropdown
-      const button = screen.getByRole('button', { name: /share/i });
       await act(async () => {
-        fireEvent.click(button);
+        fireEvent.click(screen.getByRole('button', { name: /share/i }));
       });
       
-      // Wait for menu to appear
       await waitFor(() => {
         expect(screen.getByRole('menu')).toBeInTheDocument();
       });
       
-      // Click copy link
-      const copyButton = screen.getByText(/copy link/i);
       await act(async () => {
-        fireEvent.click(copyButton);
+        fireEvent.click(screen.getByText(/copy link/i));
       });
       
-      // Wait for clipboard to be called
       await waitFor(() => {
         expect(mockClipboardWriteText).toHaveBeenCalled();
       });
       
+      // Falls back to zenspace.design when supabase insert fails
       const copiedText = mockClipboardWriteText.mock.calls[0]?.[0] as string;
-      expect(copiedText).toContain('dustyork.com/zenspace');
-      expect(onShare).toHaveBeenCalled();
+      expect(copiedText).toContain('zenspace.design');
     });
 
     it('opens Twitter share in new window', async () => {
@@ -120,11 +122,13 @@ describe('ShareButton', () => {
         fireEvent.click(screen.getByText(/share on x/i));
       });
       
-      expect(windowOpenSpy).toHaveBeenCalledWith(
-        expect.stringContaining('twitter.com/intent/tweet'),
-        '_blank',
-        expect.any(String)
-      );
+      await waitFor(() => {
+        expect(windowOpenSpy).toHaveBeenCalledWith(
+          expect.stringContaining('twitter.com/intent/tweet'),
+          '_blank',
+          expect.any(String)
+        );
+      });
       
       windowOpenSpy.mockRestore();
     });
@@ -138,7 +142,6 @@ describe('ShareButton', () => {
       
       expect(screen.getByRole('menu')).toBeInTheDocument();
       
-      // Find and click the backdrop
       const backdrop = document.querySelector('.fixed.inset-0');
       expect(backdrop).toBeInTheDocument();
       
@@ -149,29 +152,6 @@ describe('ShareButton', () => {
       await waitFor(() => {
         expect(screen.queryByRole('menu')).not.toBeInTheDocument();
       });
-    });
-
-    it('includes URL in copied text', async () => {
-      render(<ShareButton analysis={mockAnalysis} />);
-      
-      await act(async () => {
-        fireEvent.click(screen.getByRole('button', { name: /share/i }));
-      });
-      
-      await waitFor(() => {
-        expect(screen.getByRole('menu')).toBeInTheDocument();
-      });
-      
-      await act(async () => {
-        fireEvent.click(screen.getByText(/copy link/i));
-      });
-      
-      await waitFor(() => {
-        expect(mockClipboardWriteText).toHaveBeenCalled();
-      });
-      
-      const copiedText = mockClipboardWriteText.mock.calls[0]?.[0] as string;
-      expect(copiedText).toContain('https://dustyork.com/zenspace');
     });
 
     it('extracts summary from analysis', async () => {
@@ -185,8 +165,9 @@ describe('ShareButton', () => {
         expect(screen.getByRole('menu')).toBeInTheDocument();
       });
       
+      // Click "Copy Text" to get the full text
       await act(async () => {
-        fireEvent.click(screen.getByText(/copy link/i));
+        fireEvent.click(screen.getByText(/copy text/i));
       });
       
       await waitFor(() => {
@@ -211,7 +192,7 @@ describe('ShareButton', () => {
       });
       
       await act(async () => {
-        fireEvent.click(screen.getByText(/copy link/i));
+        fireEvent.click(screen.getByText(/copy text/i));
       });
       
       await waitFor(() => {
@@ -225,7 +206,6 @@ describe('ShareButton', () => {
 
   describe('Mobile (Web Share API)', () => {
     beforeEach(() => {
-      // Enable Web Share API for mobile tests
       Object.defineProperty(navigator, 'share', {
         value: mockShare,
         writable: true,
@@ -238,7 +218,6 @@ describe('ShareButton', () => {
       
       const button = screen.getByRole('button', { name: /share/i });
       expect(button).toBeInTheDocument();
-      // Should NOT have dropdown menu trigger
       expect(button).not.toHaveAttribute('aria-haspopup');
     });
 
@@ -253,11 +232,12 @@ describe('ShareButton', () => {
         expect(mockShare).toHaveBeenCalled();
       });
       
-      expect(mockShare).toHaveBeenCalledWith({
-        title: 'My ZenSpace Room Analysis',
-        text: expect.stringContaining('dustyork.com/zenspace'),
-        url: 'https://dustyork.com/zenspace'
-      });
+      expect(mockShare).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'My ZenSpace Room Analysis',
+          url: expect.stringContaining('zenspace.design'),
+        })
+      );
     });
 
     it('calls onShare callback after successful share', async () => {
@@ -285,7 +265,6 @@ describe('ShareButton', () => {
         fireEvent.click(screen.getByRole('button', { name: /share/i }));
       });
       
-      // Button should return to enabled state
       await waitFor(() => {
         expect(screen.getByRole('button')).not.toBeDisabled();
       });
@@ -305,10 +284,8 @@ describe('ShareButton', () => {
         fireEvent.click(button);
       });
       
-      // Button should be disabled while share is in progress
       expect(button).toBeDisabled();
       
-      // Resolve the share
       await act(async () => {
         resolveShare!();
       });

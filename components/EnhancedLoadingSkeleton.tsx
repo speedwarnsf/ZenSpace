@@ -30,7 +30,6 @@ export function LoadingSkeleton({
     ? 'bg-gradient-to-r from-stone-200 via-stone-300 to-stone-200 dark:from-stone-700 dark:via-stone-600 dark:to-stone-700 animate-pulse bg-[length:200%_100%]'
     : 'bg-stone-200 dark:bg-stone-700';
 
-  // Shimmer animation for enhanced loading
   const shimmerClasses = animate 
     ? 'relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent'
     : '';
@@ -107,14 +106,11 @@ export function LoadingSkeleton({
     case 'analysis':
       return (
         <div className={`space-y-6 ${className}`}>
-          {/* Header */}
           <div className="space-y-3">
             <div className={`h-8 w-3/4 ${baseClasses} ${shimmerClasses}`} />
             <div className={`h-4 w-full ${baseClasses} ${shimmerClasses}`} />
             <div className={`h-4 w-5/6 ${baseClasses} ${shimmerClasses}`} />
           </div>
-
-          {/* Sections */}
           {Array.from({ length: 3 }, (_, i) => (
             <div key={i} className="space-y-3" style={{ animationDelay: `${i * 0.3}s` }}>
               <div className={`h-6 w-1/2 ${baseClasses} ${shimmerClasses}`} />
@@ -124,8 +120,6 @@ export function LoadingSkeleton({
               </div>
             </div>
           ))}
-
-          {/* Action buttons */}
           <div className="flex gap-3 pt-4">
             <div className={`h-11 w-32 ${baseClasses} ${shimmerClasses}`} />
             <div className={`h-11 w-24 ${baseClasses} ${shimmerClasses}`} />
@@ -133,7 +127,7 @@ export function LoadingSkeleton({
         </div>
       );
 
-    default: // card
+    default:
       return (
         <div className={`${className}`}>
           <div className={`p-6 border border-stone-200 dark:border-stone-700 space-y-4`}>
@@ -156,15 +150,24 @@ export function LoadingSkeleton({
   }
 }
 
-// Specialized loading components for different features
+// Analysis loading with estimated time and stage details
 interface AnalysisLoadingProps {
   stage: 'uploading' | 'processing' | 'analyzing' | 'generating' | 'visualizing';
   progress?: number;
   className?: string;
 }
 
+const STAGE_TIPS = [
+  'Our AI examines spatial relationships, light quality, and existing design elements',
+  'Each design direction is grounded in academic design theory frameworks',
+  'Visualization uses reference-guided image generation for photorealistic results',
+  'Color palettes are derived from proven design harmony principles',
+];
+
 export function AnalysisLoading({ stage, progress = 0, className = '' }: AnalysisLoadingProps) {
   const [dots, setDots] = useState('');
+  const [tipIndex, setTipIndex] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -173,47 +176,100 @@ export function AnalysisLoading({ stage, progress = 0, className = '' }: Analysi
     return () => clearInterval(interval);
   }, []);
 
+  // Rotate tips every 6 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTipIndex(prev => (prev + 1) % STAGE_TIPS.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Track elapsed time
+  useEffect(() => {
+    const start = Date.now();
+    const interval = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - start) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const stageConfig = {
     uploading: {
       icon: Camera,
       message: 'Uploading image',
+      detail: 'Preparing your photo for analysis',
       color: 'text-blue-500',
       bgColor: 'bg-blue-50 dark:bg-blue-900/30',
+      gradientFrom: 'from-blue-400',
+      gradientTo: 'to-blue-500',
+      estimate: '~5 seconds',
     },
     processing: {
       icon: Image,
       message: 'Processing image',
+      detail: 'Optimizing resolution and color data',
       color: 'text-purple-500',
       bgColor: 'bg-purple-50 dark:bg-purple-900/30',
+      gradientFrom: 'from-purple-400',
+      gradientTo: 'to-purple-500',
+      estimate: '~10 seconds',
     },
     analyzing: {
       icon: Brain,
-      message: 'Analyzing room layout',
+      message: 'Analyzing your space',
+      detail: 'Reading room through 5 design theory frameworks',
       color: 'text-emerald-500',
       bgColor: 'bg-emerald-50 dark:bg-emerald-900/30',
+      gradientFrom: 'from-emerald-400',
+      gradientTo: 'to-emerald-500',
+      estimate: '~30 seconds',
     },
     generating: {
       icon: Sparkles,
-      message: 'Generating insights',
+      message: 'Generating design concepts',
+      detail: 'Creating 3 unique design directions',
       color: 'text-amber-500',
       bgColor: 'bg-amber-50 dark:bg-amber-900/30',
+      gradientFrom: 'from-amber-400',
+      gradientTo: 'to-amber-500',
+      estimate: '~45 seconds',
     },
     visualizing: {
       icon: Sparkles,
       message: 'Rendering your designs',
+      detail: 'Generating photorealistic previews for each concept',
       color: 'text-amber-500',
       bgColor: 'bg-amber-50 dark:bg-amber-900/30',
+      gradientFrom: 'from-amber-400',
+      gradientTo: 'to-amber-500',
+      estimate: '~60 seconds',
     },
   };
 
   const config = stageConfig[stage];
   const Icon = config.icon;
 
+  const formatTime = (s: number) => {
+    if (s < 60) return `${s}s`;
+    return `${Math.floor(s / 60)}m ${s % 60}s`;
+  };
+
+  // Stage progression indicators
+  const stages = ['uploading', 'processing', 'analyzing', 'visualizing'] as const;
+  const stageLabels = ['Upload', 'Process', 'Analyze', 'Render'];
+  const currentStageIndex = stages.indexOf(stage as any);
+
   return (
     <div className={`text-center space-y-6 ${className}`}>
       {/* Animated Icon */}
-      <div className={`mx-auto w-20 h-20 ${config.bgColor} flex items-center justify-center`}>
+      <div className={`mx-auto w-20 h-20 ${config.bgColor} flex items-center justify-center relative`}>
         <Icon className={`w-10 h-10 ${config.color} animate-pulse`} />
+        {/* Orbiting dot */}
+        <div className="absolute inset-0 animate-[spin_3s_linear_infinite]">
+          <div className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 ${config.bgColor} ${config.color}`}>
+            <div className={`w-2 h-2 ${config.color === 'text-emerald-500' ? 'bg-emerald-500' : config.color === 'text-amber-500' ? 'bg-amber-500' : config.color === 'text-blue-500' ? 'bg-blue-500' : 'bg-purple-500'}`} />
+          </div>
+        </div>
       </div>
 
       {/* Stage Message */}
@@ -222,31 +278,64 @@ export function AnalysisLoading({ stage, progress = 0, className = '' }: Analysi
           {config.message}{dots}
         </h3>
         <p className="text-sm text-stone-500 dark:text-stone-400">
-          This may take a few moments
+          {config.detail}
         </p>
+      </div>
+
+      {/* Stage progression */}
+      <div className="flex items-center justify-center gap-1 max-w-xs mx-auto">
+        {stageLabels.map((label, i) => (
+          <div key={label} className="flex items-center gap-1 flex-1">
+            <div className={`h-1 flex-1 transition-all duration-500 ${
+              i < currentStageIndex ? 'bg-emerald-500' :
+              i === currentStageIndex ? `bg-gradient-to-r ${config.gradientFrom} ${config.gradientTo}` :
+              'bg-stone-200 dark:bg-stone-700'
+            }`} />
+          </div>
+        ))}
+      </div>
+      <div className="flex justify-between max-w-xs mx-auto">
+        {stageLabels.map((label, i) => (
+          <span key={label} className={`text-[10px] font-medium uppercase tracking-wide ${
+            i <= currentStageIndex ? 'text-stone-600 dark:text-stone-300' : 'text-stone-300 dark:text-stone-600'
+          }`}>{label}</span>
+        ))}
       </div>
 
       {/* Progress Bar */}
       {progress > 0 && (
         <div className="w-full max-w-xs mx-auto">
-          <div className="w-full bg-stone-200 dark:bg-stone-700 h-2">
+          <div className="w-full bg-stone-200 dark:bg-stone-700 h-1.5 overflow-hidden">
             <div 
-              className={`h-2 transition-all duration-500 ease-out bg-gradient-to-r ${
-                stage === 'uploading' ? 'from-blue-400 to-blue-500' :
-                stage === 'processing' ? 'from-purple-400 to-purple-500' :
-                stage === 'analyzing' ? 'from-emerald-400 to-emerald-500' :
-                'from-amber-400 to-amber-500'
-              }`}
+              className={`h-1.5 transition-all duration-500 ease-out bg-gradient-to-r ${config.gradientFrom} ${config.gradientTo} relative`}
               style={{ width: `${Math.min(progress, 100)}%` }}
-            />
+            >
+              {/* Shimmer on progress bar */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[shimmer_1.5s_infinite]" />
+            </div>
           </div>
-          <p className="text-xs text-stone-500 dark:text-stone-400 text-center mt-1">
-            {Math.round(progress)}%
-          </p>
+          <div className="flex justify-between items-center mt-2">
+            <p className="text-xs text-stone-500 dark:text-stone-400">
+              {Math.round(progress)}%
+            </p>
+            <p className="text-xs text-stone-400 dark:text-stone-500">
+              {formatTime(elapsed)} elapsed
+            </p>
+          </div>
         </div>
       )}
 
-      {/* Breathing animation for the container */}
+      {/* Estimated time */}
+      <p className="text-xs text-stone-400 dark:text-stone-500">
+        Estimated: {config.estimate}
+      </p>
+
+      {/* Rotating tips */}
+      <div className="max-w-sm mx-auto min-h-[3rem]">
+        <p className="text-xs text-stone-400 dark:text-stone-500 italic leading-relaxed transition-opacity duration-500">
+          {STAGE_TIPS[tipIndex]}
+        </p>
+      </div>
     </div>
   );
 }
@@ -373,7 +462,6 @@ export function FadeInImage({
   );
 }
 
-// Add shimmer keyframe to global styles
 export const shimmerCSS = `
   @keyframes shimmer {
     100% {

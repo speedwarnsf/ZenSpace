@@ -24,6 +24,7 @@ const RoomManager = lazy(() => import('./components/RoomManager'));
 const UpgradePrompt = lazy(() => import('./components/UpgradePrompt').then(m => ({ default: m.UpgradePrompt })));
 const PricingPage = lazy(() => import('./components/PricingPage').then(m => ({ default: m.PricingPage })));
 const AuthGate = lazy(() => import('./components/AuthGate').then(m => ({ default: m.AuthGate })));
+const SharePage = lazy(() => import('./components/SharePage').then(m => ({ default: m.SharePage })));
 import { 
   analyzeImage, 
   createChatSession, 
@@ -1352,6 +1353,20 @@ function AppContent() {
  * Main App component with all production enhancements
  */
 export default function App() {
+  // Handle /share/:id routes for public design links
+  const path = typeof window !== 'undefined' ? window.location.pathname : '';
+  const shareMatch = path.match(/^\/share\/(.+)$/);
+  
+  if (shareMatch) {
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={<div className="min-h-screen bg-stone-50 dark:bg-stone-900 flex items-center justify-center"><div className="animate-pulse text-stone-400">Loading...</div></div>}>
+          <SharePage shareId={shareMatch[1]!} />
+        </Suspense>
+      </ErrorBoundary>
+    );
+  }
+
   return (
     <ErrorBoundary>
       <AuthProvider>

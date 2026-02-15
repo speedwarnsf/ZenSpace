@@ -169,16 +169,22 @@ const LookbookCard = memo(function LookbookCard({
         {isSharing ? <Loader2 className="w-4 h-4 animate-spin" /> : <SoIcon name="share" size={16} style={{ filter: 'brightness(0) invert(1)' }} />}
       </button>
 
-      {/* Image */}
-      <div className="aspect-[4/3] bg-stone-100 dark:bg-stone-700 overflow-hidden">
+      {/* Image with hover zoom */}
+      <div className="aspect-[4/3] bg-stone-100 dark:bg-stone-700 overflow-hidden relative">
         {entry.option.visualizationImage ? (
-          <img
-            src={`data:image/png;base64,${entry.option.visualizationImage}`}
-            alt={entry.option.name}
-            className="w-full h-full object-cover"
-            loading="lazy"
-            draggable={false}
-          />
+          <>
+            <img
+              src={`data:image/png;base64,${entry.option.visualizationImage}`}
+              alt={entry.option.name}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+              draggable={false}
+            />
+            {/* Hover overlay with quick info */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none flex items-end p-3">
+              <span className="text-white text-xs font-medium tracking-wide uppercase">Tap to explore</span>
+            </div>
+          </>
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-stone-100 to-stone-200 dark:from-stone-700 dark:to-stone-800">
             <div className="text-center text-stone-400 dark:text-stone-500">
@@ -727,16 +733,16 @@ export function Lookbook({ entries, onRate, onSelectForIteration, onGenerateMore
         </motion.div>
       )}
 
-      {/* Cards grid */}
+      {/* Cards grid — responsive masonry */}
       <motion.div
         layout
-        className="columns-1 sm:columns-2 xl:columns-3 gap-4 sm:gap-6 space-y-4 sm:space-y-6"
+        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 lg:gap-6"
         role="feed"
         aria-label="Design lookbook cards"
       >
         <AnimatePresence mode="popLayout">
           {sortedEntries.map(entry => (
-            <div key={entry.id} className="break-inside-avoid" ref={(el) => { if (el) cardRefs.current.set(entry.id, el); }}>
+            <div key={entry.id} ref={(el) => { if (el) cardRefs.current.set(entry.id, el); }}>
               <LookbookCard
                 entry={entry}
                 onRate={onRate}

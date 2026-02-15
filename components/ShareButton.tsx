@@ -1,9 +1,15 @@
 import { useState, useCallback } from 'react';
-import { Share2, Copy, Check, Twitter, MessageCircle } from 'lucide-react';
+import { Share2, Copy, Check, Twitter, MessageCircle, Link2, Loader2 } from 'lucide-react';
+import { supabase } from '../services/auth';
 
 interface ShareButtonProps {
   analysis: string;
   roomType?: string;
+  designName?: string;
+  designMood?: string;
+  palette?: string[];
+  keyChanges?: string[];
+  visualizationThumb?: string;
   onShare?: () => void;
 }
 
@@ -15,173 +21,213 @@ interface ShareOption {
 }
 
 /**
- * Share button component with multiple sharing options
- * Uses Web Share API on supported platforms, falls back to clipboard/social links
+ * Share button with public link generation + social sharing
  */
-export function ShareButton({ analysis, roomType = 'room', onShare }: ShareButtonProps) {
+export function ShareButton({ 
+  analysis, 
+  roomType = 'room', 
+  designName,
+  designMood,
+  palette,
+  keyChanges,
+  visualizationThumb,
+  onShare 
+}: ShareButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [isCreatingLink, setIsCreatingLink] = useState(false);
 
-  // Generate a shareable summary from the analysis
   const generateSummary = useCallback((): string => {
-    // Extract first meaningful paragraph or create a default summary
+    if (designName && designMood) {
+      return `${designName}: ${designMood}`;
+    }
     const lines = analysis.split('\n').filter(line => line.trim().length > 0);
-    
-    // Find the first substantial line (not a header)
     const summaryLine = lines.find(line => 
-      !line.startsWith('#') && 
-      !line.startsWith('**') && 
-      line.length > 50
+      !line.startsWith('#') && !line.startsWith('**') && line.length > 50
     ) || `I just organized my ${roomType} with ZenSpace`;
-    
-    // Truncate if too long
-    const truncated = summaryLine.length > 200 
-      ? summaryLine.substring(0, 197) + '...'
-      : summaryLine;
-    
-    return truncated;
-  }, [analysis, roomType]);
+    return summaryLine.length > 200 ? summaryLine.substring(0, 197) + '...' : summaryLine;
+  }, [analysis, roomType, designName, designMood]);
 
-  // Generate full shareable text
-  const generateShareText = useCallback((): string => {
+  const generateShareText = useCallback((url?: string): string => {
     const summary = generateSummary();
-    return `${summary}\n\nGet your personalized organization plan: https://dustyork.com/zenspace`;
+    const link = url || 'https://zenspace.design';
+    return `${summary}\n\nDesigned with ZenSpace: ${link}`;
   }, [generateSummary]);
 
-  // Check if Web Share API is available
-  const canUseWebShare = typeof navigator !== 'undefined' && 
-    'share' in navigator && 
-    typeof navigator.share === 'function';
+  // Create a public share link via Supabase
+  const createShareLink = useCallback(async (): Promise<string> => {
+    if (shareUrl) return shareUrl;
+    
+    setIsCreatingLink(true);
+    try {
+      const shareId = `s_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+      
+      const { error } = await supabase
+        .from('shared_designs')
+        .insert({
+          share_id: shareId,
+          design_name: designName || 'Room Design',
+          mood: designMood || generateSummary(),
+          palette: palette || [],
+          key_changes: keyChanges || [],
+          visualization_thumb: visualizationThumb || null,
+          created_at: new Date().toISOString(),
+        });
+      
+      if (error) {
+        console.warn('Failed to create share link, using fallback:', error);
+        return 'https://zenspace.design';
+      }
+      
+      const url = `https://zenspace.design/share/${shareId}`;
+      setShareUrl(url);
+      return url;
+    } catch {
+      return 'https://zenspace.design';
+    } finally {
+      setIsCreatingLink(false);
+    }
+  }, [shareUrl, designName, designMood, palette, keyChanges, visualizationThumb, generateSummary]);
 
-  // Native share (mobile)
+  const canUseWebShare = typeof navigator !== 'undefined' && 
+    'share' in navigator && typeof navigator.share === 'function';
+
   const handleNativeShare = useCallback(async () => {
     if (!canUseWebShare) return;
-    
     setIsSharing(true);
     try {
+      const url = await createShareLink();
       await navigator.share({
-        title: 'My ZenSpace Room Analysis',
-        text: generateShareText(),
-        url: 'https://dustyork.com/zenspace'
+        title: designName ? `${designName} -- ZenSpace Design` : 'My ZenSpace Room Analysis',
+        text: generateShareText(url),
+        url,
       });
       onShare?.();
     } catch (err) {
-      // User cancelled or share failed
-      if ((err as Error).name !== 'AbortError') {
-        console.error('Share failed:', err);
-      }
+      if ((err as Error).name !== 'AbortError') console.error('Share failed:', err);
     } finally {
       setIsSharing(false);
       setIsOpen(false);
     }
-  }, [canUseWebShare, generateShareText, onShare]);
+  }, [canUseWebShare, createShareLink, generateShareText, onShare, designName]);
 
-  // Copy to clipboard
   const handleCopyLink = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(generateShareText());
+      const url = await createShareLink();
+      await navigator.clipboard.writeText(url);
       setCopied(true);
       onShare?.();
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Copy failed:', err);
+      // Fallback: copy share text
+      await navigator.clipboard.writeText(generateShareText());
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
     setIsOpen(false);
-  }, [generateShareText, onShare]);
+  }, [createShareLink, generateShareText, onShare]);
 
-  // Share to Twitter/X
-  const handleTwitterShare = useCallback(() => {
-    const text = encodeURIComponent(generateSummary() + ' #ZenSpace #Organization');
-    const url = encodeURIComponent('https://dustyork.com/zenspace');
-    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'width=600,height=400');
+  const handleTwitterShare = useCallback(async () => {
+    const url = await createShareLink();
+    const text = encodeURIComponent(generateSummary() + ' #ZenSpace #InteriorDesign');
+    const encodedUrl = encodeURIComponent(url);
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodedUrl}`, '_blank', 'width=600,height=400');
     onShare?.();
     setIsOpen(false);
-  }, [generateSummary, onShare]);
+  }, [createShareLink, generateSummary, onShare]);
 
-  // Share via SMS/iMessage
-  const handleSMSShare = useCallback(() => {
-    const body = encodeURIComponent(generateShareText());
+  const handleSMSShare = useCallback(async () => {
+    const url = await createShareLink();
+    const body = encodeURIComponent(generateShareText(url));
     window.open(`sms:?&body=${body}`, '_self');
     onShare?.();
     setIsOpen(false);
-  }, [generateShareText, onShare]);
+  }, [createShareLink, generateShareText, onShare]);
 
-  // Define share options
   const shareOptions: ShareOption[] = [
     {
+      id: 'link',
+      label: copied ? 'Link Copied' : 'Copy Link',
+      icon: copied ? Check : Link2,
+      action: handleCopyLink,
+    },
+    {
       id: 'copy',
-      label: copied ? 'Copied!' : 'Copy Link',
-      icon: copied ? Check : Copy,
-      action: handleCopyLink
+      label: 'Copy Text',
+      icon: Copy,
+      action: async () => {
+        await navigator.clipboard.writeText(generateShareText());
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        setIsOpen(false);
+      },
     },
     {
       id: 'twitter',
       label: 'Share on X',
       icon: Twitter,
-      action: async () => handleTwitterShare()
+      action: handleTwitterShare,
     },
     {
       id: 'sms',
       label: 'Text Message',
       icon: MessageCircle,
-      action: async () => handleSMSShare()
-    }
+      action: handleSMSShare,
+    },
   ];
 
-  // On mobile with Web Share API, use native share directly
   if (canUseWebShare) {
     return (
       <button
         onClick={handleNativeShare}
         disabled={isSharing}
-        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50"
-        aria-label="Share analysis results"
+        className="flex items-center gap-2 px-3 sm:px-4 py-2 text-sm font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50"
+        aria-label="Share design"
       >
-        <Share2 className="w-4 h-4" aria-hidden="true" />
-        <span>Share</span>
+        {isSharing || isCreatingLink ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <Share2 className="w-4 h-4" aria-hidden="true" />
+        )}
+        <span className="hidden sm:inline">Share</span>
       </button>
     );
   }
 
-  // Desktop: show dropdown menu
   return (
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-        aria-label="Share analysis results"
+        className="flex items-center gap-2 px-3 sm:px-4 py-2 text-sm font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+        aria-label="Share design"
         aria-expanded={isOpen}
         aria-haspopup="menu"
       >
-        <Share2 className="w-4 h-4" aria-hidden="true" />
-        <span>Share</span>
+        {isCreatingLink ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <Share2 className="w-4 h-4" aria-hidden="true" />
+        )}
+        <span className="hidden sm:inline">Share</span>
       </button>
 
-      {/* Dropdown menu */}
       {isOpen && (
         <>
-          {/* Backdrop */}
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} aria-hidden="true" />
           <div 
-            className="fixed inset-0 z-40" 
-            onClick={() => setIsOpen(false)}
-            aria-hidden="true"
-          />
-          
-          {/* Menu */}
-          <div 
-            className="absolute right-0 mt-2 w-48 bg-white shadow-lg border border-stone-200 py-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+            className="absolute right-0 mt-2 w-48 bg-white dark:bg-stone-800 shadow-lg border border-stone-200 dark:border-stone-700 py-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
             role="menu"
-            aria-orientation="vertical"
           >
             {shareOptions.map((option) => (
               <button
                 key={option.id}
                 onClick={() => option.action()}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-stone-700 hover:bg-stone-50 transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors"
                 role="menuitem"
               >
-                <option.icon className="w-4 h-4 text-stone-500" aria-hidden="true" />
+                <option.icon className="w-4 h-4 text-stone-500 dark:text-stone-400" aria-hidden="true" />
                 <span>{option.label}</span>
               </button>
             ))}
