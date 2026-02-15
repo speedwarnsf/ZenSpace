@@ -560,6 +560,32 @@ WRITING RULES: Short sentences. Punchy. One adjective per noun max. No banned wo
 Return ONLY valid JSON: { "name": "...", "mood": "...", "frameworks": [...], "palette": [...], "key_changes": [...], "full_plan": "...", "visualization_prompt": "...", "products": [{ "name", "brand", "category", "price_range", "description", "search_query" }, ...] }`;
 }
 
+/**
+ * Build a style consistency clause for project-level generation.
+ * When generating a new room in a project, reference existing room styles
+ * so the AI keeps material, palette, and mood coherent.
+ */
+export function buildProjectStyleContext(styleGuide: {
+  description: string;
+  palette: string[];
+  materials: string[];
+  referenceDesignNames: string[];
+}): string {
+  const parts: string[] = [];
+  parts.push(`PROJECT STYLE GUIDE — this room is part of a multi-room project. Maintain visual consistency.`);
+  parts.push(`Style direction: ${styleGuide.description}`);
+  if (styleGuide.palette.length > 0) {
+    parts.push(`Shared palette: ${styleGuide.palette.join(', ')} — use these as anchors, allow room-specific accents.`);
+  }
+  if (styleGuide.materials.length > 0) {
+    parts.push(`Shared materials/finishes: ${styleGuide.materials.join(', ')}`);
+  }
+  if (styleGuide.referenceDesignNames.length > 0) {
+    parts.push(`Sibling room designs: ${styleGuide.referenceDesignNames.map(n => `"${n}"`).join(', ')} — complement these, don't repeat them.`);
+  }
+  return parts.join('\n');
+}
+
 export default {
   createAnalysisPrompt,
   createVisualizationPrompt,
@@ -567,5 +593,6 @@ export default {
   enhanceProductRecommendations,
   errorRecoveryPrompts,
   validatePromptResponse,
-  promptVariants
+  promptVariants,
+  buildProjectStyleContext,
 };

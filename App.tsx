@@ -7,7 +7,7 @@ import { AnalysisLoading } from './components/EnhancedLoadingSkeleton';
 import { AccessibilityProvider, AccessibilityToolbar, SkipNavigation, useAccessibility } from './components/AccessibilityFeatures';
 import { AuthProvider, useAuth } from './components/AuthProvider';
 import { UserMenu } from './components/UserMenu';
-import { canGenerate, canIterate, canAccessStudio, canSaveRoom, canExport, getGateMessage } from './services/gating';
+import { canGenerate, canIterate, canAccessStudio, canSaveRoom, canExport, canCreateProject, getGateMessage } from './services/gating';
 import { incrementFreeUsage } from './services/subscription';
 
 // Lazy-loaded components (code splitting)
@@ -22,6 +22,7 @@ const Lookbook = lazy(() => import('./components/Lookbook'));
 const DesignStudio = lazy(() => import('./components/DesignStudio'));
 const RoomManager = lazy(() => import('./components/RoomManager'));
 const UpgradePrompt = lazy(() => import('./components/UpgradePrompt').then(m => ({ default: m.UpgradePrompt })));
+const ProjectManager = lazy(() => import('./components/ProjectManager').then(m => ({ default: m.ProjectManager })));
 const PricingPage = lazy(() => import('./components/PricingPage').then(m => ({ default: m.PricingPage })));
 const AuthGate = lazy(() => import('./components/AuthGate').then(m => ({ default: m.AuthGate })));
 const SharePage = lazy(() => import('./components/SharePage').then(m => ({ default: m.SharePage })));
@@ -49,7 +50,7 @@ import { generateShoppingList, shoppingListFromProducts } from './services/shopp
 import { Chat } from '@google/genai';
 import { ModeSelect, type DesignPreferences } from './components/ModeSelect';
 import { DESIGN_STYLES, ROOM_FUNCTIONS } from './components/PreferencesPanel';
-import { LayoutGrid, ArrowLeft, AlertCircle, RefreshCw, WifiOff, Clock, Home, Camera, Palette, Wand2 } from 'lucide-react';
+import { LayoutGrid, ArrowLeft, AlertCircle, RefreshCw, WifiOff, Clock, Home, Camera, Palette, Wand2, FolderOpen } from 'lucide-react';
 
 /**
  * Main application component wrapper with enhanced providers
@@ -969,6 +970,24 @@ function AppContent() {
               </button>
             )}
 
+            {/* Projects */}
+            {(appState === AppState.HOME || appState === AppState.ROOMS || appState === AppState.RESULTS) && (
+              <button
+                onClick={() => {
+                  if (!canCreateProject(userTier)) {
+                    setShowUpgradePrompt('project');
+                    return;
+                  }
+                  setAppState(AppState.PROJECTS);
+                }}
+                className="p-2 text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                title="Projects"
+              >
+                <FolderOpen className="w-4 h-4" />
+                <span className="hidden sm:inline">Projects</span>
+              </button>
+            )}
+
             {/* Save Room — only on results with a design selected */}
             {appState === AppState.RESULTS && designAnalysis && selectedDesignIndex !== null && uploadedImage && (
               <button
@@ -1180,6 +1199,20 @@ function AppContent() {
                 setAppState(AppState.DESIGN_STUDIO);
               }}
               onBack={() => setAppState(AppState.HOME)}
+            />
+          </Suspense>
+          </ErrorBoundary>
+        )}
+
+        {/* Projects State */}
+        {appState === AppState.PROJECTS && (
+          <ErrorBoundary>
+          <Suspense fallback={null}>
+            <ProjectManager
+              onBack={() => setAppState(AppState.HOME)}
+              onOpenRoom={(_roomId) => {
+                setAppState(AppState.ROOMS);
+              }}
             />
           </Suspense>
           </ErrorBoundary>

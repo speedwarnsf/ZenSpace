@@ -177,6 +177,48 @@ export interface House {
   createdAt: number;
 }
 
+/**
+ * A project grouping multiple rooms for coordinated design
+ */
+export interface Project {
+  id: string;
+  name: string;
+  description?: string;
+  roomIds: string[];
+  /** Style guide for consistency across rooms */
+  styleGuide?: ProjectStyleGuide;
+  notes: string;
+  budget: ProjectBudget;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface ProjectStyleGuide {
+  /** Summary of the shared style direction */
+  description: string;
+  /** Shared palette across rooms */
+  palette: string[];
+  /** Material/finish keywords for consistency */
+  materials: string[];
+  /** Reference design names from existing rooms */
+  referenceDesignNames: string[];
+}
+
+export interface ProjectBudget {
+  total: number;
+  spent: number;
+  currency: string;
+  items: ProjectBudgetItem[];
+}
+
+export interface ProjectBudgetItem {
+  id: string;
+  roomId?: string;
+  description: string;
+  amount: number;
+  purchased: boolean;
+}
+
 export enum AppState {
   /** Initial state - waiting for image upload */
   HOME = 'HOME',
@@ -194,6 +236,8 @@ export enum AppState {
   RESULTS = 'RESULTS',
   /** Deep-dive editorial view for a single design */
   DESIGN_STUDIO = 'DESIGN_STUDIO',
+  /** Project overview */
+  PROJECTS = 'PROJECTS',
   /** An error occurred */
   ERROR = 'ERROR'
 }
