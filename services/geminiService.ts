@@ -1,4 +1,6 @@
-import { Type, Modality } from "@google/genai";
+// Inline enum values to avoid bundling the full @google/genai SDK client-side
+const Type = { STRING: 'STRING', NUMBER: 'NUMBER', INTEGER: 'INTEGER', BOOLEAN: 'BOOLEAN', ARRAY: 'ARRAY', OBJECT: 'OBJECT' } as const;
+const Modality = { TEXT: 'TEXT', IMAGE: 'IMAGE', AUDIO: 'AUDIO' } as const;
 import { AnalysisResult, ProductSuggestion, DesignAnalysis, DesignOption, DesignFramework } from '../types';
 import { createAnalysisPrompt, createChatContextPrompt, createDesignAnalysisPrompt, createIterationPrompt } from './promptTemplates';
 import { createTimeoutHandler } from './edgeCaseHandlers';

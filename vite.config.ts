@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => {
             manualChunks: {
               // Separate vendor chunks
               'vendor-react': ['react', 'react-dom'],
-              'vendor-gemini': ['@google/genai'],
+              // @google/genai no longer bundled client-side
               'vendor-icons': ['lucide-react'],
               'vendor-motion': ['framer-motion'],
               'vendor-markdown': ['react-markdown'],

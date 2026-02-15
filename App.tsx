@@ -49,7 +49,8 @@ import { getErrorMessage } from './services/errorMessages';
 import { validateChatMessage } from './services/validation';
 import { AnalysisResult, AppState, ChatMessage, AppError, UploadedImage, DesignAnalysis, DesignOption, ShoppingListData, FlowMode, LookbookEntry, DesignRating } from './types';
 import { generateShoppingList, shoppingListFromProducts } from './services/shoppingListGenerator';
-import { Chat } from '@google/genai';
+// Avoid importing @google/genai client-side just for a type
+type Chat = any;
 import { ModeSelect, type DesignPreferences } from './components/ModeSelect';
 import { DESIGN_STYLES, ROOM_FUNCTIONS } from './components/PreferencesPanel';
 import { LayoutGrid, ArrowLeft, AlertCircle, RefreshCw, WifiOff, Clock, Home, Camera, Palette, Wand2, FolderOpen, TrendingUp } from 'lucide-react';
