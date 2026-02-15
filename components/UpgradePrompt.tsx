@@ -27,10 +27,15 @@ export function UpgradePrompt({ message, onUpgrade, onDismiss, onSignIn }: Upgra
           <Sparkles className="w-6 h-6 text-emerald-400" />
         </div>
 
-        <p className="text-stone-300 text-sm mb-2">{message}</p>
-        <p className="text-white font-medium mb-6">
-          Unlock unlimited designs, iterations, and more
-        </p>
+        <p className="text-stone-300 text-sm mb-4">{message}</p>
+        <div className="text-left space-y-2 mb-6 border-t border-stone-700 pt-4">
+          <p className="text-xs font-bold uppercase tracking-widest text-stone-500 mb-2">Pro includes</p>
+          <p className="text-sm text-stone-300">50 designs / month</p>
+          <p className="text-sm text-stone-300">100 iterations / month</p>
+          <p className="text-sm text-stone-300">Design Studio access</p>
+          <p className="text-sm text-stone-300">10 saved rooms</p>
+          <p className="text-sm text-stone-300">PDF export and high-res downloads</p>
+        </div>
 
         <button
           onClick={onUpgrade}

@@ -1,5 +1,5 @@
 /**
- * UserMenu — Avatar/menu in header for logged-in users, Pro badge
+ * UserMenu — Avatar/menu in header for logged-in users, Pro badge, usage indicator
  */
 
 import { useState, useRef, useEffect } from 'react';
@@ -24,18 +24,33 @@ export function UserMenu({ onOpenPricing, onOpenAuth }: UserMenuProps) {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  const remaining = userTier.generationsLimit - userTier.generationsUsed;
+
   if (!user) {
     return (
-      <button
-        onClick={() => {
-          if (onOpenAuth) onOpenAuth();
-          else onOpenPricing();
-        }}
-        className="fixed bottom-5 right-5 z-40 w-10 h-10 bg-stone-800/80 dark:bg-stone-700/80 backdrop-blur-sm border border-stone-600/50 flex items-center justify-center text-stone-400 hover:text-white hover:bg-stone-700 dark:hover:bg-stone-600 transition-all shadow-lg"
-        aria-label="Sign in"
-      >
-        <UserIcon className="w-4 h-4" />
-      </button>
+      <div className="flex items-center gap-2">
+        {/* Usage indicator for anonymous users */}
+        {userTier.tier === 'free' && (
+          <button
+            onClick={onOpenPricing}
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors"
+            title={`${remaining} free design${remaining === 1 ? '' : 's'} remaining`}
+          >
+            <span className={remaining <= 1 ? 'text-amber-500' : 'text-emerald-500'}>{remaining}</span>
+            <span>/ {userTier.generationsLimit} free</span>
+          </button>
+        )}
+        <button
+          onClick={() => {
+            if (onOpenAuth) onOpenAuth();
+            else onOpenPricing();
+          }}
+          className="fixed bottom-5 right-5 z-40 w-10 h-10 bg-stone-800/80 dark:bg-stone-700/80 backdrop-blur-sm border border-stone-600/50 flex items-center justify-center text-stone-400 hover:text-white hover:bg-stone-700 dark:hover:bg-stone-600 transition-all shadow-lg"
+          aria-label="Sign in"
+        >
+          <UserIcon className="w-4 h-4" />
+        </button>
+      </div>
     );
   }
 
@@ -70,10 +85,35 @@ export function UserMenu({ onOpenPricing, onOpenAuth }: UserMenuProps) {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-48 bg-stone-800 border border-stone-700 shadow-xl py-1 z-50">
+        <div className="absolute right-0 mt-2 w-56 bg-stone-800 border border-stone-700 shadow-xl py-1 z-50">
           <div className="px-4 py-2 border-b border-stone-700">
             <p className="text-sm text-white font-medium truncate">{user.user_metadata?.full_name || 'User'}</p>
             <p className="text-xs text-stone-400 truncate">{user.email}</p>
+          </div>
+          {/* Usage stats */}
+          <div className="px-4 py-2 border-b border-stone-700 space-y-1.5">
+            <div className="flex justify-between text-xs">
+              <span className="text-stone-400">Designs</span>
+              <span className="text-stone-300">{userTier.generationsUsed} / {userTier.generationsLimit}</span>
+            </div>
+            <div className="w-full h-1 bg-stone-700">
+              <div
+                className={`h-full transition-all ${userTier.generationsUsed >= userTier.generationsLimit ? 'bg-red-500' : 'bg-emerald-500'}`}
+                style={{ width: `${Math.min(100, (userTier.generationsUsed / userTier.generationsLimit) * 100)}%` }}
+              />
+            </div>
+            {userTier.tier === 'pro' && (
+              <>
+                <div className="flex justify-between text-xs">
+                  <span className="text-stone-400">Iterations</span>
+                  <span className="text-stone-300">{userTier.iterationsUsed} / {userTier.iterationsLimit}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-stone-400">Rooms</span>
+                  <span className="text-stone-300">{userTier.roomsUsed} / {userTier.roomsLimit}</span>
+                </div>
+              </>
+            )}
           </div>
           {userTier.tier === 'free' && (
             <button

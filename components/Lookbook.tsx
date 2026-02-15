@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useRef, memo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { Loader2, ChevronDown, ChevronUp, Home, Palette, Sun, Layers, Lightbulb } from 'lucide-react';
+import { Loader2, ChevronDown, ChevronUp, Home, Palette, Sun, Layers, Lightbulb, Crown } from 'lucide-react';
 import { SoIcon } from './SoIcon';
 import { captureShareableCard, shareCard, downloadCard } from '../services/shareService';
 import { createRoot } from 'react-dom/client';
@@ -278,7 +278,7 @@ const LookbookCard = memo(function LookbookCard({
             onClick={(e) => { e.stopPropagation(); onSelectForIteration(entry.id); }}
             className="w-full py-2 text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white transition-colors flex items-center justify-center gap-2"
           >
-            <SoIcon name="eye" size={16} style={{ filter: 'brightness(0) invert(1)' }} />
+            <Crown className="w-3.5 h-3.5" />
             Go Deeper
           </motion.button>
         )}

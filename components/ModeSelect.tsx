@@ -1,4 +1,5 @@
-import { Sparkles, Palette } from 'lucide-react';
+import { Sparkles, Palette, Crown } from 'lucide-react';
+import { useAuth } from './AuthProvider';
 import type { FlowMode } from '../types';
 
 interface ModeSelectProps {
@@ -7,6 +8,9 @@ interface ModeSelectProps {
 }
 
 export function ModeSelect({ onSelectMode, uploadedImage }: ModeSelectProps) {
+  const { userTier } = useAuth();
+  const remaining = userTier.generationsLimit - userTier.generationsUsed;
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Thumbnail */}
@@ -23,9 +27,23 @@ export function ModeSelect({ onSelectMode, uploadedImage }: ModeSelectProps) {
       <h2 className="text-3xl md:text-4xl font-bold text-stone-900 dark:text-stone-100 text-center mb-3 font-serif">
         What would you like to do?
       </h2>
-      <p className="text-stone-500 dark:text-stone-400 text-center mb-10 max-w-md">
+      <p className="text-stone-500 dark:text-stone-400 text-center mb-4 max-w-md">
         Choose a path for your space
       </p>
+
+      {/* Usage indicator */}
+      {userTier.tier === 'free' && (
+        <p className="text-xs text-stone-400 dark:text-stone-500 mb-8">
+          {remaining > 0
+            ? `${remaining} free design${remaining === 1 ? '' : 's'} remaining`
+            : 'No free designs remaining — upgrade to continue'}
+        </p>
+      )}
+      {userTier.tier === 'pro' && (
+        <p className="text-xs text-emerald-500 dark:text-emerald-400 mb-8 flex items-center gap-1">
+          <Crown className="w-3 h-3" /> Pro — unlimited designs
+        </p>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-2xl">
         {/* Clean My Space */}
@@ -39,9 +57,12 @@ export function ModeSelect({ onSelectMode, uploadedImage }: ModeSelectProps) {
           <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100 font-serif mb-2">
             Clean My Space
           </h3>
-          <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed">
+          <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed mb-3">
             Step-by-step decluttering plan and organization tips
           </p>
+          <span className="inline-block text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5">
+            Included free
+          </span>
         </button>
 
         {/* Redesign My Space */}
@@ -55,11 +76,31 @@ export function ModeSelect({ onSelectMode, uploadedImage }: ModeSelectProps) {
           <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100 font-serif mb-2">
             Redesign My Space
           </h3>
-          <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed">
+          <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed mb-3">
             3 bold design directions grounded in design theory
           </p>
+          <span className="inline-block text-xs font-medium text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30 px-2 py-0.5">
+            Included free
+          </span>
         </button>
       </div>
+
+      {/* What's included hint */}
+      {userTier.tier === 'free' && (
+        <div className="mt-10 max-w-md w-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 p-4">
+          <h4 className="text-xs font-bold uppercase tracking-widest text-stone-400 dark:text-stone-500 mb-3">Free vs Pro</h4>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-xs">
+            <span className="text-stone-500 dark:text-stone-400">Designs</span>
+            <span className="text-stone-700 dark:text-stone-300">3 free, then Pro</span>
+            <span className="text-stone-500 dark:text-stone-400">Design Studio</span>
+            <span className="text-stone-700 dark:text-stone-300 flex items-center gap-1"><Crown className="w-3 h-3 text-emerald-500" /> Pro only</span>
+            <span className="text-stone-500 dark:text-stone-400">Saved rooms</span>
+            <span className="text-stone-700 dark:text-stone-300">1 free, 10 with Pro</span>
+            <span className="text-stone-500 dark:text-stone-400">PDF export</span>
+            <span className="text-stone-700 dark:text-stone-300 flex items-center gap-1"><Crown className="w-3 h-3 text-emerald-500" /> Pro only</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
