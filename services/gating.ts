@@ -51,6 +51,10 @@ export function canCreateProject(tier: UserTier): boolean {
   return tier.tier === 'pro';
 }
 
+export function canSaveToMoodBoard(tier: UserTier): boolean {
+  return tier.tier === 'pro';
+}
+
 export function getGateMessage(feature: string): string {
   const messages: Record<string, string> = {
     generate: "You've used your free designs. Upgrade to keep creating.",
@@ -59,6 +63,7 @@ export function getGateMessage(feature: string): string {
     export: 'PDF export and high-res downloads are Pro features.',
     studio: 'Design Studio is a Pro feature. Upgrade to iterate and refine.',
     project: 'Projects are a Pro feature. Upgrade to group rooms into coordinated projects.',
+    mood_board: 'Saving to mood boards is a Pro feature. Upgrade to collect your favorite inspiration.',
     default: 'This feature requires a Pro subscription.',
   };
   return messages[feature] || messages.default!;

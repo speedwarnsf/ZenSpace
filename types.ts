@@ -238,6 +238,8 @@ export enum AppState {
   DESIGN_STUDIO = 'DESIGN_STUDIO',
   /** Project overview */
   PROJECTS = 'PROJECTS',
+  /** Discover — design inspiration feed */
+  DISCOVER = 'DISCOVER',
   /** An error occurred */
   ERROR = 'ERROR'
 }

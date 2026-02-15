@@ -7,7 +7,7 @@ import { AnalysisLoading } from './components/EnhancedLoadingSkeleton';
 import { AccessibilityProvider, AccessibilityToolbar, SkipNavigation, useAccessibility } from './components/AccessibilityFeatures';
 import { AuthProvider, useAuth } from './components/AuthProvider';
 import { UserMenu } from './components/UserMenu';
-import { canGenerate, canIterate, canAccessStudio, canSaveRoom, canExport, canCreateProject, getGateMessage } from './services/gating';
+import { canGenerate, canIterate, canAccessStudio, canSaveRoom, canExport, canCreateProject, canSaveToMoodBoard, getGateMessage } from './services/gating';
 import { incrementFreeUsage } from './services/subscription';
 
 // Lazy-loaded components (code splitting)
@@ -26,6 +26,8 @@ const ProjectManager = lazy(() => import('./components/ProjectManager').then(m =
 const PricingPage = lazy(() => import('./components/PricingPage').then(m => ({ default: m.PricingPage })));
 const AuthGate = lazy(() => import('./components/AuthGate').then(m => ({ default: m.AuthGate })));
 const SharePage = lazy(() => import('./components/SharePage').then(m => ({ default: m.SharePage })));
+const DiscoverPage = lazy(() => import('./components/DiscoverPage'));
+import { TrendingStyles } from './components/TrendingStyles';
 import { 
   analyzeImage, 
   createChatSession, 
@@ -958,6 +960,18 @@ function AppContent() {
               </button>
             )}
 
+            {/* Discover */}
+            {(appState === AppState.HOME || appState === AppState.RESULTS || appState === AppState.MODE_SELECT || appState === AppState.LOOKBOOK) && (
+              <button
+                onClick={() => setAppState(AppState.DISCOVER)}
+                className="p-2 text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                title="Discover inspiration"
+              >
+                <Palette className="w-4 h-4" />
+                <span className="hidden sm:inline">Discover</span>
+              </button>
+            )}
+
             {/* My Rooms */}
             {(appState === AppState.HOME || appState === AppState.RESULTS || appState === AppState.MODE_SELECT || appState === AppState.LOOKBOOK) && (
               <button
@@ -1088,6 +1102,8 @@ function AppContent() {
                 Resume your lookbook
               </button>
             )}
+            <TrendingStyles onOpenDiscover={() => setAppState(AppState.DISCOVER)} />
+
             <div className="mt-16 grid grid-cols-3 gap-6 sm:gap-10 text-center max-w-3xl">
               {[
                 { icon: Camera, title: 'Snap', desc: 'Photo of your room', color: 'text-emerald-500' },
@@ -1213,6 +1229,18 @@ function AppContent() {
               onOpenRoom={(_roomId) => {
                 setAppState(AppState.ROOMS);
               }}
+            />
+          </Suspense>
+          </ErrorBoundary>
+        )}
+
+        {/* Discover State */}
+        {appState === AppState.DISCOVER && (
+          <ErrorBoundary>
+          <Suspense fallback={null}>
+            <DiscoverPage
+              onBack={() => setAppState(AppState.HOME)}
+              onShowUpgrade={(feature) => setShowUpgradePrompt(feature)}
             />
           </Suspense>
           </ErrorBoundary>
