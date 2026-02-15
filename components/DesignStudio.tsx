@@ -2,6 +2,7 @@ import { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { ArrowLeft, Download, Loader2, ShoppingCart } from 'lucide-react';
+import { DesignExportMenu } from './DesignExportMenu';
 import { ColorPalette } from './ColorPalette';
 import { DesignAnnotations, type Annotation } from './DesignAnnotations';
 import { RegenerateTweaks } from './RegenerateTweaks';
@@ -676,21 +677,7 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
             <ArrowLeft size={18} className="text-white" />
           </motion.button>
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => saveVisualization(entry)}
-              className="h-10 px-4 bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center gap-2 hover:bg-black/70 transition-colors text-xs uppercase tracking-widest text-neutral-300"
-            >
-              <Download size={16} className="text-neutral-300" />
-              <span className="hidden sm:inline">Image</span>
-            </button>
-            <button
-              onClick={async () => { setSavingPdf(true); try { await generatePDF(entry); } finally { setSavingPdf(false); } }}
-              disabled={savingPdf}
-              className="h-10 px-4 bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center gap-2 hover:bg-black/70 transition-colors text-xs uppercase tracking-widest text-neutral-300"
-            >
-              {savingPdf ? <Loader2 size={16} className="animate-spin text-neutral-300" /> : <Download size={16} className="text-neutral-300" />}
-              <span className="hidden sm:inline">PDF</span>
-            </button>
+            <DesignExportMenu entry={entry} sourceImage={sourceImage} compact />
             <button
               onClick={handleShare}
               disabled={sharing}
@@ -810,10 +797,11 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
           </RevealSection>
         </div>
 
-        {/* Save / Share bar */}
+        {/* Save / Share / Export bar */}
         <div className="max-w-5xl mx-auto px-6 sm:px-12 lg:px-20 pb-16">
           <RevealSection>
             <div className="flex flex-col sm:flex-row items-center gap-4 pt-8 pb-4">
+              <DesignExportMenu entry={entry} sourceImage={sourceImage} />
               <button
                 onClick={handleShare}
                 disabled={sharing}
@@ -822,14 +810,6 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
               >
                 <SoIcon name="share" size={16} style={{ filter: 'brightness(0) invert(0.7)' }} />
                 {sharing ? 'Sharing…' : 'Share This Design'}
-              </button>
-              <button
-                onClick={() => saveVisualization(entry)}
-                className="w-full sm:w-auto px-8 py-3 border border-neutral-700 text-sm text-neutral-300 hover:bg-neutral-900 hover:border-neutral-500 transition-all flex items-center justify-center gap-2"
-                style={{ fontFamily: tp.body }}
-              >
-                <Download size={16} className="text-neutral-400" />
-                Save Image
               </button>
             </div>
           </RevealSection>
