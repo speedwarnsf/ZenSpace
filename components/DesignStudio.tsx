@@ -2,6 +2,9 @@ import { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { ArrowLeft, Download, Loader2, ShoppingCart } from 'lucide-react';
+import { ColorPalette } from './ColorPalette';
+import { DesignAnnotations, type Annotation } from './DesignAnnotations';
+import { RegenerateTweaks } from './RegenerateTweaks';
 import { SoIcon } from './SoIcon';
 import { ProductShelf } from './ProductShelf';
 import { ShoppingList } from './ShoppingList';
@@ -555,6 +558,7 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
   const [savingPdf, setSavingPdf] = useState(false);
   const [shoppingList, setShoppingList] = useState<ShoppingListData | null>(null);
   const [shoppingListLoading, setShoppingListLoading] = useState(false);
+  const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const studioTopRef = useRef<HTMLDivElement>(null);
 
   // Infer type mood and load fonts
@@ -708,6 +712,58 @@ export function DesignStudio({ entry, onBack, onIterate, sourceImage }: DesignSt
 
         {/* Brief */}
         <StudioBrief entry={entry} tp={tp} accent={accent} />
+
+        {/* Color Palette Extractor */}
+        {entry.option.visualizationImage && (
+          <div className="max-w-5xl mx-auto px-6 sm:px-12 lg:px-20 pb-10">
+            <RevealSection>
+              <div className="border-t border-neutral-800/50 pt-10">
+                <h2
+                  className="text-[10px] uppercase tracking-[0.25em] text-neutral-600 mb-6"
+                  style={{ fontFamily: tp.body }}
+                >
+                  Extracted Colors
+                </h2>
+                <div className="[&_h4]:text-neutral-500 [&_span]:text-neutral-500 [&_button]:text-neutral-400 [&_button]:border-neutral-800 [&_button]:bg-neutral-900 [&_button:hover]:border-neutral-600">
+                  <ColorPalette imageBase64={entry.option.visualizationImage} />
+                </div>
+              </div>
+            </RevealSection>
+          </div>
+        )}
+
+        {/* Design Annotations */}
+        {entry.option.visualizationImage && (
+          <div className="max-w-5xl mx-auto px-6 sm:px-12 lg:px-20 pb-10">
+            <RevealSection>
+              <div className="border-t border-neutral-800/50 pt-10">
+                <div className="[&_h4]:text-neutral-500 [&_button]:text-neutral-300 [&>div>div:first-child_button:last-child]:bg-neutral-800 [&>div>div:first-child_button:last-child]:hover:bg-neutral-700 [&>div>div:first-child_button:last-child.bg-emerald-600]:bg-emerald-600">
+                  <DesignAnnotations
+                    imageBase64={entry.option.visualizationImage}
+                    annotations={annotations}
+                    onAnnotationsChange={setAnnotations}
+                  />
+                </div>
+              </div>
+            </RevealSection>
+          </div>
+        )}
+
+        {/* Regenerate with Tweaks */}
+        {onIterate && (
+          <div className="max-w-5xl mx-auto px-6 sm:px-12 lg:px-20 pb-10">
+            <RevealSection>
+              <div className="border-t border-neutral-800/50 pt-10">
+                <div className="[&_h4]:text-neutral-500 [&_p]:text-neutral-500 [&_button]:border-neutral-800 [&_button]:bg-neutral-900 [&_button]:text-neutral-300 [&_button:hover]:border-neutral-600 [&_input]:bg-neutral-900 [&_input]:border-neutral-800 [&_input]:text-neutral-200 [&_input]:placeholder-neutral-600">
+                  <RegenerateTweaks
+                    onTweak={handleIterate}
+                    designName={entry.option.name}
+                  />
+                </div>
+              </div>
+            </RevealSection>
+          </div>
+        )}
 
         {/* Iterate */}
         <StudioIterate

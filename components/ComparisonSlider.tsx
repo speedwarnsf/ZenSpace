@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 
 interface ComparisonSliderProps {
   beforeImage: string;
@@ -7,6 +7,7 @@ interface ComparisonSliderProps {
   beforeLabel?: string;
   afterLabel?: string;
   className?: string;
+  enableZoom?: boolean;
 }
 
 /**
@@ -19,12 +20,84 @@ export function ComparisonSlider({
   beforeLabel = 'Before',
   afterLabel = 'After',
   className = '',
+  enableZoom = false,
 }: ComparisonSliderProps) {
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState({ before: false, after: false });
+
+  // Zoom state
+  const [zoom, setZoom] = useState(1);
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const panStart = useRef({ x: 0, y: 0, offsetX: 0, offsetY: 0 });
+  const isZoomed = zoom > 1;
+
+  const handleZoomIn = useCallback(() => {
+    setZoom(prev => Math.min(prev + 0.5, 4));
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    setZoom(prev => {
+      const next = Math.max(prev - 0.5, 1);
+      if (next === 1) setPanOffset({ x: 0, y: 0 });
+      return next;
+    });
+  }, []);
+
+  const handleResetZoom = useCallback(() => {
+    setZoom(1);
+    setPanOffset({ x: 0, y: 0 });
+  }, []);
+
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    if (!enableZoom) return;
+    e.preventDefault();
+    if (e.deltaY < 0) {
+      setZoom(prev => Math.min(prev + 0.25, 4));
+    } else {
+      setZoom(prev => {
+        const next = Math.max(prev - 0.25, 1);
+        if (next === 1) setPanOffset({ x: 0, y: 0 });
+        return next;
+      });
+    }
+  }, [enableZoom]);
+
+  // Pan handlers for zoomed state
+  const handlePanStart = useCallback((clientX: number, clientY: number) => {
+    if (!isZoomed) return;
+    setIsPanning(true);
+    panStart.current = { x: clientX, y: clientY, offsetX: panOffset.x, offsetY: panOffset.y };
+  }, [isZoomed, panOffset]);
+
+  useEffect(() => {
+    if (!isPanning) return;
+    const handlePanMove = (e: MouseEvent | TouchEvent) => {
+      const clientX = 'touches' in e ? e.touches[0]!.clientX : e.clientX;
+      const clientY = 'touches' in e ? e.touches[0]!.clientY : e.clientY;
+      const dx = clientX - panStart.current.x;
+      const dy = clientY - panStart.current.y;
+      const maxPan = (zoom - 1) * 150;
+      setPanOffset({
+        x: Math.max(-maxPan, Math.min(maxPan, panStart.current.offsetX + dx)),
+        y: Math.max(-maxPan, Math.min(maxPan, panStart.current.offsetY + dy)),
+      });
+    };
+    const handlePanEnd = () => setIsPanning(false);
+    document.addEventListener('mousemove', handlePanMove);
+    document.addEventListener('mouseup', handlePanEnd);
+    document.addEventListener('touchmove', handlePanMove, { passive: true });
+    document.addEventListener('touchend', handlePanEnd);
+    return () => {
+      document.removeEventListener('mousemove', handlePanMove);
+      document.removeEventListener('mouseup', handlePanEnd);
+      document.removeEventListener('touchmove', handlePanMove);
+      document.removeEventListener('touchend', handlePanEnd);
+    };
+  }, [isPanning, zoom]);
 
   const handleMove = useCallback(
     (clientX: number) => {
@@ -40,16 +113,25 @@ export function ComparisonSlider({
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
+    if (isZoomed && e.shiftKey) {
+      handlePanStart(e.clientX, e.clientY);
+      return;
+    }
     setIsDragging(true);
     handleMove(e.clientX);
-  }, [handleMove]);
+  }, [handleMove, isZoomed, handlePanStart]);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (isZoomed && e.touches.length === 2) {
+      // Two-finger = pan
+      if (e.touches[0]) handlePanStart(e.touches[0].clientX, e.touches[0].clientY);
+      return;
+    }
     setIsDragging(true);
     if (e.touches[0]) {
       handleMove(e.touches[0].clientX);
     }
-  }, [handleMove]);
+  }, [handleMove, isZoomed, handlePanStart]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -95,6 +177,7 @@ export function ComparisonSlider({
       style={{ aspectRatio: '16/9' }}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
+      onWheel={enableZoom ? handleWheel : undefined}
       role="slider"
       aria-label="Compare before and after images"
       aria-describedby={instructionId}
@@ -122,6 +205,11 @@ export function ComparisonSlider({
         src={afterImage}
         alt={afterLabel}
         className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${allLoaded ? 'opacity-100' : 'opacity-0'}`}
+        style={{
+          transform: `scale(${zoom}) translate(${panOffset.x / zoom}px, ${panOffset.y / zoom}px)`,
+          transformOrigin: 'center center',
+          transition: isPanning ? 'none' : 'transform 0.2s ease',
+        }}
         onLoad={() => setIsLoaded((prev) => ({ ...prev, after: true }))}
         draggable={false}
       />
@@ -137,7 +225,10 @@ export function ComparisonSlider({
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${allLoaded ? 'opacity-100' : 'opacity-0'}`}
           style={{ 
             width: containerRef.current ? containerRef.current.offsetWidth : '100%',
-            maxWidth: 'none'
+            maxWidth: 'none',
+            transform: `scale(${zoom}) translate(${panOffset.x / zoom}px, ${panOffset.y / zoom}px)`,
+            transformOrigin: 'center center',
+            transition: isPanning ? 'none' : 'transform 0.2s ease',
           }}
           onLoad={() => setIsLoaded((prev) => ({ ...prev, before: true }))}
           draggable={false}
@@ -184,6 +275,41 @@ export function ComparisonSlider({
             {afterLabel}
           </div>
         </>
+      )}
+
+      {/* Zoom controls */}
+      {enableZoom && allLoaded && (
+        <div className="absolute bottom-3 right-3 flex items-center gap-1 z-10">
+          <button
+            onClick={(e) => { e.stopPropagation(); handleZoomIn(); }}
+            className="w-8 h-8 bg-black/50 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-sm transition-colors"
+            aria-label="Zoom in"
+          >
+            <ZoomIn className="w-4 h-4" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); handleZoomOut(); }}
+            disabled={zoom <= 1}
+            className="w-8 h-8 bg-black/50 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-sm transition-colors disabled:opacity-40"
+            aria-label="Zoom out"
+          >
+            <ZoomOut className="w-4 h-4" />
+          </button>
+          {isZoomed && (
+            <button
+              onClick={(e) => { e.stopPropagation(); handleResetZoom(); }}
+              className="w-8 h-8 bg-black/50 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-sm transition-colors"
+              aria-label="Reset zoom"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+          )}
+          {isZoomed && (
+            <span className="px-2 py-1 bg-black/50 text-white text-[10px] font-mono backdrop-blur-sm">
+              {Math.round(zoom * 100)}%
+            </span>
+          )}
+        </div>
       )}
 
       {/* Instruction hint — fades after first interaction */}

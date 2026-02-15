@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { Sparkles, Palette, Crown } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 import { PreferencesPanel, type DesignStyleId, type RoomFunctionId } from './PreferencesPanel';
+import { ROOM_PRESETS, type RoomPreset } from '../services/roomPresets';
 import type { FlowMode } from '../types';
+
+const RoomPresets = lazy(() => import('./RoomPresets'));
+const MoodBoard = lazy(() => import('./MoodBoard'));
 
 export interface DesignPreferences {
   style: DesignStyleId;
@@ -19,6 +23,17 @@ export function ModeSelect({ onSelectMode, uploadedImage }: ModeSelectProps) {
   const remaining = userTier.generationsLimit - userTier.generationsUsed;
   const [selectedStyle, setSelectedStyle] = useState<DesignStyleId>(null);
   const [selectedRoom, setSelectedRoom] = useState<RoomFunctionId>(null);
+  const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
+
+  const handlePresetSelect = (preset: RoomPreset) => {
+    setSelectedPresetId(preset.id);
+    // Find matching style/room IDs from the preferences constants
+    const { DESIGN_STYLES, ROOM_FUNCTIONS } = require('./PreferencesPanel');
+    const styleMatch = DESIGN_STYLES.find((s: any) => preset.style.toLowerCase().includes(s.label.toLowerCase().split(' ')[0]));
+    const roomMatch = ROOM_FUNCTIONS.find((r: any) => preset.roomType.toLowerCase() === r.label.toLowerCase());
+    if (styleMatch) setSelectedStyle(styleMatch.id);
+    if (roomMatch) setSelectedRoom(roomMatch.id);
+  };
 
   const preferences: DesignPreferences = { style: selectedStyle, roomFunction: selectedRoom };
 
@@ -56,14 +71,31 @@ export function ModeSelect({ onSelectMode, uploadedImage }: ModeSelectProps) {
         </p>
       )}
 
+      {/* Room Presets */}
+      <div className="mb-4 w-full flex justify-center">
+        <Suspense fallback={null}>
+          <RoomPresets
+            onSelectPreset={handlePresetSelect}
+            selectedPresetId={selectedPresetId}
+          />
+        </Suspense>
+      </div>
+
       {/* Preferences Panel */}
-      <div className="mb-8 w-full flex justify-center">
+      <div className="mb-4 w-full flex justify-center">
         <PreferencesPanel
           selectedStyle={selectedStyle}
           selectedRoom={selectedRoom}
-          onStyleChange={setSelectedStyle}
-          onRoomChange={setSelectedRoom}
+          onStyleChange={(s) => { setSelectedStyle(s); setSelectedPresetId(null); }}
+          onRoomChange={(r) => { setSelectedRoom(r); setSelectedPresetId(null); }}
         />
+      </div>
+
+      {/* Mood Board */}
+      <div className="mb-8 w-full flex justify-center">
+        <Suspense fallback={null}>
+          <MoodBoard compact />
+        </Suspense>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-2xl">

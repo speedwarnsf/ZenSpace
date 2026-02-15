@@ -176,6 +176,7 @@ export const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({
                   beforeLabel="Original"
                   afterLabel="Organized"
                   className="border border-zinc-700"
+                  enableZoom
                 />
                 <p className="text-center text-xs text-zinc-500">
                   Drag the slider to compare before and after
