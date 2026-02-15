@@ -48,44 +48,44 @@ export const DESIGN_STYLES: DesignStyle[] = [
  */
 export const INSPIRATION_IMAGES: InspirationImage[] = [
   // Modern
-  { id: 'mod-1', src: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=600&q=80', alt: 'Minimalist modern living room with clean lines', style: 'Modern', room: 'Living Room', credit: 'Unsplash', tags: ['minimalist', 'neutral', 'open-plan'] },
-  { id: 'mod-2', src: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&q=80', alt: 'Modern kitchen with white surfaces and integrated appliances', style: 'Modern', room: 'Kitchen', credit: 'Unsplash', tags: ['white', 'sleek', 'functional'] },
-  { id: 'mod-3', src: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=600&q=80', alt: 'Modern bedroom with platform bed and ambient lighting', style: 'Modern', room: 'Bedroom', credit: 'Unsplash', tags: ['low-profile', 'ambient', 'calm'] },
+  { id: 'mod-1', src: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=600&q=80', alt: 'Modern living room with leather sofa, gallery wall, and indoor plants', style: 'Modern', room: 'Living Room', credit: 'Unsplash', tags: ['minimalist', 'neutral', 'open-plan'] },
+  { id: 'mod-2', src: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80', alt: 'Modern kitchen with open shelving and warm lighting', style: 'Modern', room: 'Kitchen', credit: 'Unsplash', tags: ['white', 'sleek', 'functional'] },
+  { id: 'mod-3', src: 'https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=600&q=80', alt: 'Modern bedroom with grey upholstered headboard and glass doors', style: 'Modern', room: 'Bedroom', credit: 'Unsplash', tags: ['low-profile', 'ambient', 'calm'] },
 
   // Traditional
-  { id: 'trad-1', src: 'https://images.unsplash.com/photo-1618220179428-22790b461013?w=600&q=80', alt: 'Traditional living room with classic furniture and warm tones', style: 'Traditional', room: 'Living Room', credit: 'Unsplash', tags: ['classic', 'warm', 'layered'] },
-  { id: 'trad-2', src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80', alt: 'Traditional dining room with wood table and chandelier', style: 'Traditional', room: 'Dining Room', credit: 'Unsplash', tags: ['wood', 'elegant', 'formal'] },
-  { id: 'trad-3', src: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80', alt: 'Traditional bedroom with upholstered headboard', style: 'Traditional', room: 'Bedroom', credit: 'Unsplash', tags: ['upholstered', 'rich', 'symmetry'] },
+  { id: 'trad-1', src: 'https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?w=600&q=80', alt: 'Traditional living room with exposed beams and arched windows', style: 'Traditional', room: 'Living Room', credit: 'Unsplash', tags: ['classic', 'warm', 'layered'] },
+  { id: 'trad-2', src: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?w=600&q=80', alt: 'Traditional dining room with wood table and classic chandelier', style: 'Traditional', room: 'Dining Room', credit: 'Unsplash', tags: ['wood', 'elegant', 'formal'] },
+  { id: 'trad-3', src: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=600&q=80', alt: 'Traditional bedroom with upholstered headboard and warm bedding', style: 'Traditional', room: 'Bedroom', credit: 'Unsplash', tags: ['upholstered', 'rich', 'symmetry'] },
 
   // Scandinavian
-  { id: 'scand-1', src: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=80', alt: 'Scandinavian living room with light wood and white walls', style: 'Scandinavian', room: 'Living Room', credit: 'Unsplash', tags: ['light', 'hygge', 'wood'] },
-  { id: 'scand-2', src: 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=600&q=80', alt: 'Bright Scandinavian kitchen with open shelving', style: 'Scandinavian', room: 'Kitchen', credit: 'Unsplash', tags: ['bright', 'functional', 'open-shelving'] },
-  { id: 'scand-3', src: 'https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=600&q=80', alt: 'Scandinavian bedroom with linen and natural materials', style: 'Scandinavian', room: 'Bedroom', credit: 'Unsplash', tags: ['linen', 'natural', 'serene'] },
+  { id: 'scand-1', src: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=80', alt: 'Scandinavian living room with mustard accent chair and light wood', style: 'Scandinavian', room: 'Living Room', credit: 'Unsplash', tags: ['light', 'hygge', 'wood'] },
+  { id: 'scand-2', src: 'https://images.unsplash.com/photo-1600585152220-90363fe7e115?w=600&q=80', alt: 'Scandinavian kitchen with white island and pendant lights', style: 'Scandinavian', room: 'Kitchen', credit: 'Unsplash', tags: ['bright', 'functional', 'open-shelving'] },
+  { id: 'scand-3', src: 'https://images.unsplash.com/photo-1617325247661-675ab4b64ae2?w=600&q=80', alt: 'Scandinavian bedroom with raw wood platform bed and linen', style: 'Scandinavian', room: 'Bedroom', credit: 'Unsplash', tags: ['linen', 'natural', 'serene'] },
 
   // Industrial
-  { id: 'ind-1', src: 'https://images.unsplash.com/photo-1600585152220-90363fe7e115?w=600&q=80', alt: 'Industrial loft with exposed brick and metal accents', style: 'Industrial', room: 'Living Room', credit: 'Unsplash', tags: ['brick', 'metal', 'loft'] },
-  { id: 'ind-2', src: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80', alt: 'Industrial kitchen with open shelving and pendant lights', style: 'Industrial', room: 'Kitchen', credit: 'Unsplash', tags: ['pendant', 'raw', 'utilitarian'] },
-  { id: 'ind-3', src: 'https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?w=600&q=80', alt: 'Industrial bedroom with concrete and warm textiles', style: 'Industrial', room: 'Bedroom', credit: 'Unsplash', tags: ['concrete', 'contrast', 'warm'] },
+  { id: 'ind-1', src: 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=600&q=80', alt: 'Industrial loft with exposed brick and metal accents', style: 'Industrial', room: 'Living Room', credit: 'Unsplash', tags: ['brick', 'metal', 'loft'] },
+  { id: 'ind-2', src: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=600&q=80', alt: 'Industrial kitchen with concrete and steel fixtures', style: 'Industrial', room: 'Kitchen', credit: 'Unsplash', tags: ['pendant', 'raw', 'utilitarian'] },
+  { id: 'ind-3', src: 'https://images.unsplash.com/photo-1600607688969-a5bfcd646154?w=600&q=80', alt: 'Industrial bedroom with metal frame bed and exposed materials', style: 'Industrial', room: 'Bedroom', credit: 'Unsplash', tags: ['concrete', 'contrast', 'warm'] },
 
   // Japandi
-  { id: 'jap-1', src: 'https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=600&q=80', alt: 'Japandi living space with low furniture and muted palette', style: 'Japandi', room: 'Living Room', credit: 'Unsplash', tags: ['low', 'muted', 'wabi-sabi'] },
-  { id: 'jap-2', src: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=600&q=80', alt: 'Japandi dining area with natural materials', style: 'Japandi', room: 'Dining Room', credit: 'Unsplash', tags: ['natural', 'simple', 'crafted'] },
-  { id: 'jap-3', src: 'https://images.unsplash.com/photo-1617325247661-675ab4b64ae2?w=600&q=80', alt: 'Japandi bedroom with tatami-inspired platform bed', style: 'Japandi', room: 'Bedroom', credit: 'Unsplash', tags: ['platform', 'zen', 'earth-tones'] },
+  { id: 'jap-1', src: 'https://images.unsplash.com/photo-1598928506311-c55ez633272?w=600&q=80', alt: 'Japandi living space with low furniture and muted palette', style: 'Japandi', room: 'Living Room', credit: 'Unsplash', tags: ['low', 'muted', 'wabi-sabi'] },
+  { id: 'jap-2', src: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=600&q=80', alt: 'Japandi-inspired living space with natural tones and clean lines', style: 'Japandi', room: 'Living Room', credit: 'Unsplash', tags: ['natural', 'simple', 'crafted'] },
+  { id: 'jap-3', src: 'https://images.unsplash.com/photo-1617325247661-675ab4b64ae2?w=600&q=80', alt: 'Japandi bedroom with raw wood platform bed and linen bedding', style: 'Japandi', room: 'Bedroom', credit: 'Unsplash', tags: ['platform', 'zen', 'earth-tones'] },
 
   // Mid-Century
-  { id: 'mid-1', src: 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=600&q=80', alt: 'Mid-century modern living room with iconic furniture', style: 'Mid-Century', room: 'Living Room', credit: 'Unsplash', tags: ['iconic', 'organic', 'retro'] },
-  { id: 'mid-2', src: 'https://images.unsplash.com/photo-1600121848594-d8644e57abab?w=600&q=80', alt: 'Mid-century dining space with walnut table', style: 'Mid-Century', room: 'Dining Room', credit: 'Unsplash', tags: ['walnut', 'hairpin', 'atomic'] },
-  { id: 'mid-3', src: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600&q=80', alt: 'Mid-century bedroom with teak dresser', style: 'Mid-Century', room: 'Bedroom', credit: 'Unsplash', tags: ['teak', 'geometric', 'warm'] },
+  { id: 'mid-1', src: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600&q=80', alt: 'Mid-century modern living room with arc lamp and leather poufs', style: 'Mid-Century', room: 'Living Room', credit: 'Unsplash', tags: ['iconic', 'organic', 'retro'] },
+  { id: 'mid-2', src: 'https://images.unsplash.com/photo-1600121848594-d8644e57abab?w=600&q=80', alt: 'Contemporary living room with dark accent wall', style: 'Mid-Century', room: 'Living Room', credit: 'Unsplash', tags: ['walnut', 'hairpin', 'atomic'] },
+  { id: 'mid-3', src: 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=600&q=80', alt: 'Mid-century living room with leather sofa and brass chandelier', style: 'Mid-Century', room: 'Living Room', credit: 'Unsplash', tags: ['teak', 'geometric', 'warm'] },
 
   // Bohemian
-  { id: 'boho-1', src: 'https://images.unsplash.com/photo-1615529328331-f8917597711f?w=600&q=80', alt: 'Bohemian living room with layered textiles and plants', style: 'Bohemian', room: 'Living Room', credit: 'Unsplash', tags: ['layered', 'plants', 'eclectic'] },
-  { id: 'boho-2', src: 'https://images.unsplash.com/photo-1600585154363-67eb9e2e2099?w=600&q=80', alt: 'Bohemian bedroom with macrame and rattan', style: 'Bohemian', room: 'Bedroom', credit: 'Unsplash', tags: ['macrame', 'rattan', 'texture'] },
-  { id: 'boho-3', src: 'https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?w=600&q=80', alt: 'Bohemian outdoor patio with mixed patterns', style: 'Bohemian', room: 'Patio', credit: 'Unsplash', tags: ['outdoor', 'pattern', 'relaxed'] },
+  { id: 'boho-1', src: 'https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?w=600&q=80', alt: 'Bohemian bedroom with gallery wall and layered textiles', style: 'Bohemian', room: 'Bedroom', credit: 'Unsplash', tags: ['layered', 'plants', 'eclectic'] },
+  { id: 'boho-2', src: 'https://images.unsplash.com/photo-1618220179428-22790b461013?w=600&q=80', alt: 'Eclectic living corner with bold accent chair and tropical plants', style: 'Bohemian', room: 'Living Room', credit: 'Unsplash', tags: ['macrame', 'rattan', 'texture'] },
+  { id: 'boho-3', src: 'https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=600&q=80', alt: 'Boho-inspired room with sage wall and rattan furniture', style: 'Bohemian', room: 'Living Room', credit: 'Unsplash', tags: ['outdoor', 'pattern', 'relaxed'] },
 
   // Mediterranean
-  { id: 'med-1', src: 'https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=600&q=80', alt: 'Mediterranean living room with arched doorways and warm terracotta', style: 'Mediterranean', room: 'Living Room', credit: 'Unsplash', tags: ['arches', 'terracotta', 'warm'] },
-  { id: 'med-2', src: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80', alt: 'Mediterranean courtyard with olive tree and stone floors', style: 'Mediterranean', room: 'Courtyard', credit: 'Unsplash', tags: ['stone', 'olive', 'courtyard'] },
-  { id: 'med-3', src: 'https://images.unsplash.com/photo-1600585153490-76fb20a32601?w=600&q=80', alt: 'Mediterranean kitchen with blue tile and open shelving', style: 'Mediterranean', room: 'Kitchen', credit: 'Unsplash', tags: ['tile', 'blue', 'rustic'] },
+  { id: 'med-1', src: 'https://images.unsplash.com/photo-1600585153490-76fb20a32601?w=600&q=80', alt: 'Warm living space with fireplace and natural light', style: 'Mediterranean', room: 'Living Room', credit: 'Unsplash', tags: ['arches', 'terracotta', 'warm'] },
+  { id: 'med-2', src: 'https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=600&q=80', alt: 'Open-plan living area with glass walls and pool views', style: 'Mediterranean', room: 'Living Room', credit: 'Unsplash', tags: ['stone', 'olive', 'courtyard'] },
+  { id: 'med-3', src: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&q=80', alt: 'Contemporary open-plan living and kitchen with warm timber accents', style: 'Mediterranean', room: 'Living Room', credit: 'Unsplash', tags: ['tile', 'blue', 'rustic'] },
 ];
 
 /**
