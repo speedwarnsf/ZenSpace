@@ -63,12 +63,22 @@ const ai = {
         const text = await response.text().catch(() => '');
         let errMsg = `API error ${response.status}`;
         let errCode = 'API_ERROR';
+        let retryAfter: number | null = null;
         try {
           const errJson = JSON.parse(text);
           errMsg = errJson.error || errMsg;
           errCode = errJson.code || errCode;
+          if (errJson.retryAfter) retryAfter = Number(errJson.retryAfter);
         } catch { 
           if (text) errMsg += `: ${text.slice(0, 200)}`;
+        }
+        if (response.status === 429) {
+          const retryHeader = response.headers.get('retry-after');
+          if (retryHeader && !retryAfter) retryAfter = parseInt(retryHeader, 10) || 30;
+          if (!retryAfter) retryAfter = 30;
+          errCode = 'RATE_LIMIT';
+          errMsg = `Too many requests. Try again in ${retryAfter} seconds.`;
+          throw new GeminiApiError(errMsg, errCode, true, retryAfter);
         }
         throw new GeminiApiError(errMsg, errCode, response.status >= 500);
       }
@@ -122,12 +132,15 @@ const VISUALIZATION_TIMEOUT_MS = 70000;
 export class GeminiApiError extends Error {
   public readonly code: string;
   public readonly isRetryable: boolean;
+  /** Seconds to wait before retrying (from API rate limit headers) */
+  public readonly retryAfterSeconds: number | null;
 
-  constructor(message: string, code: string = 'UNKNOWN', isRetryable: boolean = false) {
+  constructor(message: string, code: string = 'UNKNOWN', isRetryable: boolean = false, retryAfterSeconds: number | null = null) {
     super(message);
     this.name = 'GeminiApiError';
     this.code = code;
     this.isRetryable = isRetryable;
+    this.retryAfterSeconds = retryAfterSeconds;
   }
 }
 
@@ -438,9 +451,10 @@ export const analyzeImage = async (base64Image: string, mimeType: string, option
       
       if (message.includes('quota') || message.includes('rate limit') || message.includes('429')) {
         throw new GeminiApiError(
-          'API rate limit exceeded. Please wait a moment and try again.',
+          'Too many requests. Try again in 30 seconds.',
           'RATE_LIMIT',
-          true
+          true,
+          30
         );
       }
       

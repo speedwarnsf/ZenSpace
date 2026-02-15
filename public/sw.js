@@ -325,7 +325,6 @@ function createOfflinePage() {
           max-width: 400px;
           padding: 2rem;
           background: white;
-          border-radius: 16px;
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
         .icon {
@@ -333,7 +332,6 @@ function createOfflinePage() {
           height: 64px;
           margin: 0 auto 1rem;
           background: #f3f4f6;
-          border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -355,7 +353,6 @@ function createOfflinePage() {
           color: white;
           border: none;
           padding: 12px 24px;
-          border-radius: 8px;
           font-weight: 500;
           cursor: pointer;
           transition: all 0.2s;
@@ -368,7 +365,9 @@ function createOfflinePage() {
     </head>
     <body>
       <div class="container">
-        <div class="icon">🌐</div>
+        <div class="icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+        </div>
         <h1>You're Offline</h1>
         <p>ZenSpace works best with an internet connection. Please check your network and try again.</p>
         <button class="btn" onclick="window.location.reload()">Try Again</button>

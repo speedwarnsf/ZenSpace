@@ -820,11 +820,28 @@ function AppContent() {
         isRetryable: apiError instanceof GeminiApiError ? apiError.isRetryable : false
       });
       if (apiError instanceof GeminiApiError) {
-        setError(buildAppError(apiError.code, apiError.message, apiError.isRetryable));
+        if (apiError.code === 'RATE_LIMIT' && apiError.retryAfterSeconds) {
+          setRateLimitMessage(`Too many requests. Try again in ${apiError.retryAfterSeconds} seconds.`);
+          // Auto-countdown
+          let remaining = apiError.retryAfterSeconds;
+          const interval = setInterval(() => {
+            remaining--;
+            if (remaining <= 0) {
+              clearInterval(interval);
+              setRateLimitMessage(null);
+            } else {
+              setRateLimitMessage(`Too many requests. Try again in ${remaining} seconds.`);
+            }
+          }, 1000);
+          setAppState(AppState.MODE_SELECT);
+        } else {
+          setError(buildAppError(apiError.code, apiError.message, apiError.isRetryable));
+          setAppState(AppState.ERROR);
+        }
       } else {
         setError(buildAppError('UNKNOWN', 'An unexpected error occurred. Please try again.', true));
+        setAppState(AppState.ERROR);
       }
-      setAppState(AppState.ERROR);
       announce(`Analysis failed: ${apiError instanceof Error ? apiError.message : 'Unknown error'}`, 'assertive');
       playSound('error');
     } finally {
@@ -1088,10 +1105,12 @@ function AppContent() {
 
         {/* Mode Selection State */}
         {appState === AppState.MODE_SELECT && (
-          <ModeSelect
-            onSelectMode={handleModeSelect}
-            uploadedImage={uploadedImage?.dataUrl ?? null}
-          />
+          <ErrorBoundary>
+            <ModeSelect
+              onSelectMode={handleModeSelect}
+              uploadedImage={uploadedImage?.dataUrl ?? null}
+            />
+          </ErrorBoundary>
         )}
 
         {/* Design Options State (V2 — 3 cards) */}
@@ -1152,6 +1171,7 @@ function AppContent() {
 
         {/* Rooms State */}
         {appState === AppState.ROOMS && (
+          <ErrorBoundary>
           <Suspense fallback={null}>
             <RoomManager
               onAddRoom={resetApp}
@@ -1162,6 +1182,7 @@ function AppContent() {
               onBack={() => setAppState(AppState.HOME)}
             />
           </Suspense>
+          </ErrorBoundary>
         )}
 
         {/* Error State */}
@@ -1260,6 +1281,7 @@ function AppContent() {
                 </div>
                 
                 {/* Analysis Results & Visualization */}
+                <ErrorBoundary>
                 <AnalysisDisplay 
                   analysis={analysis.rawText} 
                   products={analysis.products}
@@ -1272,6 +1294,7 @@ function AppContent() {
                   shoppingList={shoppingList}
                   sessionId={currentSessionId}
                 />
+                </ErrorBoundary>
               </div>
 
               {/* Right Column: Chat */}

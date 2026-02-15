@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useRef, memo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { Loader2, ChevronDown, ChevronUp, Home, Palette, Sun, Layers, Lightbulb, Crown } from 'lucide-react';
 import { SoIcon } from './SoIcon';
+import { LazyImage } from './LazyImage';
 import { captureShareableCard, shareCard, downloadCard } from '../services/shareService';
 import { createRoot } from 'react-dom/client';
 import { ShareableCard } from './ShareableCard';
@@ -173,11 +174,11 @@ const LookbookCard = memo(function LookbookCard({
       <div className="aspect-[4/3] bg-stone-100 dark:bg-stone-700 overflow-hidden relative">
         {entry.option.visualizationImage ? (
           <>
-            <img
+            <LazyImage
               src={`data:image/png;base64,${entry.option.visualizationImage}`}
               alt={entry.option.name}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              loading="lazy"
+              blurUp
               draggable={false}
             />
             {/* Hover overlay with quick info */}
@@ -349,10 +350,11 @@ function FullScreenCard({
         {/* Image */}
         <div className="aspect-[16/10] bg-stone-100 dark:bg-stone-700 overflow-hidden">
           {entry.option.visualizationImage ? (
-            <img
+            <LazyImage
               src={`data:image/png;base64,${entry.option.visualizationImage}`}
               alt={entry.option.name}
               className="w-full h-full object-cover"
+              blurUp
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-stone-400 dark:text-stone-500 text-sm">
