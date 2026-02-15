@@ -46,7 +46,8 @@ import { validateChatMessage } from './services/validation';
 import { AnalysisResult, AppState, ChatMessage, AppError, UploadedImage, DesignAnalysis, DesignOption, ShoppingListData, FlowMode, LookbookEntry, DesignRating } from './types';
 import { generateShoppingList, shoppingListFromProducts } from './services/shoppingListGenerator';
 import { Chat } from '@google/genai';
-import { ModeSelect } from './components/ModeSelect';
+import { ModeSelect, type DesignPreferences } from './components/ModeSelect';
+import { DESIGN_STYLES, ROOM_FUNCTIONS } from './components/PreferencesPanel';
 import { LayoutGrid, ArrowLeft, AlertCircle, RefreshCw, WifiOff, Clock, Home, Camera, Palette, Wand2 } from 'lucide-react';
 
 /**
@@ -701,7 +702,7 @@ function AppContent() {
   /**
    * Handle mode selection (Clean vs Redesign)
    */
-  const handleModeSelect = useCallback(async (mode: FlowMode) => {
+  const handleModeSelect = useCallback(async (mode: FlowMode, preferences?: DesignPreferences) => {
     if (!uploadedImage) return;
 
     // Gate check: can generate?
@@ -721,7 +722,9 @@ function AppContent() {
         analytics.trackAnalysisStart();
         announce('Analyzing your space for decluttering...', 'polite');
 
-        const result = await analyzeImage(uploadedImage.base64, uploadedImage.mimeType);
+        const styleLabel = preferences?.style ? DESIGN_STYLES.find(s => s.id === preferences.style)?.label : undefined;
+        const roomLabel = preferences?.roomFunction ? ROOM_FUNCTIONS.find(r => r.id === preferences.roomFunction)?.label : undefined;
+        const result = await analyzeImage(uploadedImage.base64, uploadedImage.mimeType, { style: styleLabel, roomType: roomLabel });
         setAnalysis(result);
         const chat = createChatSession(result.rawText);
         setChatSession(chat);
@@ -753,7 +756,9 @@ function AppContent() {
           setAnalysisProgress(Math.round(prog));
         }, 300);
 
-        const designResult = await generateDesignOptions(uploadedImage.base64, uploadedImage.mimeType);
+        const styleLabel = preferences?.style ? DESIGN_STYLES.find(s => s.id === preferences.style)?.label : undefined;
+        const roomLabel = preferences?.roomFunction ? ROOM_FUNCTIONS.find(r => r.id === preferences.roomFunction)?.label : undefined;
+        const designResult = await generateDesignOptions(uploadedImage.base64, uploadedImage.mimeType, [], { style: styleLabel, roomType: roomLabel });
         clearInterval(progressInterval);
         setAnalysisProgress(60);
         setDesignAnalysis(designResult);

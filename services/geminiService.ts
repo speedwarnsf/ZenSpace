@@ -319,7 +319,7 @@ const normalizeAnalysisResponse = (data: unknown, rawText: string): AnalysisResu
  * @returns Analysis results including markdown analysis, visualization prompt, and product suggestions
  * @throws GeminiApiError if the API call fails
  */
-export const analyzeImage = async (base64Image: string, mimeType: string): Promise<AnalysisResult> => {
+export const analyzeImage = async (base64Image: string, mimeType: string, options?: { style?: string; roomType?: string }): Promise<AnalysisResult> => {
   // Pre-flight checks
   if (!isApiConfigured()) {
     throw new GeminiApiError(
@@ -339,7 +339,7 @@ export const analyzeImage = async (base64Image: string, mimeType: string): Promi
 
   try {
     const { withTimeout } = createTimeoutHandler(ANALYSIS_TIMEOUT_MS);
-    const promptText = createAnalysisPrompt({ roomType: 'room' });
+    const promptText = createAnalysisPrompt({ roomType: options?.roomType || 'room', style: options?.style || 'modern' });
     const response = await withTimeout(ai.models.generateContent({
       model: ANALYSIS_MODEL,
       contents: {
@@ -641,7 +641,8 @@ const normalizeDesignOption = (raw: any, index: number): DesignOption => {
 export const generateDesignOptions = async (
   base64Image: string,
   mimeType: string,
-  previousDesigns: string[] = []
+  previousDesigns: string[] = [],
+  options?: { style?: string; roomType?: string }
 ): Promise<DesignAnalysis> => {
   if (!base64Image || !mimeType?.startsWith('image/')) {
     throw new GeminiApiError('Invalid image data', 'INVALID_INPUT', false);
@@ -649,7 +650,7 @@ export const generateDesignOptions = async (
 
   try {
     const { withTimeout } = createTimeoutHandler(60000); // 60s for richer prompt
-    const promptText = createDesignAnalysisPrompt({ roomType: 'room', previousDesigns });
+    const promptText = createDesignAnalysisPrompt({ roomType: options?.roomType || 'room', previousDesigns, style: options?.style });
 
     const response = await withTimeout(ai.models.generateContent({
       model: ANALYSIS_MODEL,

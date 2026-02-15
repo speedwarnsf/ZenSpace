@@ -1,15 +1,26 @@
+import { useState } from 'react';
 import { Sparkles, Palette, Crown } from 'lucide-react';
 import { useAuth } from './AuthProvider';
+import { PreferencesPanel, type DesignStyleId, type RoomFunctionId } from './PreferencesPanel';
 import type { FlowMode } from '../types';
 
+export interface DesignPreferences {
+  style: DesignStyleId;
+  roomFunction: RoomFunctionId;
+}
+
 interface ModeSelectProps {
-  onSelectMode: (mode: FlowMode) => void;
+  onSelectMode: (mode: FlowMode, preferences: DesignPreferences) => void;
   uploadedImage: string | null;
 }
 
 export function ModeSelect({ onSelectMode, uploadedImage }: ModeSelectProps) {
   const { userTier } = useAuth();
   const remaining = userTier.generationsLimit - userTier.generationsUsed;
+  const [selectedStyle, setSelectedStyle] = useState<DesignStyleId>(null);
+  const [selectedRoom, setSelectedRoom] = useState<RoomFunctionId>(null);
+
+  const preferences: DesignPreferences = { style: selectedStyle, roomFunction: selectedRoom };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -45,10 +56,20 @@ export function ModeSelect({ onSelectMode, uploadedImage }: ModeSelectProps) {
         </p>
       )}
 
+      {/* Preferences Panel */}
+      <div className="mb-8 w-full flex justify-center">
+        <PreferencesPanel
+          selectedStyle={selectedStyle}
+          selectedRoom={selectedRoom}
+          onStyleChange={setSelectedStyle}
+          onRoomChange={setSelectedRoom}
+        />
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-2xl">
         {/* Clean My Space */}
         <button
-          onClick={() => onSelectMode('clean')}
+          onClick={() => onSelectMode('clean', preferences)}
           className="group relative bg-white dark:bg-stone-800 border-2 border-stone-200 dark:border-stone-700 hover:border-emerald-400 dark:hover:border-emerald-500 p-8 text-left transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/10 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900"
         >
           <div className="bg-emerald-100 dark:bg-emerald-900/40 w-14 h-14 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
@@ -67,7 +88,7 @@ export function ModeSelect({ onSelectMode, uploadedImage }: ModeSelectProps) {
 
         {/* Redesign My Space */}
         <button
-          onClick={() => onSelectMode('redesign')}
+          onClick={() => onSelectMode('redesign', preferences)}
           className="group relative bg-white dark:bg-stone-800 border-2 border-stone-200 dark:border-stone-700 hover:border-violet-400 dark:hover:border-violet-500 p-8 text-left transition-all duration-300 hover:shadow-lg hover:shadow-violet-500/10 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900"
         >
           <div className="bg-violet-100 dark:bg-violet-900/40 w-14 h-14 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">

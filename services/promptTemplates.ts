@@ -182,7 +182,7 @@ function getDesignSeed(): DesignSeed[] {
 }
 
 export function createDesignAnalysisPrompt(context: PromptContext & { previousDesigns?: string[] } = {}): string {
-  const { roomType = 'room', previousDesigns = [] } = context;
+  const { roomType = 'room', previousDesigns = [], style } = context;
   const seeds = getDesignSeed() as [DesignSeed, DesignSeed, DesignSeed];
 
   return `You are a sharp, opinionated interior design critic. You write like Dwell meets Rolling Stone — precise, physical, zero filler.
@@ -195,6 +195,9 @@ FRAMEWORKS (use 2-3 per design, by exact name):
 - "Phenomenological" — multi-sensory experience, emotional resonance
 
 NEVER mention designer names, style labels, or movement names. No "wabi-sabi," no "Scandinavian," no "Parisian salon." Describe what the room LOOKS, FEELS, and SMELLS like.
+
+ROOM CONTEXT:
+- Room type: ${roomType}${style ? `\n- USER-REQUESTED STYLE DIRECTION: "${style}" — All 3 design options should interpret this style in different ways. Do NOT just copy-paste the style name. Use it as a starting point and explore 3 genuinely different interpretations that all respect this aesthetic family. Include furniture and fixtures appropriate for a ${roomType}.` : ''}
 
 STEP 1 — ROOM READING
 Analyze this ${roomType} honestly. What works, what doesn't. Be specific about what you see. 2-3 short paragraphs.
