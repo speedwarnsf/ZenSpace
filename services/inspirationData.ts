@@ -68,7 +68,7 @@ export const INSPIRATION_IMAGES: InspirationImage[] = [
   { id: 'ind-3', src: 'https://images.unsplash.com/photo-1600607688969-a5bfcd646154?w=600&q=80', alt: 'Industrial bedroom with metal frame bed and exposed materials', style: 'Industrial', room: 'Bedroom', credit: 'Unsplash', tags: ['concrete', 'contrast', 'warm'] },
 
   // Japandi
-  { id: 'jap-1', src: 'https://images.unsplash.com/photo-1598928506311-c55ez633272?w=600&q=80', alt: 'Japandi living space with low furniture and muted palette', style: 'Japandi', room: 'Living Room', credit: 'Unsplash', tags: ['low', 'muted', 'wabi-sabi'] },
+  { id: 'jap-1', src: 'https://images.unsplash.com/photo-1615529182904-14819c35db37?w=600&q=80', alt: 'Japandi living space with low furniture and muted palette', style: 'Japandi', room: 'Living Room', credit: 'Unsplash', tags: ['low', 'muted', 'wabi-sabi'] },
   { id: 'jap-2', src: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=600&q=80', alt: 'Japandi-inspired living space with natural tones and clean lines', style: 'Japandi', room: 'Living Room', credit: 'Unsplash', tags: ['natural', 'simple', 'crafted'] },
   { id: 'jap-3', src: 'https://images.unsplash.com/photo-1617325247661-675ab4b64ae2?w=600&q=80', alt: 'Japandi bedroom with raw wood platform bed and linen bedding', style: 'Japandi', room: 'Bedroom', credit: 'Unsplash', tags: ['platform', 'zen', 'earth-tones'] },
 
