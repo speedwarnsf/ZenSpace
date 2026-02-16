@@ -347,7 +347,18 @@
   <body class="bg-stone-50 dark:bg-stone-900 text-stone-900 dark:text-stone-100 antialiased transition-colors duration-300">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
-    <!-- Skimlinks: add script back once publisher ID is approved -->
+    <!-- Skimlinks affiliate integration — activates when VITE_SKIMLINKS_PUBLISHER_ID is set -->
+    <script>
+      (function() {
+        var publisherId = '%VITE_SKIMLINKS_PUBLISHER_ID%';
+        if (publisherId && publisherId !== '' && !publisherId.includes('VITE_SKIMLINKS')) {
+          var s = document.createElement('script');
+          s.src = 'https://s.skimresources.com/js/' + publisherId + '.skimlinks.js';
+          s.async = true;
+          document.body.appendChild(s);
+        }
+      })();
+    </script>
     <script>
       // Register service worker for PWA support
       if ('serviceWorker' in navigator) {

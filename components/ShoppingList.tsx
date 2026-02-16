@@ -220,14 +220,14 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessio
 
                           {/* Buy button */}
                           <a
-                            href={item.affiliateUrl || `https://www.amazon.com/s?k=${encodeURIComponent(item.searchTerm)}&tag=zenspace-20`}
+                            href={`https://www.google.com/search?q=${encodeURIComponent(item.searchTerm)}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={() => handleBuyClick(item)}
-                            className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium transition-colors"
-                            aria-label={`Buy ${item.name} on Amazon`}
+                            className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors"
+                            aria-label={`Shop for ${item.name}`}
                           >
-                            Buy <ExternalLink className="w-3 h-3" />
+                            Shop <ExternalLink className="w-3 h-3" />
                           </a>
                         </div>
                       </li>
@@ -241,7 +241,7 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ shoppingList, sessio
       </div>
 
       <p className="mt-4 text-center text-xs text-stone-400 dark:text-stone-500 italic">
-        *As an Amazon Associate we earn from qualifying purchases. Prices are estimates and may vary.
+        *Some links may generate affiliate commissions. Prices are estimates and may vary.
       </p>
     </section>
   );
