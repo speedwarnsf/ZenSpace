@@ -47,6 +47,8 @@ const ai = {
     async generateContent(params: any) {
       return withGeminiRetry(async () => {
       let response: Response;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 90000);
       try {
         response = await fetch(PROXY_URL, {
           method: 'POST',
@@ -57,9 +59,15 @@ const ai = {
             contents: params.contents,
             config: params.config,
           }),
+          signal: controller.signal,
         });
       } catch (fetchErr: any) {
+        if (fetchErr.name === 'AbortError') {
+          throw new GeminiApiError('Request timed out after 90 seconds. The AI may be under heavy load.', 'NETWORK_TIMEOUT', true);
+        }
         throw new GeminiApiError(`Network error: ${fetchErr.message}`, 'NETWORK_ERROR', true);
+      } finally {
+        clearTimeout(timeoutId);
       }
       if (!response.ok) {
         const text = await response.text().catch(() => '');
@@ -95,6 +103,8 @@ const ai = {
         async sendMessage(msg: any) {
           return withGeminiRetry(async () => {
           let response: Response;
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 60000);
           try {
             response = await fetch(PROXY_URL, {
               method: 'POST',
@@ -105,9 +115,15 @@ const ai = {
                 chatContext: params.config?.systemInstruction,
                 message: typeof msg === 'string' ? msg : msg.message,
               }),
+              signal: controller.signal,
             });
           } catch (fetchErr: any) {
+            if (fetchErr.name === 'AbortError') {
+              throw new GeminiApiError('Chat request timed out. Please try again.', 'NETWORK_TIMEOUT', true);
+            }
             throw new GeminiApiError(`Network error: ${fetchErr.message}`, 'NETWORK_ERROR', true);
+          } finally {
+            clearTimeout(timeoutId);
           }
           if (!response.ok) {
             const err = await response.json().catch(() => ({ error: 'Chat request failed' }));

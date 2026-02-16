@@ -330,6 +330,16 @@ export function AnalysisLoading({ stage, progress = 0, className = '' }: Analysi
         Estimated: {config.estimate}
       </p>
 
+      {/* Slow response notice */}
+      {elapsed > 45 && (
+        <div className="max-w-sm mx-auto bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-4 py-3 animate-in fade-in duration-500">
+          <p className="text-xs text-amber-700 dark:text-amber-300 font-medium mb-1">Taking longer than usual</p>
+          <p className="text-xs text-amber-600 dark:text-amber-400 leading-relaxed">
+            The AI is working through a complex analysis. This can happen with detailed rooms or high server load. Hang tight.
+          </p>
+        </div>
+      )}
+
       {/* Rotating tips */}
       <div className="max-w-sm mx-auto min-h-[3rem]">
         <p className="text-xs text-stone-400 dark:text-stone-500 italic leading-relaxed transition-opacity duration-500">

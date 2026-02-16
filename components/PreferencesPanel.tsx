@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Shuffle } from 'lucide-react';
 
 export const DESIGN_STYLES = [
@@ -43,129 +42,96 @@ export function PreferencesPanel({
   onStyleChange,
   onRoomChange,
 }: PreferencesPanelProps) {
-  const [styleExpanded, setStyleExpanded] = useState(false);
-  const [roomExpanded, setRoomExpanded] = useState(false);
-
   return (
-    <div className="w-full max-w-2xl space-y-6 animate-in fade-in duration-500">
-      {/* Style Picker */}
+    <div className="w-full max-w-2xl space-y-8 animate-in fade-in duration-500">
+      {/* Style Picker — always visible */}
       <div>
-        <button
-          onClick={() => setStyleExpanded(!styleExpanded)}
-          className="w-full flex items-center justify-between text-left px-4 py-3 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900"
-          aria-expanded={styleExpanded}
-          aria-controls="style-picker-grid"
+        <h3 className="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-[0.2em] mb-3">
+          Design Style
+        </h3>
+        <div
+          id="style-picker-grid"
+          className="grid grid-cols-2 sm:grid-cols-3 gap-2"
+          role="radiogroup"
+          aria-label="Design style"
         >
-          <div>
-            <h3 className="text-sm font-bold text-stone-800 dark:text-stone-200 uppercase tracking-widest">
-              Design Style
-            </h3>
-            <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-              {selectedStyle
-                ? DESIGN_STYLES.find(s => s.id === selectedStyle)?.label
-                : 'Any style — surprise me'}
-            </p>
-          </div>
-          <span className="text-stone-400 text-xs">{styleExpanded ? 'Hide' : 'Choose'}</span>
-        </button>
-
-        {styleExpanded && (
-          <div
-            id="style-picker-grid"
-            className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2"
-            role="radiogroup"
-            aria-label="Design style"
+          <button
+            onClick={() => onStyleChange(null)}
+            className={`group relative px-3 py-3 text-xs font-medium text-left border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 flex items-center gap-2 ${
+              selectedStyle === null
+                ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 shadow-sm shadow-emerald-500/10'
+                : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:border-stone-400 dark:hover:border-stone-500 hover:shadow-sm'
+            }`}
+            role="radio"
+            aria-checked={selectedStyle === null}
           >
+            <Shuffle className="w-3.5 h-3.5 flex-shrink-0" />
+            Surprise Me
+          </button>
+          {DESIGN_STYLES.map(style => (
             <button
-              onClick={() => onStyleChange(null)}
-              className={`px-3 py-2.5 text-xs font-medium text-left border transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 flex items-center gap-2 ${
-                selectedStyle === null
-                  ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
-                  : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:border-stone-300 dark:hover:border-stone-600'
+              key={style.id}
+              onClick={() => onStyleChange(style.id)}
+              className={`group relative px-3 py-3 text-xs font-medium text-left border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                selectedStyle === style.id
+                  ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 shadow-sm shadow-emerald-500/10'
+                  : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:border-stone-400 dark:hover:border-stone-500 hover:shadow-sm'
               }`}
               role="radio"
-              aria-checked={selectedStyle === null}
+              aria-checked={selectedStyle === style.id}
             >
-              <Shuffle className="w-3.5 h-3.5 flex-shrink-0" />
-              Surprise Me
+              {style.label}
+              {selectedStyle === style.id && (
+                <span className="absolute top-0 right-0 w-1.5 h-1.5 bg-emerald-500" />
+              )}
             </button>
-            {DESIGN_STYLES.map(style => (
-              <button
-                key={style.id}
-                onClick={() => onStyleChange(style.id)}
-                className={`px-3 py-2.5 text-xs font-medium text-left border transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                  selectedStyle === style.id
-                    ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
-                    : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:border-stone-300 dark:hover:border-stone-600'
-                }`}
-                role="radio"
-                aria-checked={selectedStyle === style.id}
-              >
-                {style.label}
-              </button>
-            ))}
-          </div>
-        )}
+          ))}
+        </div>
       </div>
 
-      {/* Room Function Selector */}
+      {/* Room Function Selector — always visible */}
       <div>
-        <button
-          onClick={() => setRoomExpanded(!roomExpanded)}
-          className="w-full flex items-center justify-between text-left px-4 py-3 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-900"
-          aria-expanded={roomExpanded}
-          aria-controls="room-picker-grid"
+        <h3 className="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-[0.2em] mb-3">
+          Room Type
+        </h3>
+        <div
+          id="room-picker-grid"
+          className="grid grid-cols-2 sm:grid-cols-3 gap-2"
+          role="radiogroup"
+          aria-label="Room type"
         >
-          <div>
-            <h3 className="text-sm font-bold text-stone-800 dark:text-stone-200 uppercase tracking-widest">
-              Room Type
-            </h3>
-            <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-              {selectedRoom
-                ? ROOM_FUNCTIONS.find(r => r.id === selectedRoom)?.label
-                : 'Auto-detect from photo'}
-            </p>
-          </div>
-          <span className="text-stone-400 text-xs">{roomExpanded ? 'Hide' : 'Choose'}</span>
-        </button>
-
-        {roomExpanded && (
-          <div
-            id="room-picker-grid"
-            className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2"
-            role="radiogroup"
-            aria-label="Room type"
+          <button
+            onClick={() => onRoomChange(null)}
+            className={`group relative px-3 py-3 text-xs font-medium text-left border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 flex items-center gap-2 ${
+              selectedRoom === null
+                ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 shadow-sm shadow-emerald-500/10'
+                : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:border-stone-400 dark:hover:border-stone-500 hover:shadow-sm'
+            }`}
+            role="radio"
+            aria-checked={selectedRoom === null}
           >
+            <Shuffle className="w-3.5 h-3.5 flex-shrink-0" />
+            Auto-Detect
+          </button>
+          {ROOM_FUNCTIONS.map(room => (
             <button
-              onClick={() => onRoomChange(null)}
-              className={`px-3 py-2.5 text-xs font-medium text-left border transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 flex items-center gap-2 ${
-                selectedRoom === null
-                  ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
-                  : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:border-stone-300 dark:hover:border-stone-600'
+              key={room.id}
+              onClick={() => onRoomChange(room.id)}
+              className={`group relative px-3 py-3 text-xs font-medium text-left border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                selectedRoom === room.id
+                  ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 shadow-sm shadow-emerald-500/10'
+                  : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:border-stone-400 dark:hover:border-stone-500 hover:shadow-sm'
               }`}
               role="radio"
-              aria-checked={selectedRoom === null}
+              aria-checked={selectedRoom === room.id}
             >
-              <Shuffle className="w-3.5 h-3.5 flex-shrink-0" />
-              Auto-Detect
+              {room.label}
+              {selectedRoom === room.id && (
+                <span className="absolute top-0 right-0 w-1.5 h-1.5 bg-emerald-500" />
+              )}
             </button>
-            {ROOM_FUNCTIONS.map(room => (
-              <button
-                key={room.id}
-                onClick={() => onRoomChange(room.id)}
-                className={`px-3 py-2.5 text-xs font-medium text-left border transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                  selectedRoom === room.id
-                    ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
-                    : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:border-stone-300 dark:hover:border-stone-600'
-                }`}
-                role="radio"
-                aria-checked={selectedRoom === room.id}
-              >
-                {room.label}
-              </button>
-            ))}
-          </div>
-        )}
+          ))}
+        </div>
       </div>
     </div>
   );

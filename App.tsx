@@ -1108,7 +1108,7 @@ function AppContent() {
             <h1 className="text-4xl md:text-5xl font-bold text-stone-900 dark:text-stone-100 text-center mb-6 font-serif">
               From Chaos to Calm.
             </h1>
-            <p className="text-lg text-stone-600 dark:text-stone-400 text-center max-w-xl mb-4 leading-relaxed">
+            <p className="text-lg text-stone-600 dark:text-stone-400 text-center max-w-xl mb-4 leading-relaxed" style={{ textWrap: 'balance' }}>
               Upload a photo of any room. Choose to declutter and organize — or get bold redesign concepts from world-class design thinkers.
             </p>
 

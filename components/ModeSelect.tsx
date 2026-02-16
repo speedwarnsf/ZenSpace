@@ -50,10 +50,10 @@ export function ModeSelect({ onSelectMode, uploadedImage }: ModeSelectProps) {
         </div>
       )}
 
-      <h2 className="text-3xl md:text-4xl font-bold text-stone-900 dark:text-stone-100 text-center mb-3 font-serif">
+      <h2 className="text-3xl md:text-4xl font-bold text-stone-900 dark:text-stone-100 text-center mb-3 font-serif" style={{ textWrap: 'balance' }}>
         What would you like to do?
       </h2>
-      <p className="text-stone-500 dark:text-stone-400 text-center mb-4 max-w-md">
+      <p className="text-stone-500 dark:text-stone-400 text-center mb-4 max-w-md" style={{ textWrap: 'balance' }}>
         Choose a path for your space
       </p>
 
