@@ -80,9 +80,9 @@ export function GoldBurstEffect({ show, onComplete }: { show: boolean; onComplet
                 transition={{ duration: 0.6, delay: p.delay, ease: 'easeOut' }}
               >
                 {p.type === 'star' ? (
-                  <span className="text-yellow-400" style={{ fontSize: p.size + 4 }}>★</span>
+                  <svg width={p.size + 4} height={p.size + 4} viewBox="0 0 24 24" fill="currentColor" className="text-yellow-400"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                 ) : p.type === 'spark' ? (
-                  <span className="text-yellow-300" style={{ fontSize: p.size + 2 }}>✦</span>
+                  <svg width={p.size + 2} height={p.size + 2} viewBox="0 0 24 24" fill="currentColor" className="text-yellow-300"><path d="M12 1l3 8h8l-6.5 5 2.5 8L12 17l-7 5 2.5-8L1 9h8z"/></svg>
                 ) : (
                   <div
                     className="bg-yellow-400"
@@ -150,7 +150,7 @@ export function NeverAgainEffect({ show, onComplete }: { show: boolean; onComple
             animate={{ scale: 1.5, rotate: 0, opacity: 0 }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
           >
-            <span className="text-red-500 text-4xl font-bold">✕</span>
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-red-500"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </motion.div>
         </motion.div>
       )}
