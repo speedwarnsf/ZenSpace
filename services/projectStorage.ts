@@ -81,18 +81,53 @@ function rowToProject(row: any): Project {
 // ============================================================================
 
 export async function getProjects(): Promise<Project[]> {
-  // Use localStorage only — the Supabase 'projects' table is shared with Dashboard
+  const userId = await isLoggedIn();
+  if (userId) {
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false });
+    if (!error && data) {
+      return data.map(rowToProject);
+    }
+    console.warn('projectStorage: Supabase getProjects failed, falling back', error);
+  }
   return loadProjectsLocal();
 }
 
 export async function getProject(id: string): Promise<Project | null> {
+  const userId = await isLoggedIn();
+  if (userId) {
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', userId)
+      .single();
+    if (!error && data) {
+      return rowToProject(data);
+    }
+  }
   return loadProjectsLocal().find(p => p.id === id) || null;
 }
 
 export async function saveProject(project: Project): Promise<Project> {
   project.updatedAt = Date.now();
 
-  // localStorage only — Supabase 'projects' table is shared with Dashboard
+  const userId = await isLoggedIn();
+  if (userId) {
+    const { error } = await supabase
+      .from('projects')
+      .upsert(projectToRow(project, userId), { onConflict: 'id' });
+    if (error) {
+      console.warn('projectStorage: Supabase saveProject failed, falling back', error);
+    } else {
+      return project;
+    }
+  }
+
+  // localStorage fallback
   const projects = loadProjectsLocal();
   const idx = projects.findIndex(p => p.id === project.id);
   if (idx >= 0) {
@@ -106,6 +141,10 @@ export async function saveProject(project: Project): Promise<Project> {
 }
 
 export async function deleteProject(id: string): Promise<void> {
+  const userId = await isLoggedIn();
+  if (userId) {
+    await supabase.from('projects').delete().eq('id', id).eq('user_id', userId);
+  }
   const projects = loadProjectsLocal().filter(p => p.id !== id);
   persistProjectsLocal(projects);
 }
