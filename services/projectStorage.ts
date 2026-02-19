@@ -87,6 +87,7 @@ export async function getProjects(): Promise<Project[]> {
       .from('projects')
       .select('*')
       .eq('user_id', userId)
+      .is('github_repo', null)
       .order('updated_at', { ascending: false });
     if (!error && data) {
       return data.map(rowToProject);
@@ -104,6 +105,7 @@ export async function getProject(id: string): Promise<Project | null> {
       .select('*')
       .eq('id', id)
       .eq('user_id', userId)
+      .is('github_repo', null)
       .single();
     if (!error && data) {
       return rowToProject(data);
