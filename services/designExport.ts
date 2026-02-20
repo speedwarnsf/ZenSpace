@@ -259,7 +259,6 @@ export async function downloadDesignReport(
       pdf.setPage(p);
       pdf.setFontSize(40);
       pdf.setTextColor(255, 255, 255);
-      // @ts-expect-error jsPDF GState
       pdf.setGState?.(new (pdf as any).GState({ opacity: 0.08 }));
       pdf.text('ZenSpace Preview', pw / 2, 150, { align: 'center', angle: 30 });
     }

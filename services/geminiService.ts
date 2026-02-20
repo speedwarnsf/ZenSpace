@@ -757,9 +757,9 @@ export const generateDesignOptions = async (
     const rawOptions = Array.isArray(parsed.options) ? parsed.options : [];
     // Ensure exactly 3 options
     while (rawOptions.length < 3) rawOptions.push({});
-    const options = rawOptions.slice(0, 3).map(normalizeDesignOption) as [DesignOption, DesignOption, DesignOption];
+    const designOptions = rawOptions.slice(0, 3).map(normalizeDesignOption) as [DesignOption, DesignOption, DesignOption];
 
-    return { roomReading, options };
+    return { roomReading, options: designOptions };
   } catch (error) {
     if (error instanceof GeminiApiError) throw error;
     const msg = error instanceof Error ? error.message : String(error);

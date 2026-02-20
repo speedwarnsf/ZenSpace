@@ -2,7 +2,7 @@
  * AuthProvider — React context for auth state, subscription, and gating
  */
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { User } from '@supabase/supabase-js';
 import { getCurrentUser, onAuthStateChange, signOut as authSignOut, signInWithGoogle, signInWithApple, signInWithMagicLink, signInWithPassword } from '../services/auth';
 import { migrateLocalRoomsToSupabase } from '../services/houseRoomStorage';
@@ -43,6 +43,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [userTier, setUserTier] = useState<UserTier>(DEFAULT_FREE_TIER);
   const [isLoading, setIsLoading] = useState(true);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => { mountedRef.current = false; };
+  }, []);
 
   const refreshTier = useCallback(async () => {
     if (user) {
@@ -51,6 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         getSubscription(user.id).catch(() => null),
         getUserUsage(user.id).catch((): UsageData => ({ generations: 0, iterations: 0, rooms_created: 0 })),
       ]);
+      if (!mountedRef.current) return;
       setSubscription(sub);
 
       const isPro = sub?.status === 'active';
@@ -59,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!isPro) {
         // For free authenticated users, also check anonymous usage
         const freeGens = await getFreeUsage().catch(() => 0);
+        if (!mountedRef.current) return;
         setUserTier({
           tier: 'free',
           generationsUsed: Math.max(usage.generations, freeGens),
@@ -78,6 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else {
       // Anonymous user — free tier with localStorage tracking
       const freeGens = await getFreeUsage().catch(() => 0);
+      if (!mountedRef.current) return;
       setUserTier({
         ...DEFAULT_FREE_TIER,
         generationsUsed: freeGens,

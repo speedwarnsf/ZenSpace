@@ -103,9 +103,11 @@ function kMeans(pixels: number[][], k: number, iterations: number): Cluster[] {
     const counts = new Array(k).fill(0);
     for (let i = 0; i < pixels.length; i++) {
       const c = assignments[i]!;
-      sums[c]![0] += pixels[i]![0]!;
-      sums[c]![1] += pixels[i]![1]!;
-      sums[c]![2] += pixels[i]![2]!;
+      const s = sums[c]!;
+      const p = pixels[i]!;
+      s[0] = (s[0] ?? 0) + (p[0] ?? 0);
+      s[1] = (s[1] ?? 0) + (p[1] ?? 0);
+      s[2] = (s[2] ?? 0) + (p[2] ?? 0);
       counts[c]!++;
     }
     for (let j = 0; j < k; j++) {
