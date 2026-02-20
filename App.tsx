@@ -706,17 +706,33 @@ function AppContent() {
         batchIndex,
       }));
       setLookbookEntries(prev => [...newEntries, ...prev]);
-      newEntries.forEach((entry) => {
-        generateDesignVisualization(
-          entry.option.visualizationPrompt,
-          uploadedImage.base64,
-          uploadedImage.mimeType
-        ).then(img => {
-          setLookbookEntries(prev => prev.map(e =>
-            e.id === entry.id ? { ...e, option: { ...e.option, visualizationImage: img } } : e
-          ));
-        }).catch(err => console.warn(`Viz failed for ${entry.id}`, err));
-      });
+      // Generate visualizations sequentially with retry
+      (async () => {
+        for (const entry of newEntries) {
+          let retries = 2;
+          while (retries >= 0) {
+            try {
+              const img = await generateDesignVisualization(
+                entry.option.visualizationPrompt,
+                uploadedImage.base64,
+                uploadedImage.mimeType
+              );
+              setLookbookEntries(prev => prev.map(e =>
+                e.id === entry.id ? { ...e, option: { ...e.option, visualizationImage: img } } : e
+              ));
+              break;
+            } catch (err) {
+              if (retries > 0) {
+                await new Promise(r => setTimeout(r, 2000));
+                retries--;
+              } else {
+                console.warn(`Viz failed for ${entry.id}`, err);
+                break;
+              }
+            }
+          }
+        }
+      })();
     } catch (err) {
       console.error('Generate more failed:', err);
     } finally {
@@ -816,9 +832,11 @@ function AppContent() {
           batchIndex: 0,
         }));
 
-        // Generate visualizations in parallel, update progress as each completes
-        await Promise.allSettled(
-          entriesWithImages.map(async (entry, idx) => {
+        // Generate visualizations sequentially (staggered) to avoid rate limits
+        for (let idx = 0; idx < entriesWithImages.length; idx++) {
+          const entry = entriesWithImages[idx];
+          let retries = 2;
+          while (retries >= 0) {
             try {
               const img = await generateDesignVisualization(
                 entry.option.visualizationPrompt,
@@ -826,16 +844,22 @@ function AppContent() {
                 uploadedImage.mimeType
               );
               entriesWithImages[idx] = { ...entry, option: { ...entry.option, visualizationImage: img } };
-              // Also update designResult
               (designResult.options[idx] as any).visualizationImage = img;
+              break;
             } catch (e) {
-              console.warn(`Visualization for option ${idx} failed`, e);
-            } finally {
-              vizDone++;
-              setAnalysisProgress(60 + Math.round((vizDone / totalViz) * 35));
+              if (retries > 0) {
+                console.warn(`Visualization for option ${idx} failed, retrying (${retries} left)...`, e);
+                await new Promise(r => setTimeout(r, 2000));
+                retries--;
+              } else {
+                console.warn(`Visualization for option ${idx} failed after all retries`, e);
+                break;
+              }
             }
-          })
-        );
+          }
+          vizDone++;
+          setAnalysisProgress(60 + Math.round((vizDone / totalViz) * 35));
+        }
 
         setAnalysisProgress(100);
         setDesignAnalysis({ ...designResult });

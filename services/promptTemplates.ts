@@ -208,7 +208,14 @@ Each driven by a different principle:
 2. ${seeds[1].principle} — ${seeds[1].approach}
 3. ${seeds[2].principle} — ${seeds[2].approach}
 
-DIVERSITY RULES: The 3 must differ in color temperature (warm/cool/wild), density (max/min/mid), and material (textile/hard surface/organic). One should be genuinely radical.
+DIVERSITY RULES (CRITICAL — THIS IS THE MOST IMPORTANT RULE):
+- The 3 options MUST use completely different furniture pieces. NO shared coffee tables, chairs, sofas, or lighting between options. If option 1 suggests a Noguchi table, options 2 and 3 CANNOT use any Noguchi table.
+- Different color temperatures: one warm, one cool, one wild/unexpected.
+- Different densities: one maximal/layered, one minimal/spare, one mid.
+- Different material families: one textile-dominant, one hard-surface-dominant, one organic/natural.
+- Different eras/sensibilities: one contemporary, one vintage-influenced, one future-forward.
+- One option should be genuinely radical — something the user would never think of but might love.
+- The visualization_prompt for each option MUST describe SPECIFIC, DIFFERENT furniture pieces. Never reuse the same item description across options.
 
 WRITING RULES:
 - Short sentences. Punchy. One adjective per noun max.
