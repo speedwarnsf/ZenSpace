@@ -787,23 +787,27 @@ export const generateDesignVisualization = async (
         parts: [
           { inlineData: { mimeType, data: originalImageBase64 } },
           {
-            text: `REDESIGN THIS EXACT PHOTO. Keep the SAME room geometry, camera angle, and architectural bones (walls, windows, doors, floor plan).
+            text: `REDESIGN THIS ROOM PHOTO. Keep the architectural shell (walls, windows, doors, ceiling, floor material) and similar camera angle so the user recognizes their space.
 
-TRANSFORM it with this design vision:
+BUT — REARRANGE THE FURNITURE COMPLETELY according to this design vision:
 ${visualizationPrompt.trim()}
 
+CRITICAL — LAYOUT MATTERS MOST:
+- Follow the layout/arrangement described above EXACTLY. If it says "sofa facing the window," put the sofa facing the window — even if the original photo has it against a wall.
+- REMOVE all existing furniture and REPLACE with the pieces described, in the positions described.
+- The furniture arrangement should look DIFFERENT from the original photo. Same room shell, totally different interior.
+
 STYLE DIRECTION:
-- Make it look like a professional interior design portfolio shot
+- Professional interior design portfolio shot — Architectural Digest / Dwell quality
 - Rich textures, interesting lighting, layered details
-- This should look like something from Architectural Digest or Dwell magazine
-- Add atmospheric lighting (warm pools of light, shadows, depth)
-- Include tactile materials (velvet, wood grain, woven textiles, metal patina)
-- THE RUG IS CRITICAL: Follow the rug description in the design vision EXACTLY. If it says "jute herringbone," show a jute herringbone rug — NOT a Persian rug. If it says "Persian," show a Persian rug. The rug type, material, pattern, and color must match the text description precisely. This is the most common error — do not improvise the rug.
+- Atmospheric lighting (warm pools of light, shadows, depth)
+- Tactile materials (velvet, wood grain, woven textiles, metal patina)
+- THE RUG IS CRITICAL: Follow the rug description EXACTLY. If it says "jute herringbone," show jute herringbone — NOT Persian. Match material, pattern, and color precisely.
 
 RULES:
-- SAME room, SAME angle — must be recognizable as the same space
-- Keep structural elements identical
-- Be BOLD with the transformation — this should feel dramatic, not subtle
+- Same room shell and approximate camera angle — recognizable as the same space
+- DIFFERENT furniture layout from the original — this is a redesign, not a reskin
+- Be BOLD — this should feel like a dramatic transformation
 - Make the user excited about the possibility`
           }
         ]

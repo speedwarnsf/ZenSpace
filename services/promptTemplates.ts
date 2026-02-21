@@ -37,7 +37,7 @@ export function createAnalysisPrompt(context: PromptContext = {}): string {
 **RESPONSE FORMAT (STRICT JSON ONLY, NO MARKDOWN FENCES):**
 {
   "analysis_markdown": "A Markdown string with the sections below, using '##' headings and concise bullets.",
-  "visualization_prompt": "A strict, imperative command list to transform the room (keep layout and large furniture fixed).",
+  "visualization_prompt": "A strict, imperative command list to transform the room. MUST specify: furniture LAYOUT (where pieces go, what faces what), focal point, traffic flow. Keep room shell (walls/windows/doors) but REARRANGE furniture completely.",
   "products": [
     {
       "name": "Under-bed storage bin",
@@ -209,13 +209,24 @@ Each driven by a different principle:
 3. ${seeds[2].principle} — ${seeds[2].approach}
 
 DIVERSITY RULES (CRITICAL — THIS IS THE MOST IMPORTANT RULE):
+
+LAYOUT DIVERSITY (most important — users see through color swaps):
+- Each option MUST have a fundamentally different SPATIAL ARRANGEMENT. Not just different furniture in the same spots — different LAYOUTS entirely.
+- Option 1: e.g., seating centered on a focal wall, symmetrical
+- Option 2: e.g., seating arranged for conversation (facing each other), asymmetric, angled to windows
+- Option 3: e.g., zones — reading nook by window, separate lounging area, unconventional flow
+- Different focal points: one oriented to a wall/fireplace, one to the window/view, one creating an interior island
+- Different sofa configurations: L-shape, two facing sofas, single sofa + multiple chairs, daybed, sectional in different orientations
+- The visualization_prompt MUST explicitly describe WHERE each piece goes in the room (e.g., "sofa along the north wall facing the window" vs "two loveseats facing each other in the center")
+
+FURNITURE & MATERIAL DIVERSITY:
 - The 3 options MUST use completely different furniture pieces. NO shared coffee tables, chairs, sofas, or lighting between options. If option 1 suggests a Noguchi table, options 2 and 3 CANNOT use any Noguchi table.
 - Different color temperatures: one warm, one cool, one wild/unexpected.
 - Different densities: one maximal/layered, one minimal/spare, one mid.
 - Different material families: one textile-dominant, one hard-surface-dominant, one organic/natural.
 - Different eras/sensibilities: one contemporary, one vintage-influenced, one future-forward.
 - One option should be genuinely radical — something the user would never think of but might love.
-- The visualization_prompt for each option MUST describe SPECIFIC, DIFFERENT furniture pieces. Never reuse the same item description across options.
+- The visualization_prompt for each option MUST describe SPECIFIC, DIFFERENT furniture pieces AND their spatial positions. Never reuse the same item description or layout across options.
 
 WRITING RULES:
 - Short sentences. Punchy. One adjective per noun max.
