@@ -177,9 +177,9 @@ const LookbookCard = memo(function LookbookCard({
             <LazyImage
               src={`data:image/png;base64,${entry.option.visualizationImage}`}
               alt={entry.option.name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 select-auto"
+              style={{ WebkitTouchCallout: 'default' } as React.CSSProperties}
               blurUp
-              draggable={false}
             />
             {/* Hover overlay with quick info */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none flex items-end p-3">
@@ -353,7 +353,8 @@ function FullScreenCard({
             <LazyImage
               src={`data:image/png;base64,${entry.option.visualizationImage}`}
               alt={entry.option.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover select-auto"
+              style={{ WebkitTouchCallout: 'default' } as React.CSSProperties}
               blurUp
             />
           ) : (

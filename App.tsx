@@ -21,6 +21,7 @@ const MyRoomsGallery = lazy(() => import('./components/MyRoomsGallery').then(m =
 const Lookbook = lazy(() => import('./components/Lookbook'));
 const DesignStudio = lazy(() => import('./components/DesignStudio'));
 const RoomManager = lazy(() => import('./components/RoomManager'));
+const StructureAssessment = lazy(() => import('./components/StructureAssessment').then(m => ({ default: m.StructureAssessment })));
 const UpgradePrompt = lazy(() => import('./components/UpgradePrompt').then(m => ({ default: m.UpgradePrompt })));
 const ProjectManager = lazy(() => import('./components/ProjectManager').then(m => ({ default: m.ProjectManager })));
 const PricingPage = lazy(() => import('./components/PricingPage').then(m => ({ default: m.PricingPage })));
@@ -35,6 +36,7 @@ import {
   generateDesignOptions,
   generateDesignVisualization,
   iterateDesign,
+  detectRoomStructure,
   isApiConfigured,
   GeminiApiError
 } from './services/geminiService';
@@ -47,7 +49,7 @@ import { validateImageFile, preprocessImage } from './services/edgeCaseHandlers'
 import { analytics } from './services/analytics';
 import { getErrorMessage } from './services/errorMessages';
 import { validateChatMessage } from './services/validation';
-import { AnalysisResult, AppState, ChatMessage, AppError, UploadedImage, DesignAnalysis, DesignOption, ShoppingListData, FlowMode, LookbookEntry, DesignRating } from './types';
+import { AnalysisResult, AppState, ChatMessage, AppError, UploadedImage, DesignAnalysis, DesignOption, ShoppingListData, FlowMode, LookbookEntry, DesignRating, StructureDetectionResult, StructureChoices } from './types';
 import { generateShoppingList, shoppingListFromProducts } from './services/shoppingListGenerator';
 // Avoid importing @google/genai client-side just for a type
 type Chat = any;
@@ -115,6 +117,11 @@ function AppContent() {
   const [shoppingList, setShoppingList] = useState<ShoppingListData | null>(null);
   const [lookbookEntries, setLookbookEntries] = useState<LookbookEntry[]>([]);
   const [studioEntry, setStudioEntry] = useState<LookbookEntry | null>(null);
+
+  // Structure detection state
+  const [structureDetection, setStructureDetection] = useState<StructureDetectionResult | null>(null);
+  const [structureChoices, setStructureChoices] = useState<StructureChoices | null>(null);
+  const [isDetectingStructure, setIsDetectingStructure] = useState(false);
 
   // Error state
   const [error, setError] = useState<AppError | null>(null);
@@ -203,6 +210,157 @@ function AppContent() {
     }
     return { mimeType, base64 };
   }, []);
+
+  /**
+   * Detect structural elements in the uploaded image
+   */
+  const handleStructureDetection = useCallback(async () => {
+    if (!uploadedImage) return;
+
+    setIsDetectingStructure(true);
+    setError(null);
+    setAppState(AppState.STRUCTURE_ASSESSMENT);
+    
+    try {
+      announce('Analyzing room structure...', 'polite');
+      const result = await detectRoomStructure(uploadedImage.base64, uploadedImage.mimeType);
+      setStructureDetection(result);
+    } catch (error) {
+      console.error('Structure detection failed:', error);
+      if (error instanceof GeminiApiError) {
+        setError(buildAppError(error.code, error.message, error.isRetryable));
+      } else {
+        setError(buildAppError('STRUCTURE_DETECTION_FAILED', 'Failed to analyze room structure', true));
+      }
+      setAppState(AppState.ERROR);
+    } finally {
+      setIsDetectingStructure(false);
+    }
+  }, [uploadedImage, announce, buildAppError]);
+
+  /**
+   * Handle user choices from structure assessment
+   */
+  const handleStructureChoices = (choices: StructureChoices) => {
+    setStructureChoices(choices);
+    // Show loading immediately so there's no blank white screen
+    setAppState(AppState.ANALYZING);
+    setAnalysisStage('analyzing');
+    setAnalysisProgress(5);
+    setIsAnalyzing(true);
+    // Continue to design generation with structural constraints — pass choices directly
+    // since React state won't be updated yet in the same tick
+    handleDesignGeneration(choices);
+  };
+
+  /**
+   * Generate designs with structural constraints
+   */
+  const handleDesignGeneration = useCallback(async (passedChoices?: StructureChoices) => {
+    const choices = passedChoices || structureChoices;
+    if (!uploadedImage) return;
+
+    setAppState(AppState.ANALYZING);
+    setIsAnalyzing(true);
+    setError(null);
+    
+    try {
+      setAnalysisStage('analyzing');
+      setAnalysisProgress(5);
+      analytics.trackAnalysisStart();
+      announce('Generating design options with your structure preferences...', 'polite');
+
+      // Create structural constraints string
+      const constraintsText = choices?.elementsToKeep?.length 
+        ? choices.elementsToKeep.map(el => el.name).join(', ')
+        : undefined;
+
+      // Smooth progress animation
+      let prog = 5;
+      const progressInterval = setInterval(() => {
+        prog += Math.max(0.5, (85 - prog) * 0.04);
+        if (prog > 85) prog = 85;
+        setAnalysisProgress(Math.round(prog));
+      }, 300);
+
+      // Generate design options with structural constraints
+      const designResult = await generateDesignOptions(
+        uploadedImage.base64, 
+        uploadedImage.mimeType, 
+        [], 
+        { structuralConstraints: constraintsText }
+      );
+      
+      clearInterval(progressInterval);
+      setAnalysisProgress(60);
+      setDesignAnalysis(designResult);
+      setSelectedDesignIndex(null);
+
+      // Generate all visualizations BEFORE showing the lookbook
+      setAnalysisStage('visualizing');
+      let vizDone = 0;
+      const totalViz = designResult.options.length;
+
+      const entriesWithImages: LookbookEntry[] = designResult.options.map((opt, idx) => ({
+        id: `design-${Date.now()}-${idx}`,
+        option: opt,
+        rating: null,
+        generatedAt: Date.now(),
+        batchIndex: 0,
+      }));
+
+      // Generate visualizations sequentially to avoid rate limits
+      for (let idx = 0; idx < entriesWithImages.length; idx++) {
+        const entry = entriesWithImages[idx]!;
+        let retries = 2;
+        while (retries >= 0) {
+          try {
+            const img = await generateDesignVisualization(
+              entry.option.visualizationPrompt,
+              uploadedImage.base64,
+              uploadedImage.mimeType
+            );
+            entriesWithImages[idx] = { ...entry, option: { ...entry.option, visualizationImage: img } };
+            (designResult.options[idx] as any).visualizationImage = img;
+            break;
+          } catch (e) {
+            if (retries > 0) {
+              console.warn(`Visualization for option ${idx} failed, retrying (${retries} left)...`, e);
+              await new Promise(r => setTimeout(r, 2000));
+              retries--;
+            } else {
+              console.warn(`Visualization for option ${idx} failed after all retries`, e);
+              break;
+            }
+          }
+        }
+        vizDone++;
+        setAnalysisProgress(60 + Math.round((vizDone / totalViz) * 35));
+      }
+
+      setAnalysisProgress(100);
+      setLookbookEntries(entriesWithImages);
+      setAppState(AppState.LOOKBOOK);
+      analytics.trackAnalysisComplete(designResult.options.length);
+      announce('Design options ready! Swipe through your personalized designs.', 'polite');
+      playSound('success');
+
+      // Track usage
+      incrementFreeUsage().catch(() => {});
+      refreshTier().catch(() => {});
+
+    } catch (error) {
+      console.error('Design generation failed:', error);
+      if (error instanceof GeminiApiError) {
+        setError(buildAppError(error.code, error.message, error.isRetryable));
+      } else {
+        setError(buildAppError('DESIGN_GENERATION_FAILED', 'Failed to generate design options', true));
+      }
+      setAppState(AppState.ERROR);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  }, [uploadedImage, structureChoices, announce, buildAppError, playSound, analytics, incrementFreeUsage, refreshTier]);
 
   /**
    * Handle image selection from the upload zone with enhanced validation
@@ -797,82 +955,9 @@ function AppContent() {
           setShoppingList(shoppingListFromProducts(result.products, sid));
         }
       } else {
-        // Redesign flow
-        setAnalysisStage('analyzing');
-        setAnalysisProgress(5);
-        analytics.trackAnalysisStart();
-        announce('Analyzing room through design theory frameworks', 'polite');
-
-        // Smooth progress: tick up gradually, slow down as it approaches 85%
-        let prog = 5;
-        const progressInterval = setInterval(() => {
-          prog += Math.max(0.5, (85 - prog) * 0.04);
-          if (prog > 85) prog = 85;
-          setAnalysisProgress(Math.round(prog));
-        }, 300);
-
-        const styleLabel = preferences?.style ? DESIGN_STYLES.find(s => s.id === preferences.style)?.label : undefined;
-        const roomLabel = preferences?.roomFunction ? ROOM_FUNCTIONS.find(r => r.id === preferences.roomFunction)?.label : undefined;
-        const designResult = await generateDesignOptions(uploadedImage.base64, uploadedImage.mimeType, [], { style: styleLabel, roomType: roomLabel });
-        clearInterval(progressInterval);
-        setAnalysisProgress(60);
-        setDesignAnalysis(designResult);
-        setSelectedDesignIndex(null);
-
-        // Generate all visualizations BEFORE showing the lookbook
-        setAnalysisStage('visualizing');
-        let vizDone = 0;
-        const totalViz = designResult.options.length;
-
-        const entriesWithImages: LookbookEntry[] = designResult.options.map((opt, idx) => ({
-          id: `design-${Date.now()}-${idx}`,
-          option: opt,
-          rating: null,
-          generatedAt: Date.now(),
-          batchIndex: 0,
-        }));
-
-        // Generate visualizations sequentially (staggered) to avoid rate limits
-        for (let idx = 0; idx < entriesWithImages.length; idx++) {
-          const entry = entriesWithImages[idx];
-          let retries = 2;
-          while (retries >= 0) {
-            try {
-              const img = await generateDesignVisualization(
-                entry.option.visualizationPrompt,
-                uploadedImage.base64,
-                uploadedImage.mimeType
-              );
-              entriesWithImages[idx] = { ...entry, option: { ...entry.option, visualizationImage: img } };
-              (designResult.options[idx] as any).visualizationImage = img;
-              break;
-            } catch (e) {
-              if (retries > 0) {
-                console.warn(`Visualization for option ${idx} failed, retrying (${retries} left)...`, e);
-                await new Promise(r => setTimeout(r, 2000));
-                retries--;
-              } else {
-                console.warn(`Visualization for option ${idx} failed after all retries`, e);
-                break;
-              }
-            }
-          }
-          vizDone++;
-          setAnalysisProgress(60 + Math.round((vizDone / totalViz) * 35));
-        }
-
-        setAnalysisProgress(100);
-        setDesignAnalysis({ ...designResult });
-        setLookbookEntries(entriesWithImages);
-        if (uploadedImage) saveRoomImage(uploadedImage.dataUrl);
-        setAppState(AppState.LOOKBOOK);
-        analytics.trackAnalysisComplete(3);
-        announce('Your lookbook is ready.', 'polite');
-        playSound('success');
-
-        // Track usage
-        incrementFreeUsage().catch(() => {});
-        refreshTier().catch(() => {});
+        // Redesign flow - start with structure detection
+        handleStructureDetection();
+        return; // Exit early, continue with handleDesignGeneration after structure choices
       }
     } catch (apiError) {
       console.error('Analysis error:', apiError);
@@ -1008,7 +1093,7 @@ function AppContent() {
             </span>
             
             {/* Back / Start Over — shown in sub-flows */}
-            {(appState === AppState.MODE_SELECT || appState === AppState.DESIGN_OPTIONS || appState === AppState.LOOKBOOK || appState === AppState.RESULTS) && (
+            {(appState === AppState.MODE_SELECT || appState === AppState.STRUCTURE_ASSESSMENT || appState === AppState.DESIGN_OPTIONS || appState === AppState.LOOKBOOK || appState === AppState.RESULTS) && (
               <button 
                 onClick={resetApp}
                 className="text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-stone-800 px-2 sm:px-3 py-2 whitespace-nowrap"
@@ -1206,6 +1291,19 @@ function AppContent() {
               onSelectMode={handleModeSelect}
               uploadedImage={uploadedImage?.dataUrl ?? null}
             />
+          </ErrorBoundary>
+        )}
+
+        {/* Structure Assessment State */}
+        {appState === AppState.STRUCTURE_ASSESSMENT && structureDetection && (
+          <ErrorBoundary>
+            <Suspense fallback={<AnalysisLoading stage="processing" />}>
+              <StructureAssessment
+                elements={structureDetection.elements}
+                onContinue={handleStructureChoices}
+                disabled={isDetectingStructure}
+              />
+            </Suspense>
           </ErrorBoundary>
         )}
 

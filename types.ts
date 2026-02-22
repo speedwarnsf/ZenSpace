@@ -226,6 +226,8 @@ export enum AppState {
   ANALYZING = 'ANALYZING',
   /** User chooses between Clean and Redesign flows */
   MODE_SELECT = 'MODE_SELECT',
+  /** Structure detection and user choices */
+  STRUCTURE_ASSESSMENT = 'STRUCTURE_ASSESSMENT',
   /** Show 3 design options after analysis */
   DESIGN_OPTIONS = 'DESIGN_OPTIONS',
   /** Lookbook view with drag-to-rate cards */
@@ -272,4 +274,40 @@ export interface UploadedImage {
   mimeType: string;
   /** Original file name */
   fileName: string;
+}
+
+/**
+ * A detected structural element in a room
+ */
+export interface StructureElement {
+  /** Unique identifier for this element */
+  id: string;
+  /** Display name for the element */
+  name: string;
+  /** Category of the element */
+  category: 'structural' | 'fixture' | 'moveable';
+  /** Whether this element was detected by AI */
+  detected: boolean;
+  /** Whether to keep this element by default */
+  keepByDefault: boolean;
+}
+
+/**
+ * Result from structure detection analysis
+ */
+export interface StructureDetectionResult {
+  /** List of detected elements */
+  elements: StructureElement[];
+}
+
+/**
+ * User's choices about which elements to keep vs change
+ */
+export interface StructureChoices {
+  /** Map of element ID to whether user wants to keep it */
+  keepChoices: Record<string, boolean>;
+  /** Elements that should remain unchanged */
+  elementsToKeep: StructureElement[];
+  /** Elements that can be changed */
+  elementsToChange: StructureElement[];
 }

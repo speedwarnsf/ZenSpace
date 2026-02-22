@@ -100,12 +100,12 @@ export default function DiscoverPage({ onBack, onShowUpgrade }: DiscoverPageProp
       </div>
 
       {/* Style filter tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-2 mb-8 scrollbar-hide" role="tablist" aria-label="Filter by style">
+      <div className="-mx-4 px-4 flex gap-2 overflow-x-auto pb-2 mb-8 scrollbar-hide" role="tablist" aria-label="Filter by style">
         <button
           role="tab"
           aria-selected={activeStyle === 'all'}
           onClick={() => setActiveStyle('all')}
-          className={`px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
+          className={`flex-shrink-0 px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
             activeStyle === 'all'
               ? 'bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900'
               : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
@@ -119,7 +119,7 @@ export default function DiscoverPage({ onBack, onShowUpgrade }: DiscoverPageProp
             role="tab"
             aria-selected={activeStyle === style}
             onClick={() => setActiveStyle(style)}
-            className={`px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
+            className={`flex-shrink-0 px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
               activeStyle === style
                 ? 'bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900'
                 : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'

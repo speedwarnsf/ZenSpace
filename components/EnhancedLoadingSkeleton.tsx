@@ -262,12 +262,12 @@ export function AnalysisLoading({ stage, progress = 0, className = '' }: Analysi
   return (
     <div className={`text-center space-y-6 ${className}`}>
       {/* Animated Icon */}
-      <div className={`mx-auto w-20 h-20 ${config.bgColor} flex items-center justify-center relative`}>
+      <div className={`mx-auto w-20 h-20 rounded-full ${config.bgColor} flex items-center justify-center relative`}>
         <Icon className={`w-10 h-10 ${config.color} animate-pulse`} />
         {/* Orbiting dot */}
         <div className="absolute inset-0 animate-[spin_3s_linear_infinite]">
-          <div className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 ${config.bgColor} ${config.color}`}>
-            <div className={`w-2 h-2 ${config.color === 'text-emerald-500' ? 'bg-emerald-500' : config.color === 'text-amber-500' ? 'bg-amber-500' : config.color === 'text-blue-500' ? 'bg-blue-500' : 'bg-purple-500'}`} />
+          <div className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full ${config.bgColor} ${config.color}`}>
+            <div className={`w-2 h-2 rounded-full ${config.color === 'text-emerald-500' ? 'bg-emerald-500' : config.color === 'text-amber-500' ? 'bg-amber-500' : config.color === 'text-blue-500' ? 'bg-blue-500' : 'bg-purple-500'}`} />
           </div>
         </div>
       </div>

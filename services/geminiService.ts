@@ -1,8 +1,8 @@
 // Inline enum values to avoid bundling the full @google/genai SDK client-side
 const Type = { STRING: 'STRING', NUMBER: 'NUMBER', INTEGER: 'INTEGER', BOOLEAN: 'BOOLEAN', ARRAY: 'ARRAY', OBJECT: 'OBJECT' } as const;
 const Modality = { TEXT: 'TEXT', IMAGE: 'IMAGE', AUDIO: 'AUDIO' } as const;
-import { AnalysisResult, ProductSuggestion, DesignAnalysis, DesignOption, DesignFramework } from '../types';
-import { createAnalysisPrompt, createChatContextPrompt, createDesignAnalysisPrompt, createIterationPrompt } from './promptTemplates';
+import { AnalysisResult, ProductSuggestion, DesignAnalysis, DesignOption, DesignFramework, StructureDetectionResult, StructureElement } from '../types';
+import { createAnalysisPrompt, createChatContextPrompt, createDesignAnalysisPrompt, createIterationPrompt, createStructureDetectionPrompt } from './promptTemplates';
 import { createTimeoutHandler } from './edgeCaseHandlers';
 import { retryAsync, getApiRetryConfig } from './retry';
 
@@ -674,7 +674,7 @@ export const generateDesignOptions = async (
   base64Image: string,
   mimeType: string,
   previousDesigns: string[] = [],
-  options?: { style?: string; roomType?: string }
+  options?: { style?: string; roomType?: string; structuralConstraints?: string }
 ): Promise<DesignAnalysis> => {
   if (!base64Image || !mimeType?.startsWith('image/')) {
     throw new GeminiApiError('Invalid image data', 'INVALID_INPUT', false);
@@ -682,7 +682,7 @@ export const generateDesignOptions = async (
 
   try {
     const { withTimeout } = createTimeoutHandler(60000); // 60s for richer prompt
-    const promptText = createDesignAnalysisPrompt({ roomType: options?.roomType || 'room', previousDesigns, style: options?.style });
+    const promptText = createDesignAnalysisPrompt({ roomType: options?.roomType || 'room', previousDesigns, style: options?.style, structuralConstraints: options?.structuralConstraints });
 
     const response = await withTimeout(ai.models.generateContent({
       model: ANALYSIS_MODEL,
@@ -921,5 +921,106 @@ export const iterateDesign = async (
     if (error instanceof GeminiApiError) throw error;
     const msg = error instanceof Error ? error.message : String(error);
     throw new GeminiApiError(`Iteration failed: ${msg.slice(0, 200)}`, 'UNKNOWN', true);
+  }
+};
+
+/**
+ * Detect structural elements in a room photo
+ * @param base64Image - Base64 encoded image data
+ * @param mimeType - MIME type of the image
+ * @returns Structure detection result with categorized elements
+ * @throws GeminiApiError if detection fails
+ */
+export const detectRoomStructure = async (
+  base64Image: string,
+  mimeType: string
+): Promise<StructureDetectionResult> => {
+  if (!base64Image || !mimeType?.startsWith('image/')) {
+    throw new GeminiApiError('Invalid image data for structure detection', 'INVALID_INPUT', false);
+  }
+
+  try {
+    const { withTimeout } = createTimeoutHandler(30000); // 30s timeout
+    const promptText = createStructureDetectionPrompt();
+
+    const response = await withTimeout(ai.models.generateContent({
+      model: ANALYSIS_MODEL,
+      contents: {
+        parts: [
+          { inlineData: { mimeType, data: base64Image } },
+          { text: promptText }
+        ]
+      },
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            elements: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  id: { type: Type.STRING },
+                  name: { type: Type.STRING },
+                  category: { type: Type.STRING },
+                  detected: { type: Type.BOOLEAN },
+                  keepByDefault: { type: Type.BOOLEAN }
+                },
+                required: ['id', 'name', 'category', 'detected', 'keepByDefault']
+              }
+            }
+          },
+          required: ['elements']
+        }
+      }
+    }));
+
+    const responseText = (
+      response.text?.trim() ||
+      response.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
+      ''
+    );
+
+    if (!responseText) {
+      throw new GeminiApiError('Empty structure detection response', 'EMPTY_RESPONSE', true);
+    }
+
+    const jsonText = extractJsonFromText(responseText);
+    if (!jsonText) {
+      throw new GeminiApiError('Could not parse structure detection response', 'PARSE_ERROR', true);
+    }
+
+    const parsed = JSON.parse(jsonText);
+    
+    if (!parsed.elements || !Array.isArray(parsed.elements)) {
+      throw new GeminiApiError('Invalid structure detection format', 'PARSE_ERROR', true);
+    }
+
+    // Validate and normalize elements
+    const validCategories = ['structural', 'fixture', 'moveable'];
+    const elements: StructureElement[] = parsed.elements
+      .filter((el: any) => 
+        el && 
+        typeof el.id === 'string' &&
+        typeof el.name === 'string' &&
+        typeof el.category === 'string' &&
+        validCategories.includes(el.category) &&
+        typeof el.detected === 'boolean' &&
+        typeof el.keepByDefault === 'boolean'
+      )
+      .map((el: any) => ({
+        id: el.id,
+        name: el.name,
+        category: el.category as 'structural' | 'fixture' | 'moveable',
+        detected: el.detected,
+        keepByDefault: el.keepByDefault
+      }));
+
+    return { elements };
+  } catch (error) {
+    if (error instanceof GeminiApiError) throw error;
+    const msg = error instanceof Error ? error.message : String(error);
+    throw new GeminiApiError(`Structure detection failed: ${msg.slice(0, 200)}`, 'UNKNOWN', true);
   }
 };

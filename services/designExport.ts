@@ -20,7 +20,25 @@ function base64ToImage(base64: string, mimeType = 'image/png'): Promise<HTMLImag
   });
 }
 
-function downloadBlob(blob: Blob, filename: string) {
+function isMobile(): boolean {
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+    (navigator.maxTouchPoints > 0 && window.innerWidth < 768);
+}
+
+async function downloadBlob(blob: Blob, filename: string) {
+  const file = new File([blob], filename, { type: blob.type || 'image/png' });
+
+  // Mobile: use Web Share API for native "Save Image" support
+  if (isMobile() && navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file] });
+      return;
+    } catch (err: any) {
+      if (err?.name === 'AbortError') return;
+    }
+  }
+
+  // Desktop fallback
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;

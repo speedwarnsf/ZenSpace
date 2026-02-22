@@ -87,14 +87,35 @@ export async function shareCard(blob: Blob, designName: string): Promise<void> {
 }
 
 export async function downloadCard(blob: Blob, designName: string): Promise<void> {
-  downloadBlob(blob, designName);
+  const filename = `${designName.toLowerCase().replace(/\s+/g, '-')}-zenspace.png`;
+  const file = new File([blob], filename, { type: 'image/png' });
+
+  // On mobile, use Web Share API so users get the native share sheet
+  // with "Save Image" option — the <a download> trick doesn't work on mobile Safari
+  if (isMobile() && navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file] });
+      return;
+    } catch (err: any) {
+      // User cancelled share — that's fine, fall through to download
+      if (err?.name === 'AbortError') return;
+    }
+  }
+
+  // Desktop fallback: standard download
+  downloadBlob(blob, filename);
 }
 
-function downloadBlob(blob: Blob, designName: string) {
+function isMobile(): boolean {
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+    (navigator.maxTouchPoints > 0 && window.innerWidth < 768);
+}
+
+function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${designName.toLowerCase().replace(/\s+/g, '-')}-zenspace.png`;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

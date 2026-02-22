@@ -181,8 +181,8 @@ function getDesignSeed(): DesignSeed[] {
   });
 }
 
-export function createDesignAnalysisPrompt(context: PromptContext & { previousDesigns?: string[] } = {}): string {
-  const { roomType = 'room', previousDesigns = [], style } = context;
+export function createDesignAnalysisPrompt(context: PromptContext & { previousDesigns?: string[]; structuralConstraints?: string } = {}): string {
+  const { roomType = 'room', previousDesigns = [], style, structuralConstraints } = context;
   const seeds = getDesignSeed() as [DesignSeed, DesignSeed, DesignSeed];
 
   return `You are a sharp, opinionated interior design critic. You write like Dwell meets Rolling Stone — precise, physical, zero filler.
@@ -197,7 +197,7 @@ FRAMEWORKS (use 2-3 per design, by exact name):
 NEVER mention designer names, style labels, or movement names. No "wabi-sabi," no "Scandinavian," no "Parisian salon." Describe what the room LOOKS, FEELS, and SMELLS like.
 
 ROOM CONTEXT:
-- Room type: ${roomType}${style ? `\n- USER-REQUESTED STYLE DIRECTION: "${style}" — All 3 design options should interpret this style in different ways. Do NOT just copy-paste the style name. Use it as a starting point and explore 3 genuinely different interpretations that all respect this aesthetic family. Include furniture and fixtures appropriate for a ${roomType}.` : ''}
+- Room type: ${roomType}${style ? `\n- USER-REQUESTED STYLE DIRECTION: "${style}" — All 3 design options should interpret this style in different ways. Do NOT just copy-paste the style name. Use it as a starting point and explore 3 genuinely different interpretations that all respect this aesthetic family. Include furniture and fixtures appropriate for a ${roomType}.` : ''}${structuralConstraints ? `\n\nSTRUCTURAL CONSTRAINTS:\nThe user wants to KEEP the following elements exactly as they are: ${structuralConstraints}\nYou may redesign everything else. DO NOT suggest changes to the elements listed above.` : ''}
 
 STEP 1 — ROOM READING
 Analyze this ${roomType} honestly. What works, what doesn't. Be specific about what you see. 2-3 short paragraphs.
@@ -256,6 +256,14 @@ PRODUCT RECOMMENDATIONS (per option):
 
 Full plan structure: ### Design Thesis (2-3 sentences) → ### Interventions (bullet list) → ### Materials (bullet list) → ### Rug (2-3 sentences). No prose paragraphs longer than 3 sentences.
 ${previousDesigns.length > 0 ? `\nALREADY SEEN (avoid these): ${previousDesigns.map(d => `"${d}"`).join(', ')}` : ''}
+
+VISUALIZATION PROMPT RULES:
+Each design's visualization_prompt MUST include:${structuralConstraints ? `\n- "KEEP THESE UNCHANGED: ${structuralConstraints}. Do NOT alter these elements."` : ''}
+- Specific furniture placement and layout description
+- Material and finish specifications
+- Lighting and atmosphere details
+- The specific rug description from your design
+
 Return ONLY valid JSON: { "room_reading": "...", "options": [{name, mood, frameworks, palette, key_changes, full_plan, visualization_prompt, products}, ...] }`;
 }
 
@@ -604,6 +612,60 @@ export function buildProjectStyleContext(styleGuide: {
   return parts.join('\n');
 }
 
+/**
+ * Structure detection prompt for identifying permanent vs moveable elements
+ */
+export function createStructureDetectionPrompt(): string {
+  return `You are a structure detection AI for interior design. Analyze this room photo and identify all visible elements, categorizing them as structural (permanent), fixture (semi-permanent), or moveable.
+
+**RESPOND WITH STRICT JSON ONLY:**
+{
+  "elements": [
+    {
+      "id": "walls",
+      "name": "Walls",
+      "category": "structural",
+      "detected": true,
+      "keepByDefault": true
+    }
+  ]
+}
+
+**CATEGORIES:**
+
+**STRUCTURAL** (keepByDefault: true) - Permanent architectural elements:
+- Walls, layout, room shape
+- Windows and doors
+- Ceiling and flooring
+- Built-in architectural features
+
+**FIXTURE** (keepByDefault: true, but user can choose) - Semi-permanent installations:
+- Built-in cabinets, countertops
+- Sinks, toilets, built-in appliances
+- Fireplace, built-in shelving
+- Permanent lighting fixtures
+- Built-in seating/banquettes
+
+**MOVEABLE** (keepByDefault: false) - Items that can be easily changed:
+- Furniture (sofas, chairs, tables, beds)
+- Portable lighting (lamps, floor lights)
+- Textiles (rugs, curtains, pillows, throws)
+- Decor items (artwork, plants, accessories)
+- Paint color and wallpaper
+- Electronics and personal items
+
+**RULES:**
+- Only list elements you can clearly see in the photo
+- Use descriptive but concise names (e.g. "Kitchen Island" not just "Island")  
+- Include all major furniture pieces individually
+- Group small decor items (e.g. "Wall art and frames")
+- Be specific about fixtures (e.g. "Pendant lights over island" vs "Ceiling fan")
+- Paint color is always moveable
+- Built-in elements are fixtures, free-standing are moveable
+
+Generate 8-15 elements total. Focus on the most significant design elements.`;
+}
+
 export default {
   createAnalysisPrompt,
   createVisualizationPrompt,
@@ -613,4 +675,5 @@ export default {
   validatePromptResponse,
   promptVariants,
   buildProjectStyleContext,
+  createStructureDetectionPrompt,
 };
