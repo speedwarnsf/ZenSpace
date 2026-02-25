@@ -28,3 +28,4 @@ dist-ssr
 coverage/
 .env*.local
 .env.vercel
+.env

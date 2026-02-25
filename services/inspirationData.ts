@@ -18,7 +18,6 @@ export type DesignStyle =
   | 'Traditional'
   | 'Scandinavian'
   | 'Industrial'
-  | 'Japandi'
   | 'Mid-Century'
   | 'Bohemian'
   | 'Mediterranean';
@@ -36,7 +35,6 @@ export const DESIGN_STYLES: DesignStyle[] = [
   'Traditional',
   'Scandinavian',
   'Industrial',
-  'Japandi',
   'Mid-Century',
   'Bohemian',
   'Mediterranean',
@@ -67,10 +65,7 @@ export const INSPIRATION_IMAGES: InspirationImage[] = [
   { id: 'ind-2', src: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=600&q=80', alt: 'Industrial open-plan living space with concrete walls and metal staircase', style: 'Industrial', room: 'Living Room', credit: 'Unsplash', tags: ['brick', 'metal', 'loft'] },
   { id: 'ind-3', src: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=600&q=80', alt: 'Industrial space with exposed concrete ceiling, steel windows, and polished floors', style: 'Industrial', room: 'Living Room', credit: 'Unsplash', tags: ['concrete', 'contrast', 'warm'] },
 
-  // Japandi
-  { id: 'jap-1', src: 'https://images.unsplash.com/photo-1615529182904-14819c35db37?w=600&q=80', alt: 'Japandi living space with low furniture and muted palette', style: 'Japandi', room: 'Living Room', credit: 'Unsplash', tags: ['low', 'muted', 'wabi-sabi'] },
-  { id: 'jap-2', src: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=600&q=80', alt: 'Japandi-inspired living space with natural tones and clean lines', style: 'Japandi', room: 'Living Room', credit: 'Unsplash', tags: ['natural', 'simple', 'crafted'] },
-  { id: 'jap-3', src: 'https://images.unsplash.com/photo-1617325247661-675ab4b64ae2?w=600&q=80', alt: 'Japandi bedroom with raw wood platform bed and linen bedding', style: 'Japandi', room: 'Bedroom', credit: 'Unsplash', tags: ['platform', 'zen', 'earth-tones'] },
+  // Japandi — removed: previous images were not representative of the style
 
   // Mid-Century
   { id: 'mid-1', src: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600&q=80', alt: 'Mid-century modern living room with brass arc lamp, leather poufs and teak furniture', style: 'Mid-Century', room: 'Living Room', credit: 'Unsplash', tags: ['arc-lamp', 'leather', 'teak'] },
@@ -155,7 +150,6 @@ export const DESIGN_TIPS: DesignTip[] = [
  */
 export function getTrendingStyles(): { style: DesignStyle; description: string; imageId: string }[] {
   return [
-    { style: 'Japandi', description: 'Japanese minimalism meets Scandinavian warmth — the most searched style this year', imageId: 'jap-1' },
     { style: 'Mediterranean', description: 'Warm terracotta, arched doorways, and sun-washed textures are surging in popularity', imageId: 'med-1' },
     { style: 'Mid-Century', description: 'Timeless organic shapes and warm woods continue to dominate modern interiors', imageId: 'mid-1' },
     { style: 'Industrial', description: 'Raw materials and open spaces — the urban aesthetic that keeps evolving', imageId: 'ind-1' },
