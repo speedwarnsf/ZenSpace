@@ -1588,7 +1588,7 @@ function AppContent() {
         <footer className="border-t border-stone-200 dark:border-stone-800 py-8 mt-auto">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-400 dark:text-stone-500">
             <p>© {new Date().getFullYear()} ZenSpace · AI-powered interior design</p>
-            <p>Powered by Google Gemini AI</p>
+            <p>AI-assisted design visualization</p>
           </div>
         </footer>
       )}
