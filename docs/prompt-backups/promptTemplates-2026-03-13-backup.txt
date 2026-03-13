@@ -181,42 +181,9 @@ function getDesignSeed(): DesignSeed[] {
   });
 }
 
-export interface StructureConstraints {
-  fixed?: string[];        // keep-in-place items
-  flexible?: string[];     // keep items that can move
-}
-
-export function createDesignAnalysisPrompt(context: PromptContext & { previousDesigns?: string[]; structuralConstraints?: StructureConstraints } = {}): string {
+export function createDesignAnalysisPrompt(context: PromptContext & { previousDesigns?: string[]; structuralConstraints?: string } = {}): string {
   const { roomType = 'room', previousDesigns = [], style, structuralConstraints } = context;
   const seeds = getDesignSeed() as [DesignSeed, DesignSeed, DesignSeed];
-
-  // Build constraints section
-  const hasFixedConstraints = structuralConstraints?.fixed && structuralConstraints.fixed.length > 0;
-  const hasFlexibleConstraints = structuralConstraints?.flexible && structuralConstraints.flexible.length > 0;
-
-  let constraintsSection = '';
-  if (hasFixedConstraints || hasFlexibleConstraints) {
-    constraintsSection = '\n\nNON-NEGOTIABLE CONSTRAINTS:\n';
-
-    // Tier 1: Structural elements (always present via detection)
-    constraintsSection += 'TIER 1 — ARCHITECTURAL SHELL (ALWAYS PRESERVED):\n';
-    constraintsSection += 'This room has existing walls, windows, doors, ceiling, and floor material. Preserve ALL architectural elements exactly. Do NOT add or remove any windows, doors, or walls. Keep the same room geometry and camera perspective.\n';
-
-    // Tier 2: User-selected keep-in-place items
-    if (hasFixedConstraints) {
-      constraintsSection += `\nTIER 2 — FIXED POSITION ITEMS:\nKEEP THESE EXACT ITEMS IN THEIR EXACT POSITIONS: ${structuralConstraints.fixed!.join(', ')}. Do not move, replace, or alter them in any way.\n`;
-    }
-
-    // Tier 3: User-selected keep-flexible items
-    if (hasFlexibleConstraints) {
-      constraintsSection += `\nTIER 3 — FLEXIBLE ITEMS:\nINCLUDE THESE ITEMS in the redesign but you may reposition them: ${structuralConstraints.flexible!.join(', ')}.\n`;
-    }
-
-    // Adjust creative freedom based on constraints
-    if (hasFixedConstraints && structuralConstraints.fixed!.length > 2) {
-      constraintsSection += '\nNOTE: With multiple fixed elements, focus on thoughtful refinement rather than dramatic transformation. Be intentional, not extreme.\n';
-    }
-  }
 
   return `You are a sharp, opinionated interior design critic. You write like Dwell meets Rolling Stone — precise, physical, zero filler.
 
@@ -230,7 +197,7 @@ FRAMEWORKS (use 2-3 per design, by exact name):
 NEVER mention designer names, style labels, or movement names. No "wabi-sabi," no "Scandinavian," no "Parisian salon." Describe what the room LOOKS, FEELS, and SMELLS like.
 
 ROOM CONTEXT:
-- Room type: ${roomType}${style ? `\n- USER-REQUESTED STYLE DIRECTION: "${style}" — All 3 design options should interpret this style in different ways. Do NOT just copy-paste the style name. Use it as a starting point and explore 3 genuinely different interpretations that all respect this aesthetic family. Include furniture and fixtures appropriate for a ${roomType}.` : ''}${constraintsSection}
+- Room type: ${roomType}${style ? `\n- USER-REQUESTED STYLE DIRECTION: "${style}" — All 3 design options should interpret this style in different ways. Do NOT just copy-paste the style name. Use it as a starting point and explore 3 genuinely different interpretations that all respect this aesthetic family. Include furniture and fixtures appropriate for a ${roomType}.` : ''}${structuralConstraints ? `\n\nSTRUCTURAL CONSTRAINTS:\nThe user wants to KEEP the following elements exactly as they are: ${structuralConstraints}\nYou may redesign everything else. DO NOT suggest changes to the elements listed above.` : ''}
 
 STEP 1 — ROOM READING
 Analyze this ${roomType} honestly. What works, what doesn't. Be specific about what you see. 2-3 short paragraphs.
@@ -291,11 +258,11 @@ Full plan structure: ### Design Thesis (2-3 sentences) → ### Interventions (bu
 ${previousDesigns.length > 0 ? `\nALREADY SEEN (avoid these): ${previousDesigns.map(d => `"${d}"`).join(', ')}` : ''}
 
 VISUALIZATION PROMPT RULES:
-Each design's visualization_prompt MUST include:
+Each design's visualization_prompt MUST include:${structuralConstraints ? `\n- "KEEP THESE UNCHANGED: ${structuralConstraints}. Do NOT alter these elements."` : ''}
 - Specific furniture placement and layout description
 - Material and finish specifications
 - Lighting and atmosphere details
-- The specific rug description from your design${hasFixedConstraints ? `\n- Explicit instruction to preserve fixed items: ${structuralConstraints?.fixed!.join(', ')}` : ''}
+- The specific rug description from your design
 
 Return ONLY valid JSON: { "room_reading": "...", "options": [{name, mood, frameworks, palette, key_changes, full_plan, visualization_prompt, products}, ...] }`;
 }

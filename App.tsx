@@ -270,10 +270,11 @@ function AppContent() {
       analytics.trackAnalysisStart();
       announce('Generating design options with your structure preferences...', 'polite');
 
-      // Create structural constraints string
-      const constraintsText = choices?.elementsToKeep?.length 
-        ? choices.elementsToKeep.map(el => el.name).join(', ')
-        : undefined;
+      // Create tiered structural constraints
+      const constraints = choices ? {
+        fixed: choices.elementsToKeepInPlace?.map(el => el.name),
+        flexible: choices.elementsToKeepFlexible?.map(el => el.name)
+      } : undefined;
 
       // Smooth progress animation
       let prog = 5;
@@ -285,10 +286,10 @@ function AppContent() {
 
       // Generate design options with structural constraints
       const designResult = await generateDesignOptions(
-        uploadedImage.base64, 
-        uploadedImage.mimeType, 
-        [], 
-        { structuralConstraints: constraintsText }
+        uploadedImage.base64,
+        uploadedImage.mimeType,
+        [],
+        { structuralConstraints: constraints }
       );
       
       clearInterval(progressInterval);
@@ -318,7 +319,8 @@ function AppContent() {
             const img = await generateDesignVisualization(
               entry.option.visualizationPrompt,
               uploadedImage.base64,
-              uploadedImage.mimeType
+              uploadedImage.mimeType,
+              constraints
             );
             entriesWithImages[idx] = { ...entry, option: { ...entry.option, visualizationImage: img } };
             (designResult.options[idx] as any).visualizationImage = img;
@@ -854,7 +856,14 @@ function AppContent() {
     setIsGeneratingVisuals(true);
     try {
       const previousNames = lookbookEntries.map(e => `${e.option.name}: ${e.option.mood}`);
-      const newBatch = await generateDesignOptions(uploadedImage.base64, uploadedImage.mimeType, previousNames);
+
+      // Use the same constraints from the initial generation
+      const constraints = structureChoices ? {
+        fixed: structureChoices.elementsToKeepInPlace?.map(el => el.name),
+        flexible: structureChoices.elementsToKeepFlexible?.map(el => el.name)
+      } : undefined;
+
+      const newBatch = await generateDesignOptions(uploadedImage.base64, uploadedImage.mimeType, previousNames, { structuralConstraints: constraints });
       const batchIndex = Math.max(0, ...lookbookEntries.map(e => e.batchIndex)) + 1;
       const newEntries: LookbookEntry[] = newBatch.options.map((opt, idx) => ({
         id: `design-${Date.now()}-${idx}`,
@@ -873,7 +882,8 @@ function AppContent() {
               const img = await generateDesignVisualization(
                 entry.option.visualizationPrompt,
                 uploadedImage.base64,
-                uploadedImage.mimeType
+                uploadedImage.mimeType,
+                constraints
               );
               setLookbookEntries(prev => prev.map(e =>
                 e.id === entry.id ? { ...e, option: { ...e.option, visualizationImage: img } } : e
@@ -896,7 +906,7 @@ function AppContent() {
     } finally {
       setIsGeneratingVisuals(false);
     }
-  }, [uploadedImage, lookbookEntries]);
+  }, [uploadedImage, lookbookEntries, structureChoices]);
 
   /**
    * Go deeper on a lookbook entry — transition to Design Studio
@@ -1006,10 +1016,16 @@ function AppContent() {
     if (!opt) return;
     setIsVisualizingDesign(true);
     try {
+      const constraints = structureChoices ? {
+        fixed: structureChoices.elementsToKeepInPlace?.map(el => el.name),
+        flexible: structureChoices.elementsToKeepFlexible?.map(el => el.name)
+      } : undefined;
+
       const img = await generateDesignVisualization(
         opt.visualizationPrompt,
         uploadedImage.base64,
-        uploadedImage.mimeType
+        uploadedImage.mimeType,
+        constraints
       );
       setDesignAnalysis(prev => {
         if (!prev) return prev;
@@ -1023,7 +1039,7 @@ function AppContent() {
     } finally {
       setIsVisualizingDesign(false);
     }
-  }, [selectedDesignIndex, designAnalysis, uploadedImage]);
+  }, [selectedDesignIndex, designAnalysis, uploadedImage, structureChoices]);
 
   /**
    * Resume a saved lookbook from localStorage

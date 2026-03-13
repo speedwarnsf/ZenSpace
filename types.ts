@@ -301,13 +301,20 @@ export interface StructureDetectionResult {
 }
 
 /**
+ * How to handle a structural element in design generation
+ */
+export type KeepMode = 'change' | 'keep' | 'keep-in-place';
+
+/**
  * User's choices about which elements to keep vs change
  */
 export interface StructureChoices {
-  /** Map of element ID to whether user wants to keep it */
-  keepChoices: Record<string, boolean>;
-  /** Elements that should remain unchanged */
-  elementsToKeep: StructureElement[];
+  /** Map of element ID to how it should be handled */
+  keepChoices: Record<string, KeepMode>;
+  /** Elements that should remain unchanged in exact position */
+  elementsToKeepInPlace: StructureElement[];
+  /** Elements to include but can be repositioned */
+  elementsToKeepFlexible: StructureElement[];
   /** Elements that can be changed */
   elementsToChange: StructureElement[];
 }

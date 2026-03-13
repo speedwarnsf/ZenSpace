@@ -262,11 +262,11 @@ export function AnalysisLoading({ stage, progress = 0, className = '' }: Analysi
   return (
     <div className={`text-center space-y-6 ${className}`}>
       {/* Animated Icon */}
-      <div className={`mx-auto w-20 h-20 rounded-full ${config.bgColor} flex items-center justify-center relative`}>
+      <div className={`loading-circle mx-auto w-20 h-20 rounded-full ${config.bgColor} flex items-center justify-center relative`}>
         <Icon className={`w-10 h-10 ${config.color} animate-pulse`} />
         {/* Orbiting dot */}
         <div className="absolute inset-0 animate-[spin_3s_linear_infinite]">
-          <div className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full ${config.bgColor} ${config.color}`}>
+          <div className={`loading-circle absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full ${config.bgColor} ${config.color}`}>
             <div className={`w-2 h-2 rounded-full ${config.color === 'text-emerald-500' ? 'bg-emerald-500' : config.color === 'text-amber-500' ? 'bg-amber-500' : config.color === 'text-blue-500' ? 'bg-blue-500' : 'bg-purple-500'}`} />
           </div>
         </div>
@@ -331,7 +331,7 @@ export function AnalysisLoading({ stage, progress = 0, className = '' }: Analysi
       </p>
 
       {/* Slow response notice */}
-      {elapsed > 45 && (
+      {elapsed > 120 && (
         <div className="max-w-sm mx-auto bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-4 py-3 animate-in fade-in duration-500">
           <p className="text-xs text-amber-700 dark:text-amber-300 font-medium mb-1">Taking longer than usual</p>
           <p className="text-xs text-amber-600 dark:text-amber-400 leading-relaxed">
@@ -358,7 +358,7 @@ export function ChatTypingIndicator({ className = '' }: { className?: string }) 
         {[0, 1, 2].map(i => (
           <div
             key={i}
-            className="w-2 h-2 bg-stone-400 dark:bg-stone-500 animate-bounce"
+            className="loading-circle w-2 h-2 rounded-full bg-stone-400 dark:bg-stone-500 animate-bounce"
             style={{ animationDelay: `${i * 0.1}s` }}
           />
         ))}
@@ -415,7 +415,7 @@ export function LoadingButton({
     >
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-4 h-4 border-2 border-current border-t-transparent animate-spin" />
+          <div className="loading-circle w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" />
         </div>
       )}
       <span className={loading ? 'invisible' : 'visible'}>

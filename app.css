@@ -15,12 +15,16 @@
 *::after {
   border-radius: 0 !important;
 }
-/* Camera lens and accessibility button must stay circular */
+/* Camera lens, loading icons, and accessibility button must stay circular */
 .lens-circle,
 .lens-circle *,
 .lens-circle *::before,
 .lens-circle *::after,
-.a11y-circle {
+.a11y-circle,
+.loading-circle,
+.loading-circle *,
+.loading-circle *::before,
+.loading-circle *::after {
   border-radius: 50% !important;
 }
 

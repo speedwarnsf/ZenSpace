@@ -674,7 +674,7 @@ export const generateDesignOptions = async (
   base64Image: string,
   mimeType: string,
   previousDesigns: string[] = [],
-  options?: { style?: string; roomType?: string; structuralConstraints?: import('./promptTemplates').StructureConstraints }
+  options?: { style?: string; roomType?: string; structuralConstraints?: string }
 ): Promise<DesignAnalysis> => {
   if (!base64Image || !mimeType?.startsWith('image/')) {
     throw new GeminiApiError('Invalid image data', 'INVALID_INPUT', false);
@@ -773,8 +773,7 @@ export const generateDesignOptions = async (
 export const generateDesignVisualization = async (
   visualizationPrompt: string,
   originalImageBase64: string,
-  mimeType: string,
-  constraints?: { fixed?: string[]; flexible?: string[] }
+  mimeType: string
 ): Promise<string> => {
   if (!visualizationPrompt?.trim() || !originalImageBase64 || !mimeType) {
     throw new GeminiApiError('Missing visualization data', 'INVALID_INPUT', false);
@@ -782,37 +781,21 @@ export const generateDesignVisualization = async (
 
   try {
     const { withTimeout } = createTimeoutHandler(VISUALIZATION_TIMEOUT_MS);
-
-    // Build constraint instructions
-    let constraintText = '';
-    if (constraints?.fixed && constraints.fixed.length > 0) {
-      constraintText = `\n\nFIXED POSITION CONSTRAINTS — KEEP THESE EXACT ITEMS IN THEIR EXACT POSITIONS:\n${constraints.fixed.join(', ')}\nDo NOT move, replace, or alter these items. Everything else can be redesigned.\n`;
-    }
-    if (constraints?.flexible && constraints.flexible.length > 0) {
-      constraintText += `\n\nFLEXIBLE ITEMS — INCLUDE THESE ITEMS but you may reposition them:\n${constraints.flexible.join(', ')}\n`;
-    }
-
-    // Adjust creative language based on constraints
-    const hasMultipleFixed = (constraints?.fixed?.length || 0) > 2;
-    const creativityPrompt = hasMultipleFixed
-      ? 'Work thoughtfully within the constraints. Focus on refinement and cohesion rather than extreme transformation.'
-      : 'Be BOLD — this should feel like a dramatic transformation. Make the user excited about the possibility.';
-
     const response = await withTimeout(ai.models.generateContent({
       model: VISUALIZATION_MODEL,
       contents: {
         parts: [
           { inlineData: { mimeType, data: originalImageBase64 } },
           {
-            text: `REDESIGN THIS ROOM PHOTO. Keep the architectural shell (walls, windows, doors, ceiling, floor material) and similar camera angle so the user recognizes their space.${constraintText}
+            text: `REDESIGN THIS ROOM PHOTO. Keep the architectural shell (walls, windows, doors, ceiling, floor material) and similar camera angle so the user recognizes their space.
 
-${constraints?.fixed && constraints.fixed.length > 0 ? 'REDESIGN THE REST OF THE SPACE' : 'REARRANGE THE FURNITURE COMPLETELY'} according to this design vision:
+BUT — REARRANGE THE FURNITURE COMPLETELY according to this design vision:
 ${visualizationPrompt.trim()}
 
 CRITICAL — LAYOUT MATTERS MOST:
 - Follow the layout/arrangement described above EXACTLY. If it says "sofa facing the window," put the sofa facing the window — even if the original photo has it against a wall.
-${constraints?.fixed && constraints.fixed.length > 0 ? '- Keep fixed items exactly where they are in the original photo.' : '- REMOVE all existing furniture and REPLACE with the pieces described, in the positions described.'}
-- The furniture arrangement should look ${hasMultipleFixed ? 'refined and cohesive' : 'DIFFERENT from the original photo'}. Same room shell, ${hasMultipleFixed ? 'improved interior' : 'totally different interior'}.
+- REMOVE all existing furniture and REPLACE with the pieces described, in the positions described.
+- The furniture arrangement should look DIFFERENT from the original photo. Same room shell, totally different interior.
 
 STYLE DIRECTION:
 - Professional interior design portfolio shot — Architectural Digest / Dwell quality
@@ -823,7 +806,9 @@ STYLE DIRECTION:
 
 RULES:
 - Same room shell and approximate camera angle — recognizable as the same space
-- ${creativityPrompt}`
+- DIFFERENT furniture layout from the original — this is a redesign, not a reskin
+- Be BOLD — this should feel like a dramatic transformation
+- Make the user excited about the possibility`
           }
         ]
       },
