@@ -43,13 +43,13 @@ import {
 import { compressImage } from './services/imageCompression';
 import { rateLimiter } from './services/rateLimiter';
 import { saveSession, SavedSession } from './services/sessionStorage';
-import { saveRoom, SavedRoom, getRoomCount } from './services/roomStorage';
+import { saveRoom as saveRoomToHouse, getRooms, createRoom } from './services/houseRoomStorage';
 import { saveLookbook, loadLookbook, clearLookbook, saveRoomImage, loadRoomImage, saveVisualizationImage, loadAllVisualizationImages } from './services/lookbookStorage';
 import { validateImageFile, preprocessImage } from './services/edgeCaseHandlers';
 import { analytics } from './services/analytics';
 import { getErrorMessage } from './services/errorMessages';
 import { validateChatMessage } from './services/validation';
-import { AnalysisResult, AppState, ChatMessage, AppError, UploadedImage, DesignAnalysis, DesignOption, ShoppingListData, FlowMode, LookbookEntry, DesignRating, StructureDetectionResult, StructureChoices } from './types';
+import { AnalysisResult, AppState, ChatMessage, AppError, UploadedImage, DesignAnalysis, DesignOption, ShoppingListData, FlowMode, LookbookEntry, DesignRating, StructureDetectionResult, StructureChoices, Room } from './types';
 import { generateShoppingList, shoppingListFromProducts } from './services/shoppingListGenerator';
 // Avoid importing @google/genai client-side just for a type
 type Chat = any;
@@ -684,64 +684,97 @@ function AppContent() {
   const handleSaveRoom = useCallback(async () => {
     if (!uploadedImage || !designAnalysis || selectedDesignIndex === null) return;
     try {
-      const room = await saveRoom(
-        uploadedImage,
-        designAnalysis,
-        selectedDesignIndex,
-        shoppingList || undefined,
-        currentRoomId
-      );
+      // Convert current state to Room format
+      const selectedDesign = designAnalysis.options[selectedDesignIndex];
+      if (!selectedDesign) return;
+
+      const lookbookEntries: LookbookEntry[] = designAnalysis.options.map((opt, idx) => ({
+        id: `design-${Date.now()}-${idx}`,
+        option: opt,
+        rating: null,
+        generatedAt: Date.now(),
+        batchIndex: 0,
+      }));
+
+      const selectedEntry = lookbookEntries[selectedDesignIndex];
+      if (!selectedEntry) return;
+
+      let room: Room;
+      if (currentRoomId) {
+        // Update existing room
+        const existingRoom = await getRooms().then(rooms => rooms.find(r => r.id === currentRoomId));
+        if (existingRoom) {
+          room = {
+            ...existingRoom,
+            sourceImage: uploadedImage.dataUrl,
+            designs: lookbookEntries,
+            selectedDesignId: selectedEntry.id,
+            updatedAt: Date.now()
+          };
+        } else {
+          // Create new room if existing not found
+          room = createRoom(`Room — ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`, uploadedImage.dataUrl);
+          room.designs = lookbookEntries;
+          room.selectedDesignId = selectedEntry.id;
+        }
+      } else {
+        // Create new room
+        room = createRoom(`Room — ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`, uploadedImage.dataUrl);
+        room.designs = lookbookEntries;
+        room.selectedDesignId = selectedEntry.id;
+      }
+
+      await saveRoomToHouse(room);
       setCurrentRoomId(room.id);
     } catch (err) {
       console.error('Failed to save room:', err);
     }
-  }, [uploadedImage, designAnalysis, selectedDesignIndex, shoppingList, currentRoomId]);
+  }, [uploadedImage, designAnalysis, selectedDesignIndex, currentRoomId]);
 
   /**
    * Load a room from the gallery
    */
-  const handleLoadRoom = useCallback((room: SavedRoom, designIndex: number) => {
+  const handleLoadRoom = useCallback((room: Room, designIndex: number) => {
     const design = room.designs[designIndex];
     if (!design) return;
-    
-    // Restore design analysis
-    const restoredOptions = room.designs.map(d => ({
-      name: d.name,
-      mood: d.mood,
-      frameworks: [] as any,
-      palette: d.palette,
-      keyChanges: d.keyChanges,
-      fullPlan: '',
-      visualizationPrompt: '',
-      visualizationImage: d.visualizationImage,
-    })) as [DesignOption, DesignOption, DesignOption];
-    
-    setDesignAnalysis({ roomReading: room.roomReading, options: restoredOptions });
+
+    // Convert room designs back to DesignAnalysis format
+    const restoredOptions = room.designs.slice(0, 3).map(d => d.option) as [DesignOption, DesignOption, DesignOption];
+
+    // Create a dummy room reading since the new storage doesn't separate it
+    const roomReading = `This room shows potential for ${design.option.mood}. The space offers opportunities for thoughtful design intervention.`;
+
+    setDesignAnalysis({ roomReading, options: restoredOptions });
     setSelectedDesignIndex(designIndex);
     setCurrentRoomId(room.id);
-    
+
     // Set analysis for results view
     setAnalysis({
-      rawText: `## ${design.name}\n\n*${design.mood}*`,
-      visualizationPrompt: '',
+      rawText: `## ${design.option.name}\n\n*${design.option.mood}*\n\n${design.option.fullPlan}`,
+      visualizationPrompt: design.option.visualizationPrompt,
       products: []
     });
-    setVisualizationImage(design.visualizationImage || null);
-    setShoppingList(design.shoppingList || null);
-    
+    setVisualizationImage(design.option.visualizationImage || null);
+    setShoppingList(null); // Shopping list is not stored in the new system
+
     // Restore image
-    setUploadedImage({
-      dataUrl: room.imageDataUrl,
-      base64: room.imageDataUrl.split(',')[1] || '',
-      mimeType: 'image/jpeg',
-      fileName: 'room.jpg'
-    });
-    
-    const chat = createChatSession(`Design: ${design.name}\n\n${design.mood}`);
+    if (room.sourceImage) {
+      const parsed = parseDataUrl(room.sourceImage);
+      if (parsed) {
+        setUploadedImage({
+          dataUrl: room.sourceImage,
+          base64: parsed.base64,
+          mimeType: parsed.mimeType,
+          fileName: 'room.jpg'
+        });
+      }
+    }
+
+    const chat = createChatSession(`Design: ${design.option.name}\n\n${design.option.mood}\n\n${design.option.fullPlan}`);
     setChatSession(chat);
     setMessages([]);
     setAppState(AppState.RESULTS);
-  }, []);
+  }, [parseDataUrl]);
 
   /**
    * Load a saved session

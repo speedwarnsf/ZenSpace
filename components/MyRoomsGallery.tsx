@@ -9,10 +9,9 @@ import {
   Home, Plus, Search
 } from 'lucide-react';
 import {
-  RoomMetadata, SavedRoom, SavedDesign,
-  getRoomMetadata, getRoom, deleteRoom, renameRoom,
-  updatePurchaseProgress, setChosenDesign
-} from '../services/roomStorage';
+  getRooms, getRoom, deleteRoom, saveRoom
+} from '../services/houseRoomStorage';
+import { Room, LookbookEntry } from '../types';
 import { LazyImage } from './LazyImage';
 
 // ============================================================================
@@ -23,7 +22,7 @@ interface MyRoomsGalleryProps {
   isOpen: boolean;
   onClose: () => void;
   /** Load a room's chosen design back into the app */
-  onLoadRoom: (room: SavedRoom, designIndex: number) => void;
+  onLoadRoom: (room: Room, designIndex: number) => void;
 }
 
 // ============================================================================
@@ -31,37 +30,53 @@ interface MyRoomsGalleryProps {
 // ============================================================================
 
 export const MyRoomsGallery: React.FC<MyRoomsGalleryProps> = ({ isOpen, onClose, onLoadRoom }) => {
-  const [rooms, setRooms] = useState<RoomMetadata[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
-  const [selectedRoom, setSelectedRoom] = useState<SavedRoom | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   // Refresh room list when gallery opens
   useEffect(() => {
     if (isOpen) {
-      setRooms(getRoomMetadata());
+      setLoading(true);
+      getRooms().then(roomList => {
+        setRooms(roomList);
+        setLoading(false);
+      }).catch(err => {
+        console.error('Failed to load rooms:', err);
+        setLoading(false);
+      });
       setSelectedRoomId(null);
       setSelectedRoom(null);
     }
   }, [isOpen]);
 
-  const refreshRooms = useCallback(() => setRooms(getRoomMetadata()), []);
+  const refreshRooms = useCallback(() => {
+    setLoading(true);
+    getRooms().then(roomList => {
+      setRooms(roomList);
+      setLoading(false);
+    }).catch(err => {
+      console.error('Failed to refresh rooms:', err);
+      setLoading(false);
+    });
+  }, []);
 
   const filteredRooms = useMemo(() => {
     if (!searchQuery) return rooms;
     const q = searchQuery.toLowerCase();
     return rooms.filter(r =>
       r.name.toLowerCase().includes(q) ||
-      r.tags.some(t => t.toLowerCase().includes(q)) ||
-      (r.chosenDesignName && r.chosenDesignName.toLowerCase().includes(q))
+      r.designs.some(d => d.option.name.toLowerCase().includes(q) || d.option.mood.toLowerCase().includes(q))
     );
   }, [rooms, searchQuery]);
 
-  const handleSelectRoom = useCallback((id: string) => {
-    const room = getRoom(id);
+  const handleSelectRoom = useCallback(async (id: string) => {
+    const room = await getRoom(id);
     if (room) {
       setSelectedRoomId(id);
       setSelectedRoom(room);
@@ -74,29 +89,35 @@ export const MyRoomsGallery: React.FC<MyRoomsGalleryProps> = ({ isOpen, onClose,
     refreshRooms();
   }, [refreshRooms]);
 
-  const handleDelete = useCallback((id: string) => {
-    deleteRoom(id);
+  const handleDelete = useCallback(async (id: string) => {
+    await deleteRoom(id);
     setConfirmDeleteId(null);
     if (selectedRoomId === id) handleBack();
     refreshRooms();
   }, [selectedRoomId, handleBack, refreshRooms]);
 
-  const handleRename = useCallback((id: string) => {
+  const handleRename = useCallback(async (id: string) => {
     if (editName.trim()) {
-      renameRoom(id, editName.trim());
-      setEditingId(null);
-      refreshRooms();
+      const room = await getRoom(id);
+      if (room) {
+        await saveRoom({ ...room, name: editName.trim(), updatedAt: Date.now() });
+        setEditingId(null);
+        refreshRooms();
+      }
     }
   }, [editName, refreshRooms]);
 
-  const handleChooseDesign = useCallback((roomId: string, designIndex: number) => {
-    setChosenDesign(roomId, designIndex);
-    const room = getRoom(roomId);
-    if (room) setSelectedRoom(room);
-    refreshRooms();
+  const handleChooseDesign = useCallback(async (roomId: string, designIndex: number) => {
+    const room = await getRoom(roomId);
+    if (room && room.designs[designIndex]) {
+      const selectedDesignId = room.designs[designIndex].id;
+      await saveRoom({ ...room, selectedDesignId, updatedAt: Date.now() });
+      setSelectedRoom({ ...room, selectedDesignId });
+      refreshRooms();
+    }
   }, [refreshRooms]);
 
-  const handleLoadDesign = useCallback((room: SavedRoom, designIndex: number) => {
+  const handleLoadDesign = useCallback((room: Room, designIndex: number) => {
     onLoadRoom(room, designIndex);
     onClose();
   }, [onLoadRoom, onClose]);
@@ -134,8 +155,8 @@ export const MyRoomsGallery: React.FC<MyRoomsGalleryProps> = ({ isOpen, onClose,
               room={selectedRoom}
               onChooseDesign={handleChooseDesign}
               onLoadDesign={handleLoadDesign}
-              onRefresh={() => {
-                const r = getRoom(selectedRoom.id);
+              onRefresh={async () => {
+                const r = await getRoom(selectedRoom.id);
                 if (r) setSelectedRoom(r);
               }}
             />
@@ -154,6 +175,7 @@ export const MyRoomsGallery: React.FC<MyRoomsGalleryProps> = ({ isOpen, onClose,
               confirmDeleteId={confirmDeleteId}
               onConfirmDelete={setConfirmDeleteId}
               onDelete={handleDelete}
+              loading={loading}
             />
           )}
         </div>
@@ -174,25 +196,26 @@ export const MyRoomsGallery: React.FC<MyRoomsGalleryProps> = ({ isOpen, onClose,
 // ============================================================================
 
 interface GalleryGridProps {
-  rooms: RoomMetadata[];
+  rooms: Room[];
   searchQuery: string;
   onSearchChange: (q: string) => void;
   onSelectRoom: (id: string) => void;
   editingId: string | null;
   editName: string;
-  onStartEdit: (r: RoomMetadata) => void;
+  onStartEdit: (r: Room) => void;
   onSaveEdit: (id: string) => void;
   onCancelEdit: () => void;
   onEditNameChange: (name: string) => void;
   confirmDeleteId: string | null;
   onConfirmDelete: (id: string | null) => void;
   onDelete: (id: string) => void;
+  loading: boolean;
 }
 
 const GalleryGrid: React.FC<GalleryGridProps> = ({
   rooms, searchQuery, onSearchChange, onSelectRoom,
   editingId, editName, onStartEdit, onSaveEdit, onCancelEdit, onEditNameChange,
-  confirmDeleteId, onConfirmDelete, onDelete
+  confirmDeleteId, onConfirmDelete, onDelete, loading
 }) => (
   <div className="p-6">
     {/* Search */}
@@ -207,7 +230,12 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
       />
     </div>
 
-    {rooms.length === 0 ? (
+    {loading ? (
+      <div className="text-center py-16">
+        <div className="w-12 h-12 border-4 border-stone-200 border-t-emerald-500 rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-stone-500 dark:text-stone-400 text-lg font-medium mb-2">Loading rooms...</p>
+      </div>
+    ) : rooms.length === 0 ? (
       <div className="text-center py-16">
         <Home className="w-12 h-12 text-stone-300 dark:text-stone-600 mx-auto mb-4" />
         <p className="text-stone-500 dark:text-stone-400 text-lg font-medium mb-2">
@@ -246,7 +274,7 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
 // ============================================================================
 
 interface RoomCardProps {
-  room: RoomMetadata;
+  room: Room;
   onSelect: () => void;
   isEditing: boolean;
   editName: string;
@@ -273,19 +301,19 @@ const RoomCard: React.FC<RoomCardProps> = ({
       {/* Thumbnail — clickable */}
       <button onClick={onSelect} className="w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-inset">
         <div className="relative h-36 bg-stone-100 dark:bg-stone-700">
-          <LazyImage src={room.thumbnail} alt="" className="w-full h-full object-cover" blurUp />
-          {/* Completion overlay */}
-          {room.completionPercent > 0 && (
-            <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs font-bold px-2 py-1 flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-              {room.completionPercent}%
-            </div>
-          )}
+          <LazyImage src={room.sourceImageThumb || room.sourceImage || ''} alt="" className="w-full h-full object-cover" blurUp />
           {/* Design count badge */}
           <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 flex items-center gap-1">
             <Palette className="w-3 h-3" />
-            {room.designCount} design{room.designCount !== 1 ? 's' : ''}
+            {room.designs.length} design{room.designs.length !== 1 ? 's' : ''}
           </div>
+          {/* Selected design indicator */}
+          {room.selectedDesignId && (
+            <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs font-bold px-2 py-1 flex items-center gap-1">
+              <Star className="w-3 h-3 text-emerald-400 fill-current" />
+              Selected
+            </div>
+          )}
         </div>
       </button>
 
@@ -317,25 +345,16 @@ const RoomCard: React.FC<RoomCardProps> = ({
             {formatDate(room.updatedAt)}
           </div>
 
-          {room.chosenDesignName && (
+          {room.selectedDesignId && (
             <span className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
               <Star className="w-3 h-3 fill-current" />
-              <span className="truncate max-w-[80px]">{room.chosenDesignName}</span>
+              <span className="truncate max-w-[80px]">
+                {room.designs.find(d => d.id === room.selectedDesignId)?.option.name || 'Selected'}
+              </span>
             </span>
           )}
         </div>
 
-        {/* Progress bar */}
-        {room.completionPercent > 0 && (
-          <div className="mt-2">
-            <div className="h-1.5 bg-stone-100 dark:bg-stone-600 overflow-hidden">
-              <div
-                className="h-full bg-emerald-500 transition-all duration-500"
-                style={{ width: `${room.completionPercent}%` }}
-              />
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Hover actions */}
@@ -369,27 +388,20 @@ const RoomCard: React.FC<RoomCardProps> = ({
 // ============================================================================
 
 interface RoomDetailViewProps {
-  room: SavedRoom;
+  room: Room;
   onChooseDesign: (roomId: string, designIndex: number) => void;
-  onLoadDesign: (room: SavedRoom, designIndex: number) => void;
+  onLoadDesign: (room: Room, designIndex: number) => void;
   onRefresh: () => void;
 }
 
 const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, onLoadDesign, onRefresh }) => {
-  const [expandedDesign, setExpandedDesign] = useState<number | null>(null);
-
-  const handleTogglePurchased = useCallback((design: SavedDesign, itemId: string) => {
-    const current = new Set(design.purchaseProgress.purchasedIds);
-    if (current.has(itemId)) current.delete(itemId); else current.add(itemId);
-    updatePurchaseProgress(room.id, design.index, [...current]);
-    onRefresh();
-  }, [room.id, onRefresh]);
+  const [expandedDesign, setExpandedDesign] = useState<string | null>(null);
 
   return (
     <div className="p-6 space-y-6">
       {/* Room image */}
       <div className="overflow-hidden h-48 bg-stone-100 dark:bg-stone-700">
-        <LazyImage src={room.imageDataUrl || room.thumbnail} alt={room.name} className="w-full h-full object-cover" blurUp />
+        <LazyImage src={room.sourceImage || room.sourceImageThumb || ''} alt={room.name} className="w-full h-full object-cover" blurUp />
       </div>
 
       {/* Designs */}
@@ -400,17 +412,13 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
         </h3>
 
         <div className="space-y-3">
-          {room.designs.map(design => {
-            const isChosen = room.chosenDesignIndex === design.index;
-            const isExpanded = expandedDesign === design.index;
-            const progress = design.purchaseProgress;
-            const pct = progress.totalItems > 0
-              ? Math.round((progress.purchasedIds.length / progress.totalItems) * 100)
-              : 0;
+          {room.designs.map((design, designIndex) => {
+            const isChosen = room.selectedDesignId === design.id;
+            const isExpanded = expandedDesign === design.id;
 
             return (
               <div
-                key={design.index}
+                key={design.id}
                 className={`border overflow-hidden transition-colors ${
                   isChosen
                     ? 'border-emerald-300 dark:border-emerald-600 bg-emerald-50/50 dark:bg-emerald-900/10'
@@ -419,13 +427,15 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
               >
                 {/* Design header */}
                 <button
-                  onClick={() => setExpandedDesign(isExpanded ? null : design.index)}
+                  onClick={() => setExpandedDesign(isExpanded ? null : design.id)}
                   className="w-full flex items-center gap-3 p-4 text-left hover:bg-stone-50 dark:hover:bg-stone-700/50 transition-colors"
                 >
                   {/* Mini visualization */}
                   <div className="w-14 h-14 overflow-hidden bg-stone-100 dark:bg-stone-700 flex-shrink-0">
-                    {design.visualizationImage ? (
-                      <LazyImage src={`data:image/png;base64,${design.visualizationImage}`} alt="" className="w-full h-full object-cover" blurUp />
+                    {design.option.visualizationImage ? (
+                      <LazyImage src={`data:image/png;base64,${design.option.visualizationImage}`} alt="" className="w-full h-full object-cover" blurUp />
+                    ) : design.option.visualizationThumb ? (
+                      <LazyImage src={design.option.visualizationThumb} alt="" className="w-full h-full object-cover" blurUp />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <Palette className="w-5 h-5 text-stone-300" />
@@ -435,40 +445,22 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-stone-800 dark:text-stone-100 truncate">{design.name}</span>
+                      <span className="font-semibold text-stone-800 dark:text-stone-100 truncate">{design.option.name}</span>
                       {isChosen && (
                         <span className="flex items-center gap-1 text-xs bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 font-medium">
-                          <Star className="w-3 h-3 fill-current" /> Chosen
+                          <Star className="w-3 h-3 fill-current" /> Selected
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5 line-clamp-1">{design.mood}</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5 line-clamp-1">{design.option.mood}</p>
 
                     {/* Palette dots */}
                     <div className="flex items-center gap-1 mt-1.5">
-                      {design.palette.map((hex, i) => (
+                      {design.option.palette.map((hex, i) => (
                         <div key={i} className="w-4 h-4 border border-white dark:border-stone-600 shadow-sm" style={{ backgroundColor: hex }} />
                       ))}
                     </div>
                   </div>
-
-                  {/* Progress circle */}
-                  {progress.totalItems > 0 && (
-                    <div className="flex-shrink-0 text-center">
-                      <div className="relative w-10 h-10">
-                        <svg className="w-10 h-10 -rotate-90">
-                          <circle cx="20" cy="20" r="16" fill="none" stroke="currentColor" strokeWidth="3" className="text-stone-200 dark:text-stone-600" />
-                          <circle cx="20" cy="20" r="16" fill="none" stroke="currentColor" strokeWidth="3"
-                            className="text-emerald-500"
-                            strokeDasharray={`${2 * Math.PI * 16}`}
-                            strokeDashoffset={`${2 * Math.PI * 16 * (1 - pct / 100)}`}
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-stone-600 dark:text-stone-300">{pct}%</span>
-                      </div>
-                    </div>
-                  )}
 
                   <ChevronRight className={`w-4 h-4 text-stone-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
                 </button>
@@ -480,14 +472,14 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
                     <div className="flex flex-wrap gap-2">
                       {!isChosen && (
                         <button
-                          onClick={() => onChooseDesign(room.id, design.index)}
+                          onClick={() => onChooseDesign(room.id, designIndex)}
                           className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 font-medium transition-colors"
                         >
-                          <Star className="w-3.5 h-3.5" /> Set as Chosen
+                          <Star className="w-3.5 h-3.5" /> Set as Selected
                         </button>
                       )}
                       <button
-                        onClick={() => onLoadDesign(room, design.index)}
+                        onClick={() => onLoadDesign(room, designIndex)}
                         className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-stone-100 dark:bg-stone-700 text-stone-700 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-stone-600 font-medium transition-colors"
                       >
                         <ChevronRight className="w-3.5 h-3.5" /> Open in Editor
@@ -498,7 +490,7 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
                     <div>
                       <h4 className="text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wide mb-2">Key Changes</h4>
                       <ul className="space-y-1">
-                        {design.keyChanges.map((c, i) => (
+                        {design.option.keyChanges.map((c, i) => (
                           <li key={i} className="text-sm text-stone-600 dark:text-stone-300 flex items-start gap-1.5">
                             <span className="text-emerald-500 mt-0.5">•</span> {c}
                           </li>
@@ -506,39 +498,12 @@ const RoomDetailView: React.FC<RoomDetailViewProps> = ({ room, onChooseDesign, o
                       </ul>
                     </div>
 
-                    {/* Shopping list progress */}
-                    {design.shoppingList && design.shoppingList.items.length > 0 && (
+                    {/* Full plan */}
+                    {design.option.fullPlan && (
                       <div>
-                        <h4 className="text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wide mb-2 flex items-center gap-1.5">
-                          <ShoppingCart className="w-3.5 h-3.5" />
-                          Shopping Progress ({progress.purchasedIds.length}/{progress.totalItems})
-                        </h4>
-                        <div className="space-y-1 max-h-48 overflow-y-auto">
-                          {design.shoppingList.items.map(item => {
-                            const isPurchased = progress.purchasedIds.includes(item.id);
-                            return (
-                              <button
-                                key={item.id}
-                                onClick={() => handleTogglePurchased(design, item.id)}
-                                className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm transition-colors ${
-                                  isPurchased
-                                    ? 'bg-emerald-50 dark:bg-emerald-900/20 text-stone-400 dark:text-stone-500'
-                                    : 'hover:bg-stone-50 dark:hover:bg-stone-700/50 text-stone-700 dark:text-stone-200'
-                                }`}
-                              >
-                                <div className={`w-4 h-4 border-2 flex items-center justify-center flex-shrink-0 ${
-                                  isPurchased
-                                    ? 'bg-emerald-500 border-emerald-500 text-white'
-                                    : 'border-stone-300 dark:border-stone-600'
-                                }`}>
-                                  {isPurchased && <Check className="w-2.5 h-2.5" />}
-                                </div>
-                                <span className={isPurchased ? 'line-through' : ''}>{item.name}</span>
-                                {item.quantity > 1 && <span className="text-xs text-stone-400">×{item.quantity}</span>}
-                                <span className="ml-auto text-xs text-stone-400">${item.priceEstimate.low}–${item.priceEstimate.high}</span>
-                              </button>
-                            );
-                          })}
+                        <h4 className="text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wide mb-2">Design Plan</h4>
+                        <div className="text-sm text-stone-600 dark:text-stone-300 prose prose-sm max-w-none">
+                          {design.option.fullPlan}
                         </div>
                       </div>
                     )}
