@@ -1,8 +1,8 @@
 // ZenSpace Service Worker - Enhanced for Production
-const CACHE_NAME = 'zenspace-v3';
-const RUNTIME_CACHE = 'zenspace-runtime-v3';
-const IMAGES_CACHE = 'zenspace-images-v3';
-const API_CACHE = 'zenspace-api-v3';
+const CACHE_NAME = 'zenspace-v4';
+const RUNTIME_CACHE = 'zenspace-runtime-v4';
+const IMAGES_CACHE = 'zenspace-images-v4';
+const API_CACHE = 'zenspace-api-v4';
 
 // Static assets to cache on install
 const STATIC_ASSETS = [
