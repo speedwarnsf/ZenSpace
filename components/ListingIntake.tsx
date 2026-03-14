@@ -90,11 +90,11 @@ export function ListingIntake() {
               Listing URL <span className="text-amber-600">*</span>
             </label>
             <input
-              type="url"
+              type="text"
               id="url"
               value={url}
               onChange={e => setUrl(e.target.value)}
-              placeholder="https://www.compass.com/listing/..."
+              placeholder="https://www.compass.com/homedetails/..."
               required
               disabled={status === 'processing'}
               className="w-full px-4 py-3 bg-stone-950 border border-stone-800 text-stone-200 placeholder-stone-600 focus:border-amber-600 focus:outline-none disabled:opacity-50"
