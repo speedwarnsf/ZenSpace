@@ -320,6 +320,46 @@
     color: var(--stone-300);
   }
 
+  .showcase-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin: 2rem 0;
+  }
+
+  .showcase-img-wrap {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .showcase-img-wrap img {
+    width: 100%;
+    display: block;
+  }
+
+  .showcase-img-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--stone-200);
+  }
+
+  .showcase-img-label span {
+    color: var(--gold-light);
+  }
+
+  @media (min-width: 640px) {
+    .showcase-grid { grid-template-columns: 1fr 1fr; }
+    .showcase-grid .original { grid-column: 1 / -1; }
+  }
+
   /* === DESKTOP === */
   @media (min-width: 640px) {
     .hero, section { padding-left: 3rem; padding-right: 3rem; }
@@ -401,22 +441,41 @@
   <h2>Same room. Three directions. Each defensible.</h2>
   <p>Every room receives three genuinely distinct design proposals. Not three shades of the same idea &mdash; three different framework-driven interpretations of what the space could become.</p>
 
-  <div class="showcase">
-    <div class="showcase-item">
-      <div class="showcase-label">Direction A &mdash; Biophilic &amp; Regenerative</div>
-      <p>Organic forms, filtered light pools, natural material palette. Prospect-and-refuge balance &mdash; open sightlines with intimate seating alcoves. The room breathes.</p>
+  <div class="showcase-grid">
+    <div class="showcase-img-wrap original">
+      <img src="/showcase/original.jpg" alt="Original listing photo — Gramercy Towers living room" loading="lazy">
+      <div class="showcase-img-label"><span>Original</span> &mdash; Listing photo as-is</div>
     </div>
-    <div class="showcase-item">
-      <div class="showcase-label">Direction B &mdash; Aesthetic Order &amp; Simplicity</div>
-      <p>Architectural proportion drives every choice. Furniture scaled to the room's geometry, not the catalogue. Visual noise eliminated. What remains earns its place.</p>
+    <div class="showcase-img-wrap">
+      <img src="/showcase/direction-charcoal.jpg" alt="ZenSpace Direction — Dramatic charcoal" loading="lazy">
+      <div class="showcase-img-label"><span>Direction 1</span> &mdash; Dramatic &amp; masculine</div>
     </div>
-    <div class="showcase-item">
-      <div class="showcase-label">Direction C &mdash; Phenomenological (Genius Loci)</div>
-      <p>The existing character of the space &mdash; its light direction, structural rhythm, material history &mdash; becomes the design driver. Enhancement over erasure. The room stays itself, elevated.</p>
+    <div class="showcase-img-wrap">
+      <img src="/showcase/direction-contemporary.jpg" alt="ZenSpace Direction — Warm contemporary" loading="lazy">
+      <div class="showcase-img-label"><span>Direction 2</span> &mdash; Warm contemporary</div>
+    </div>
+    <div class="showcase-img-wrap">
+      <img src="/showcase/direction-biophilic.jpg" alt="ZenSpace Direction — Biophilic natural" loading="lazy">
+      <div class="showcase-img-label"><span>Direction 3</span> &mdash; Biophilic &amp; organic</div>
+    </div>
+    <div class="showcase-img-wrap">
+      <img src="/showcase/direction-pink.jpg" alt="ZenSpace Direction — Bold maximalist" loading="lazy">
+      <div class="showcase-img-label"><span>Direction 4</span> &mdash; Bold maximalist</div>
+    </div>
+    <div class="showcase-img-wrap">
+      <img src="/showcase/direction-navy.jpg" alt="ZenSpace Direction — Navy monochrome" loading="lazy">
+      <div class="showcase-img-label"><span>Direction 5</span> &mdash; Navy monochrome</div>
     </div>
   </div>
 
-  <p>A trained designer could articulate why each direction works. That's the point. <span class="highlight">These aren't random AI outputs &mdash; they're positions.</span></p>
+  <p>Five directions from one room. Each a defensible design position, not a random variation. <span class="highlight">A trained designer could articulate why each works &mdash; that's the point.</span></p>
+
+  <div class="showcase">
+    <div class="showcase-item">
+      <div class="showcase-label">The range matters</div>
+      <p>A listing with one staged look appeals to one type of buyer. Five distinct directions &mdash; from warm and approachable to bold and committed &mdash; means five different buyer personas can see themselves in the same space. <span class="highlight">That's more offers, faster.</span></p>
+    </div>
+  </div>
 </section>
 
 <!-- HOW IT WORKS -->
