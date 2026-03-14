@@ -2,26 +2,11 @@ import { useParams, Link } from 'react-router-dom';
 import { getListingById } from '../services/listingService';
 import { Camera } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import { typeset, smoothRag, typesetHeading } from '../lib/typeset';
+// typeset engine removed — causing layout issues at narrow mobile measures
 
 export function ListingPage() {
   const { listingId } = useParams<{ listingId: string }>();
   const listing = listingId ? getListingById(listingId) : null;
-
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Run typeset engine after render
-    if (containerRef.current) {
-      containerRef.current.querySelectorAll<HTMLElement>('p').forEach(el => {
-        smoothRag(el);
-        typeset(el);
-      });
-      containerRef.current.querySelectorAll<HTMLElement>('h1, h2, h3').forEach(el => {
-        el.innerHTML = typesetHeading(el.textContent || '');
-      });
-    }
-  });
 
   useEffect(() => {
     // Load Google Fonts for this page
@@ -46,7 +31,7 @@ export function ListingPage() {
   }
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-stone-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="min-h-screen bg-stone-900" style={{ fontFamily: 'Inter, sans-serif' }}>
       {/* Hero Section */}
       <div className="relative h-[60vh] md:h-[70vh]">
         <img
@@ -105,7 +90,7 @@ export function ListingPage() {
 
       {/* Description */}
       <div className="max-w-6xl mx-auto px-6 py-12">
-        <p className="text-stone-300 text-lg leading-relaxed">
+        <p className="text-stone-300 text-lg leading-relaxed" style={{ textWrap: 'pretty' }}>
           {listing.description}
         </p>
       </div>
