@@ -7,6 +7,7 @@ import { NotFound } from './components/NotFound';
 import { ThemeProvider } from './components/ThemeContext';
 import { ListingPage } from './components/ListingPage';
 import { RoomPage } from './components/RoomPage';
+import { AgentOnboarding } from './components/AgentOnboarding';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -20,6 +21,7 @@ root.render(
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />} />
+          <Route path="/agent/onboard" element={<AgentOnboarding />} />
           <Route path="/listing/:listingId" element={<ListingPage />} />
           <Route path="/listing/:listingId/room/:roomId" element={<RoomPage />} />
           <Route path="*" element={<NotFound />} />

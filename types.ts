@@ -361,3 +361,19 @@ export interface ListingDesign {
   thumbnailUrl: string;
   frameworks: string[];
 }
+
+/**
+ * Agent Profile for Real Estate Agent Onboarding
+ */
+export interface AgentProfile {
+  name: string;
+  email: string;
+  phone: string;
+  license: string;
+  brokerage: string;
+  customBrokerage?: string;
+  photoUrl?: string;
+  enhancedPhotoUrl?: string;
+  portraitStyle?: "original" | "studio" | "environmental" | "editorial";
+  createdAt: number;
+}
