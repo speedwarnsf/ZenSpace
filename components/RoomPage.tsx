@@ -1,7 +1,8 @@
 import { useParams, Link } from 'react-router-dom';
 import { getListingById } from '../services/listingService';
 import { ArrowLeft, Camera } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { typeset, smoothRag } from '../lib/typeset';
 
 export function RoomPage() {
   const { listingId, roomId } = useParams<{ listingId: string; roomId: string }>();
@@ -19,6 +20,17 @@ export function RoomPage() {
     };
   }, []);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.querySelectorAll<HTMLElement>('p, h1, h2, h3').forEach(el => {
+        typeset(el);
+        smoothRag(el);
+      });
+    }
+  });
+
   if (!listing || !room) {
     return (
       <div className="min-h-screen bg-stone-900 flex items-center justify-center">
@@ -31,7 +43,7 @@ export function RoomPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div ref={containerRef} className="min-h-screen bg-stone-900" style={{ fontFamily: 'Inter, sans-serif' }}>
       {/* Header */}
       <header className="border-b border-stone-800 bg-stone-950 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">

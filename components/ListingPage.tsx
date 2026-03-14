@@ -1,11 +1,24 @@
 import { useParams, Link } from 'react-router-dom';
 import { getListingById } from '../services/listingService';
 import { Camera } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { typeset, smoothRag } from '../lib/typeset';
 
 export function ListingPage() {
   const { listingId } = useParams<{ listingId: string }>();
   const listing = listingId ? getListingById(listingId) : null;
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Run typeset engine after render
+    if (containerRef.current) {
+      containerRef.current.querySelectorAll<HTMLElement>('p, h1, h2, h3').forEach(el => {
+        typeset(el);
+        smoothRag(el);
+      });
+    }
+  });
 
   useEffect(() => {
     // Load Google Fonts for this page
@@ -30,7 +43,7 @@ export function ListingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div ref={containerRef} className="min-h-screen bg-stone-900" style={{ fontFamily: 'Inter, sans-serif' }}>
       {/* Hero Section */}
       <div className="relative h-[60vh] md:h-[70vh]">
         <img
@@ -89,7 +102,7 @@ export function ListingPage() {
 
       {/* Description */}
       <div className="max-w-6xl mx-auto px-6 py-12">
-        <p className="text-stone-300 text-lg leading-relaxed" style={{ textWrap: 'balance' }}>
+        <p className="text-stone-300 text-lg leading-relaxed">
           {listing.description}
         </p>
       </div>
