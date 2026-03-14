@@ -145,7 +145,7 @@ export function RoomPage() {
             Capture your own angle
           </h3>
           <p className="text-stone-400 mb-6 max-w-2xl mx-auto">
-            Use the ZenSpace camera to photograph this room from any perspective and generate your own personalized design directions
+            Use the ZenSpace camera to&nbsp;photograph this room from any perspective and generate your own personalized design&nbsp;directions
           </p>
           <a
             href="/"
