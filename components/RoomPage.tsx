@@ -168,7 +168,7 @@ export function RoomPage() {
             Partner with a design professional
           </h3>
           <p className="text-stone-400 leading-relaxed">
-            Connect with premium interior design firms in {listing.city} to bring these concepts to life.
+            Connect with premium interior design firms in&nbsp;{listing.city} to&nbsp;bring these concepts to&nbsp;life.
           </p>
           <div className="mt-6">
             <button
