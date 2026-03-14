@@ -10,7 +10,7 @@ export const SEED_LISTINGS: Listing[] = [{
   beds: 2,
   baths: 2,
   sqft: 1660,
-  description: "Perched high above Nob Hill in the iconic Gramercy Towers, this luxurious 2-bedroom, 2-bath sanctuary on the 12th floor offers sweeping views of Grace Cathedral, Huntington Park, and the Fairmont Hotel.",
+  description: "Perched high above Nob Hill in the iconic Gramercy Towers, this luxurious 2\u2011bedroom, 2\u2011bath sanctuary on the 12th floor offers sweeping views of Grace Cathedral, Huntington Park, and the Fairmont\u00A0Hotel.",
   heroImage: "/showcase/original.jpg",
   agent: {
     name: "John Macon",

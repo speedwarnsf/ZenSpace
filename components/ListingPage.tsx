@@ -14,8 +14,8 @@ export function ListingPage() {
     // Run typeset engine after render
     if (containerRef.current) {
       containerRef.current.querySelectorAll<HTMLElement>('p').forEach(el => {
-        typeset(el);
         smoothRag(el);
+        typeset(el);
       });
       containerRef.current.querySelectorAll<HTMLElement>('h1, h2, h3').forEach(el => {
         el.innerHTML = typesetHeading(el.textContent || '');

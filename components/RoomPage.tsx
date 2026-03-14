@@ -25,8 +25,8 @@ export function RoomPage() {
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.querySelectorAll<HTMLElement>('p, h1, h2, h3').forEach(el => {
-        typeset(el);
         smoothRag(el);
+        typeset(el);
       });
     }
   });
