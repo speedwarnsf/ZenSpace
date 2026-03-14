@@ -823,56 +823,9 @@ export default async function handler(req: any, res: any) {
       })
     );
 
-    // 4. Generate designs
-    for (const room of roomRecords) {
-      try {
-        const designs = await generateDesignsForRoom(
-          room.photoUrl,
-          room.label,
-          {
-            city: scrapedData.city,
-            neighborhood: scrapedData.neighborhood,
-            yearBuilt: scrapedData.yearBuilt
-          },
-          5
-        );
-
-        for (const design of designs) {
-          const designId = crypto.randomUUID();
-
-          const imageUrl = await uploadDesignImage(listingId, room.id, designId, design.imageBase64);
-          const thumbnailUrl = await uploadThumbnail(listingId, room.id, designId, design.imageBase64);
-
-          await supabaseAdmin.from('listing_designs').insert({
-            id: designId,
-            room_id: room.id,
-            listing_id: listingId,
-            name: design.name,
-            description: design.description,
-            image_url: imageUrl,
-            thumbnail_url: thumbnailUrl,
-            frameworks: design.frameworks,
-            design_seed: design.designSeed,
-            room_reading: design.roomReading,
-            quality_score: design.qualityScore,
-            is_curated: true,
-            created_at: new Date().toISOString()
-          });
-        }
-
-        await supabaseAdmin.from('listing_rooms').update({
-          status: 'ready'
-        }).eq('id', room.id);
-      } catch (error) {
-        console.error(`Failed to generate designs for room ${room.id}:`, error);
-
-        await supabaseAdmin.from('listing_rooms').update({
-          status: 'error'
-        }).eq('id', room.id);
-      }
-    }
-
-    // 5. Mark listing as review
+    // 4. Mark listing as review (design generation happens async via /manage page)
+    // Each room is in status 'generating' — the manage page will trigger
+    // design generation per room via /api/listings/regenerate-room
     await supabaseAdmin.from('listings').update({
       status: 'review',
       updated_at: new Date().toISOString()

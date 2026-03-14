@@ -49,8 +49,8 @@ export function ListingIntake() {
 
       const data = await response.json();
 
-      // Redirect to the listing page
-      navigate(data.url);
+      // Redirect to the manage page (designs generated there)
+      navigate(`${data.url}/manage`);
     } catch (error) {
       console.error('Intake error:', error);
       setStatus('error');

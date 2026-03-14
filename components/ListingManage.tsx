@@ -72,6 +72,7 @@ export function ListingManage() {
   // Publishing state
   const [publishing, setPublishing] = useState(false);
   const [regeneratingRoomId, setRegeneratingRoomId] = useState<string | null>(null);
+  const [generatingCount, setGeneratingCount] = useState(0);
 
   useEffect(() => {
     if (!listingId) {
@@ -177,6 +178,33 @@ export function ListingManage() {
       setDesignStates(initialStates);
 
       setLoading(false);
+
+      // Auto-trigger design generation for rooms that need it
+      const pendingRooms = roomsWithDesigns.filter(
+        r => r.status === 'generating' && r.designs.length === 0
+      );
+      if (pendingRooms.length > 0) {
+        setGeneratingCount(pendingRooms.length);
+        // Generate designs sequentially to avoid overloading
+        for (const room of pendingRooms) {
+          try {
+            setRegeneratingRoomId(room.id);
+            const response = await fetch('/api/listings/regenerate-room', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ listingId, roomId: room.id })
+            });
+            if (response.ok) {
+              setGeneratingCount(prev => prev - 1);
+            }
+          } catch (error) {
+            console.error(`Failed to generate designs for ${room.label}:`, error);
+          }
+        }
+        setRegeneratingRoomId(null);
+        // Reload data to pick up new designs
+        loadData();
+      }
     } catch (error) {
       console.error('Error loading data:', error);
       setLoading(false);
