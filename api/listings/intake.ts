@@ -218,7 +218,7 @@ async function scrapeCompassListing(url: string): Promise<ScrapedListing> {
     }
 
     if (!baths) {
-      const bathsMatch = html.match(/(\d+(?:\.\d+)?)\s*(?:bath|ba|bathroom)/i);
+      const bathsMatch = html.match(/(\d+(?:\.\d+)?)\s*(?:bath(?:room)?s?\b)/i);
       if (bathsMatch && bathsMatch[1]) {
         baths = parseFloat(bathsMatch[1]);
       }

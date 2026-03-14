@@ -410,11 +410,11 @@ export function ListingManage() {
           <p className="text-stone-300 text-lg">
             {listing.address}, {listing.city}, {listing.state} {listing.zip}
           </p>
-          <div className="flex items-center gap-4 text-stone-400 text-sm mt-2">
-            <div>${listing.price.toLocaleString()}</div>
-            <div>{listing.beds} bed</div>
-            <div>{listing.baths} bath</div>
-            <div>{listing.sqft.toLocaleString()} sqft</div>
+          <div className="flex flex-wrap items-center gap-3 md:gap-4 text-stone-400 text-sm mt-2">
+            {listing.price > 0 && <div>${listing.price.toLocaleString()}</div>}
+            {listing.beds > 0 && <div>{listing.beds} bed</div>}
+            {listing.baths > 0 && <div>{listing.baths} bath</div>}
+            {listing.sqft > 0 && <div>{listing.sqft.toLocaleString()} sqft</div>}
           </div>
         </div>
       </header>
@@ -471,16 +471,16 @@ export function ListingManage() {
             return (
               <div key={room.id} className="bg-stone-950 border border-stone-800">
                 {/* Room Header */}
-                <div className="p-6 border-b border-stone-800">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
+                <div className="p-4 md:p-6 border-b border-stone-800">
+                  <div className="flex flex-col gap-3">
+                    <div>
                       {isEditing ? (
                         <div className="flex items-center gap-2">
                           <input
                             type="text"
                             value={editLabel}
                             onChange={e => setEditLabel(e.target.value)}
-                            className="px-3 py-1 bg-stone-900 border border-stone-700 text-stone-200 focus:border-amber-600 focus:outline-none"
+                            className="flex-1 px-3 py-1 bg-stone-900 border border-stone-700 text-stone-200 focus:border-amber-600 focus:outline-none"
                             autoFocus
                           />
                           <button
@@ -498,7 +498,7 @@ export function ListingManage() {
                         </div>
                       ) : (
                         <h3
-                          className="text-2xl font-bold text-stone-100 mb-2 cursor-pointer hover:text-amber-600 transition-colors"
+                          className="text-xl md:text-2xl font-bold text-stone-100 mb-1 cursor-pointer hover:text-amber-600 transition-colors"
                           style={{ fontFamily: 'Cormorant Garamond, serif' }}
                           onClick={() => {
                             setEditLabel(room.label);
@@ -515,7 +515,7 @@ export function ListingManage() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setExpandedRoomId(isExpanded ? null : room.id)}
-                        className="px-4 py-2 bg-stone-800 text-stone-200 hover:bg-stone-700 transition-colors flex items-center gap-2"
+                        className="flex-1 md:flex-none px-4 py-2 bg-stone-800 text-stone-200 hover:bg-stone-700 transition-colors flex items-center justify-center gap-2 text-sm"
                       >
                         <Eye className="w-4 h-4" />
                         {isExpanded ? 'Collapse' : 'Expand'}
