@@ -625,7 +625,16 @@
 
 <script src="/typeset.min.js"></script>
 <script>
+  // Full typographic treatment
   Typeset.all('p, h1, h2, h3, .showcase-label, .footer p');
+  // Multi-pass rag smoothing on body paragraphs
+  document.querySelectorAll('p').forEach(function(el) {
+    Typeset.smoothRag(el);
+  });
+  // Semantic heading breaks
+  document.querySelectorAll('h2, h3').forEach(function(el) {
+    Typeset.shapeRag(el);
+  });
 </script>
 
 </body>
