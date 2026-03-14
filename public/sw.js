@@ -1,8 +1,8 @@
 // ZenSpace Service Worker - Enhanced for Production
-const CACHE_NAME = 'zenspace-v4';
-const RUNTIME_CACHE = 'zenspace-runtime-v4';
-const IMAGES_CACHE = 'zenspace-images-v4';
-const API_CACHE = 'zenspace-api-v4';
+const CACHE_NAME = 'zenspace-v5';
+const RUNTIME_CACHE = 'zenspace-runtime-v5';
+const IMAGES_CACHE = 'zenspace-images-v5';
+const API_CACHE = 'zenspace-api-v5';
 
 // Static assets to cache on install
 const STATIC_ASSETS = [
@@ -116,6 +116,11 @@ self.addEventListener('fetch', (event) => {
 
   // Skip chrome-extension and other non-http(s) requests
   if (!url.protocol.startsWith('http')) {
+    return;
+  }
+
+  // Skip cross-origin requests — don't intercept external images/APIs
+  if (url.origin !== self.location.origin) {
     return;
   }
 
