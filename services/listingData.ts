@@ -39,14 +39,7 @@ export const SEED_LISTINGS: Listing[] = [{
           thumbnailUrl: "/showcase/direction-contemporary.jpg",
           frameworks: ["Human-Centric & Functional", "Aesthetic Order"],
         },
-        {
-          id: "d3",
-          name: "Biophilic & Organic",
-          description: "Curved forms, filtered light, natural materials. The room breathes — fiddle leaf figs frame the city views while rattan and sage tones ground the space.",
-          imageUrl: "/showcase/direction-biophilic.jpg",
-          thumbnailUrl: "/showcase/direction-biophilic.jpg",
-          frameworks: ["Biophilic & Regenerative", "Universal Design"],
-        },
+
         {
           id: "d4",
           name: "Bold Maximalist",
