@@ -138,7 +138,7 @@ export function ListingPage() {
           >
             See it your way
           </h3>
-          <p className="text-stone-400 mb-6 max-w-2xl mx-auto">
+          <p className="text-stone-400 mb-6 max-w-2xl mx-auto" data-no-smooth>
             Photograph any room from your own angle and generate personalized design directions
           </p>
           <a
@@ -153,7 +153,7 @@ export function ListingPage() {
 
       {/* Footer */}
       <footer className="border-t border-stone-800 py-8">
-        <p className="max-w-6xl mx-auto px-6 text-center text-stone-500 text-sm">
+        <p className="max-w-6xl mx-auto px-6 text-center text-stone-500 text-sm" data-no-smooth>
           Powered by ZenSpace — AI-assisted design visualization
         </p>
       </footer>
