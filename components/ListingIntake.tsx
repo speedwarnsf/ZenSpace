@@ -127,7 +127,7 @@ export function ListingIntake() {
                   Email
                 </label>
                 <input
-                  type="email"
+                  type="text"
                   id="agent-email"
                   value={agentEmail}
                   onChange={e => setAgentEmail(e.target.value)}
@@ -141,7 +141,7 @@ export function ListingIntake() {
                   Phone
                 </label>
                 <input
-                  type="tel"
+                  type="text"
                   id="agent-phone"
                   value={agentPhone}
                   onChange={e => setAgentPhone(e.target.value)}
