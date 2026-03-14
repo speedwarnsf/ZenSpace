@@ -143,7 +143,7 @@ Format as JSON:
       const visualizationPrompt = `${designConcept.name}: ${designConcept.description}. ${designConcept.keyChanges.join('. ')}. Color palette: ${designConcept.palette.join(', ')}.`;
 
       const imageResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${GEMINI_API_KEY}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
