@@ -236,9 +236,13 @@ async function scrapeCompassListing(url: string): Promise<ScrapedListing> {
       agentName = agentMatch[1].trim();
     }
 
-    const neighborhoodMatch = html.match(/neighborhood[^>]*>([^<]+)</i);
-    if (neighborhoodMatch && neighborhoodMatch[1]) {
-      neighborhood = neighborhoodMatch[1].trim();
+    if (!neighborhood) {
+      // Only fall back to HTML if JSON-LD didn't give us a neighborhood
+      // Be strict: match data attributes or aria labels, not arbitrary JS
+      const neighborhoodMatch = html.match(/data-neighborhood="([^"]+)"/i);
+      if (neighborhoodMatch && neighborhoodMatch[1]) {
+        neighborhood = neighborhoodMatch[1].trim();
+      }
     }
 
     const yearMatch = html.match(/(?:built|year)[^>]*>(\d{4})</i);
