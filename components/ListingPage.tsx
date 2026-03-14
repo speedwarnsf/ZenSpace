@@ -153,9 +153,9 @@ export function ListingPage() {
 
       {/* Footer */}
       <footer className="border-t border-stone-800 py-8">
-        <div className="max-w-6xl mx-auto px-6 text-center text-stone-500 text-sm">
+        <p className="max-w-6xl mx-auto px-6 text-center text-stone-500 text-sm">
           Powered by ZenSpace — AI-assisted design visualization
-        </div>
+        </p>
       </footer>
     </div>
   );
