@@ -5,9 +5,9 @@
 create table if not exists public.listings (
   id text primary key,
   source_url text,
-  address text not null,
-  city text not null,
-  state text not null default 'CA',
+  address text,
+  city text,
+  state text default 'CA',
   zip text,
   price integer,
   beds integer,

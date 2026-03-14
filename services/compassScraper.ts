@@ -44,29 +44,30 @@ export async function scrapeCompassListing(url: string): Promise<ScrapedListing>
 
     if (jsonLdMatch && jsonLdMatch[1]) {
       try {
-        structuredData = JSON.parse(jsonLdMatch[1]);
+        const raw = JSON.parse(jsonLdMatch[1]);
+        // Compass wraps data in @graph array
+        structuredData = raw['@graph'] ? raw['@graph'][0] : raw;
       } catch (e) {
         console.warn('Failed to parse JSON-LD:', e);
       }
     }
 
     // Extract photo URLs
-    // Compass uses high-res images in data-src or src attributes
-    // Look for URLs matching Compass CDN pattern
-    const photoRegex = /https:\/\/[^"'\s]+compass\.com[^"'\s]*(?:origin|large|[\d]+x[\d]+)\.[^"'\s]+\.(?:jpg|jpeg|png|webp)/gi;
+    // Compass uses /m3/{hash}.jpg (full res) or /m3/{hash}/{WxH}.jpg patterns
+    const photoRegex = /https:\/\/(?:www\.)?compass\.com\/m3\/[a-f0-9]+(?:\/[^"'\s]*)?\.(?:jpg|jpeg|png|webp)/gi;
     const photoMatches = html.match(photoRegex) || [];
 
-    // Deduplicate and filter photos
+    // Deduplicate, prefer full-res (no size suffix) or large sizes, skip thumbnails
     const photos = Array.from(new Set(photoMatches))
-      .filter(url => {
-        // Prefer origin or large sizes
-        return url.includes('origin') || url.includes('large') || url.match(/\d{4}x\d{4}/);
+      .filter(photoUrl => {
+        // Skip tiny thumbnails (165x165, etc.)
+        return !photoUrl.match(/\/\d{1,3}x\d{1,3}\./);
       })
       .slice(0, 50); // Cap at 50 photos
 
     // If we didn't find photos via regex, try finding them in window.__INITIAL_STATE__ or similar
     if (photos.length === 0) {
-      const initialStateMatch = html.match(/window\.__INITIAL_STATE__\s*=\s*({[\s\S]*?});/);
+      const initialStateMatch = html.match(/window\.__INITIAL_DATA__\s*=\s*({[\s\S]*?});/);
       if (initialStateMatch && initialStateMatch[1]) {
         try {
           const state = JSON.parse(initialStateMatch[1]);
@@ -99,25 +100,50 @@ export async function scrapeCompassListing(url: string): Promise<ScrapedListing>
     if (structuredData) {
       // JSON-LD structured data
       address = structuredData.address?.streetAddress || '';
-      city = structuredData.address?.addressLocality || '';
+      // addressLocality on Compass is often the neighborhood, not the city
+      // Extract city from the name field: "1150 Folsom St, Unit 6, San Francisco, CA 94103"
+      const nameField = structuredData.name || '';
+      const nameParts = nameField.split(',').map((s: string) => s.trim());
+      if (nameParts.length >= 3) {
+        city = nameParts[nameParts.length - 2] || structuredData.address?.addressLocality || '';
+      } else {
+        city = structuredData.address?.addressLocality || '';
+      }
+      // Use addressLocality as neighborhood if it's not the city
+      if (structuredData.address?.addressLocality && structuredData.address.addressLocality !== city) {
+        neighborhood = structuredData.address.addressLocality;
+      }
       state = structuredData.address?.addressRegion || 'CA';
       zip = structuredData.address?.postalCode || '';
 
-      // Price can be in offers or price field
+      // Price from offers
       const offers = structuredData.offers || {};
       price = parseInt(String(offers.price || structuredData.price || '0').replace(/[^0-9]/g, ''), 10);
 
-      description = structuredData.description || '';
+      description = structuredData.description || structuredData.accommodationFloorPlan?.description || '';
 
-      // Beds/baths from numberOfRooms or similar
+      // Beds/baths from numberOfRooms
       if (structuredData.numberOfRooms) {
         beds = parseInt(String(structuredData.numberOfRooms).replace(/[^0-9]/g, ''), 10);
       }
       if (structuredData.numberOfBathroomsTotal) {
         baths = parseFloat(String(structuredData.numberOfBathroomsTotal));
       }
-      if (structuredData.floorSize) {
-        sqft = parseInt(String(structuredData.floorSize.value || structuredData.floorSize).replace(/[^0-9]/g, ''), 10);
+      // floorSize can be an array on Compass
+      const floorSize = Array.isArray(structuredData.floorSize) ? structuredData.floorSize[0] : structuredData.floorSize;
+      if (floorSize) {
+        sqft = parseInt(String(floorSize.value || floorSize).replace(/[^0-9]/g, ''), 10);
+      }
+
+      // Photos from JSON-LD image array (most reliable source)
+      if (Array.isArray(structuredData.image) && structuredData.image.length > 0) {
+        const ldPhotos = structuredData.image
+          .map((img: { url?: string }) => img.url)
+          .filter(Boolean);
+        if (ldPhotos.length > 0) {
+          photos.length = 0; // Clear regex-found photos, JSON-LD is authoritative
+          photos.push(...ldPhotos.slice(0, 50));
+        }
       }
     }
 
