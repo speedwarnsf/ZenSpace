@@ -318,3 +318,46 @@ export interface StructureChoices {
   /** Elements that can be changed */
   elementsToChange: StructureElement[];
 }
+
+/**
+ * Real Estate Listing Types
+ */
+
+export interface Listing {
+  id: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  price: number;
+  beds: number;
+  baths: number;
+  sqft: number;
+  description: string;
+  heroImage: string;
+  agent: {
+    name: string;
+    brokerage: string;
+    photo?: string;
+    logo?: string;
+  };
+  rooms: ListingRoom[];
+  createdAt: number;
+}
+
+export interface ListingRoom {
+  id: string;
+  label: string;
+  originalPhoto: string;
+  thumbnail: string;
+  designs: ListingDesign[];
+}
+
+export interface ListingDesign {
+  id: string;
+  name: string;
+  description: string;
+  imageUrl: string;
+  thumbnailUrl: string;
+  frameworks: string[];
+}
