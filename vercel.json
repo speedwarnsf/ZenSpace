@@ -6,15 +6,18 @@
     },
     "api/listings/intake.ts": {
       "maxDuration": 300,
-      "memory": 1024
+      "memory": 1024,
+      "includeFiles": "services/**"
     },
     "api/listings/regenerate-room.ts": {
       "maxDuration": 300,
-      "memory": 1024
+      "memory": 1024,
+      "includeFiles": "services/**"
     },
     "api/listings/publish.ts": {
       "maxDuration": 60,
-      "memory": 1024
+      "memory": 1024,
+      "includeFiles": "services/**"
     }
   },
   "headers": [
