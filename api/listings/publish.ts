@@ -6,13 +6,27 @@
  * 3. Updates listing status to 'ready'
  * 4. Generates QR codes for house and rooms
  * 5. Updates hero image
+ *
+ * SELF-CONTAINED: All logic inlined - no local file imports
  */
 
-import { supabaseAdmin } from '../services/supabaseAdmin';
-import { generateQRCodesForListing } from '../services/qrGenerator';
+import { createClient } from '@supabase/supabase-js';
+import QRCode from 'qrcode';
 
 export const maxDuration = 60;
 
+// ============================================================================
+// SUPABASE ADMIN CLIENT
+// ============================================================================
+const SUPABASE_URL = 'https://vqkoxfenyjomillmxawh.supabase.co';
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || '';
+const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
+  auth: { persistSession: false }
+});
+
+// ============================================================================
+// TYPES
+// ============================================================================
 interface PublishRequest {
   listingId: string;
   approvedDesigns: Array<{ id: string; order: number }>;
@@ -28,6 +42,95 @@ interface PublishResponse {
   };
 }
 
+interface QRCodeResult {
+  houseQR: string;
+  roomQRs: Record<string, string>;
+}
+
+// ============================================================================
+// QR CODE GENERATOR
+// ============================================================================
+const BASE_URL = 'https://zenspace.design';
+
+async function generateQRCodesForListing(
+  listingId: string,
+  roomIds: string[]
+): Promise<QRCodeResult> {
+  // Generate house QR code
+  const houseUrl = `${BASE_URL}/listing/${listingId}`;
+  const houseQRSvg = await QRCode.toString(houseUrl, {
+    type: 'svg',
+    errorCorrectionLevel: 'H',
+    margin: 2,
+    width: 512
+  });
+
+  // Upload house QR to storage
+  const houseQRPath = `listings/${listingId}/qr/house.svg`;
+  const { error: houseUploadError } = await supabaseAdmin
+    .storage
+    .from('listing-assets')
+    .upload(houseQRPath, houseQRSvg, {
+      contentType: 'image/svg+xml',
+      upsert: true
+    });
+
+  if (houseUploadError) {
+    console.error('Failed to upload house QR:', houseUploadError);
+  }
+
+  // Get public URL for house QR
+  const { data: houseUrlData } = supabaseAdmin
+    .storage
+    .from('listing-assets')
+    .getPublicUrl(houseQRPath);
+
+  const houseQRUrl = houseUrlData.publicUrl;
+
+  // Generate room QR codes
+  const roomQRs: Record<string, string> = {};
+
+  for (const roomId of roomIds) {
+    const roomUrl = `${BASE_URL}/listing/${listingId}/room/${roomId}`;
+    const roomQRSvg = await QRCode.toString(roomUrl, {
+      type: 'svg',
+      errorCorrectionLevel: 'H',
+      margin: 2,
+      width: 512
+    });
+
+    // Upload room QR to storage
+    const roomQRPath = `listings/${listingId}/qr/room-${roomId}.svg`;
+    const { error: roomUploadError } = await supabaseAdmin
+      .storage
+      .from('listing-assets')
+      .upload(roomQRPath, roomQRSvg, {
+        contentType: 'image/svg+xml',
+        upsert: true
+      });
+
+    if (roomUploadError) {
+      console.error(`Failed to upload room QR for ${roomId}:`, roomUploadError);
+    }
+
+    // Get public URL for room QR
+    const { data: roomUrlData } = supabaseAdmin
+      .storage
+      .from('listing-assets')
+      .getPublicUrl(roomQRPath);
+
+    roomQRs[roomId] = roomUrlData.publicUrl;
+  }
+
+  return {
+    houseQR: houseQRUrl,
+    roomQRs
+  };
+}
+
+// ============================================================================
+// MAIN HANDLER
+// ============================================================================
 export default async function handler(req: any, res: any) {
   // CORS
   const allowedOrigins = ['https://zenspace.design', 'https://zenspace-two.vercel.app', 'http://localhost:3000'];

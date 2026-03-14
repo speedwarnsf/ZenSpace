@@ -2,15 +2,27 @@
  * Regenerate Room API
  * POST endpoint that regenerates all designs for a specific room
  * Deletes old designs, generates 5 new ones, stores them
+ *
+ * SELF-CONTAINED: All logic inlined - no local file imports
  */
 
-import { supabaseAdmin } from '../services/supabaseAdmin';
-import { generateDesignsForRoom } from '../services/designGenerator';
-import { uploadDesignImage, uploadThumbnail } from '../services/imageStorage';
+import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 
 export const maxDuration = 300;
 
+// ============================================================================
+// SUPABASE ADMIN CLIENT
+// ============================================================================
+const SUPABASE_URL = 'https://vqkoxfenyjomillmxawh.supabase.co';
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || '';
+const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
+  auth: { persistSession: false }
+});
+
+// ============================================================================
+// TYPES
+// ============================================================================
 interface RegenerateRequest {
   listingId: string;
   roomId: string;
@@ -25,6 +37,274 @@ interface RegenerateResponse {
   }>;
 }
 
+interface GeneratedDesign {
+  name: string;
+  description: string;
+  imageBase64: string;
+  frameworks: string[];
+  designSeed: any;
+  roomReading: any;
+  qualityScore: number;
+}
+
+// ============================================================================
+// DESIGN GENERATOR (Simplified for listings)
+// ============================================================================
+async function generateDesignsForRoom(
+  photoUrl: string,
+  roomType: string,
+  listingContext: { city: string; neighborhood?: string; yearBuilt?: number },
+  count: number
+): Promise<GeneratedDesign[]> {
+  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+  if (!GEMINI_API_KEY) {
+    throw new Error('GEMINI_API_KEY not configured');
+  }
+
+  // Fetch photo
+  const photoResponse = await fetch(photoUrl);
+  if (!photoResponse.ok) {
+    throw new Error(`Failed to fetch photo: ${photoResponse.status}`);
+  }
+
+  const photoBlob = await photoResponse.blob();
+  const photoBuffer = await photoBlob.arrayBuffer();
+  const photoBase64 = Buffer.from(photoBuffer).toString('base64');
+  const mimeType = photoBlob.type || 'image/jpeg';
+
+  const designs: GeneratedDesign[] = [];
+
+  // Generate designs
+  for (let i = 0; i < count; i++) {
+    try {
+      // Step 1: Get design direction
+      const analysisResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                {
+                  text: `You are an interior designer creating a redesign concept for this ${roomType}.
+
+Context: ${listingContext.city}${listingContext.neighborhood ? ', ' + listingContext.neighborhood : ''}${listingContext.yearBuilt ? `, built ${listingContext.yearBuilt}` : ''}
+
+Provide a design direction with:
+1. Name (2-4 words, evocative)
+2. Description (1 sentence describing the mood)
+3. Color palette (3-5 colors)
+4. Key changes (3 bullet points)
+
+Format as JSON:
+{
+  "name": "...",
+  "description": "...",
+  "palette": ["color1", "color2", "color3"],
+  "keyChanges": ["change1", "change2", "change3"]
+}`
+                },
+                {
+                  inlineData: {
+                    mimeType,
+                    data: photoBase64
+                  }
+                }
+              ]
+            }]
+          })
+        }
+      );
+
+      if (!analysisResponse.ok) {
+        console.error(`Design analysis failed: ${analysisResponse.status}`);
+        continue;
+      }
+
+      const analysisData = await analysisResponse.json();
+      const analysisText = analysisData.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+
+      // Parse JSON from response
+      let designConcept: any;
+      try {
+        const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          designConcept = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error('No JSON found in response');
+        }
+      } catch (e) {
+        console.error('Failed to parse design concept:', e);
+        continue;
+      }
+
+      // Step 2: Generate visualization using Gemini image generation
+      const visualizationPrompt = `${designConcept.name}: ${designConcept.description}. ${designConcept.keyChanges.join('. ')}. Color palette: ${designConcept.palette.join(', ')}.`;
+
+      const imageResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                {
+                  text: `Interior design visualization: ${visualizationPrompt}. Professional photo, realistic rendering.`
+                },
+                {
+                  inlineData: {
+                    mimeType,
+                    data: photoBase64
+                  }
+                }
+              ]
+            }],
+            generationConfig: {
+              temperature: 1.0,
+              topP: 0.95,
+              topK: 40
+            }
+          })
+        }
+      );
+
+      if (!imageResponse.ok) {
+        console.error(`Image generation failed: ${imageResponse.status}`);
+        continue;
+      }
+
+      const imageData = await imageResponse.json();
+      const imageBase64 = imageData.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+
+      if (!imageBase64) {
+        console.error('No image generated');
+        continue;
+      }
+
+      designs.push({
+        name: designConcept.name,
+        description: designConcept.description,
+        imageBase64,
+        frameworks: [],
+        designSeed: {
+          palette: designConcept.palette,
+          keyChanges: designConcept.keyChanges,
+          fullPlan: visualizationPrompt
+        },
+        roomReading: {
+          roomReading: `${roomType} in ${listingContext.city}`,
+          frameworks: []
+        },
+        qualityScore: 0.85
+      });
+
+    } catch (error) {
+      console.error(`Failed to generate design ${i}:`, error);
+    }
+  }
+
+  return designs;
+}
+
+// ============================================================================
+// IMAGE STORAGE
+// ============================================================================
+const BUCKET_NAME = 'listing-designs';
+
+async function ensureBucket(): Promise<void> {
+  const { data: buckets } = await supabaseAdmin.storage.listBuckets();
+  const bucketExists = buckets?.some(b => b.name === BUCKET_NAME);
+
+  if (!bucketExists) {
+    await supabaseAdmin.storage.createBucket(BUCKET_NAME, {
+      public: true,
+      fileSizeLimit: 10485760,
+      allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp']
+    });
+  }
+}
+
+async function uploadDesignImage(
+  listingId: string,
+  roomId: string,
+  designId: string,
+  imageBase64: string
+): Promise<string> {
+  await ensureBucket();
+
+  const imageBuffer = Buffer.from(imageBase64, 'base64');
+
+  let extension = 'jpg';
+  if (imageBase64.startsWith('iVBORw0KGgo')) {
+    extension = 'png';
+  } else if (imageBase64.startsWith('UklGR')) {
+    extension = 'webp';
+  }
+
+  const fileName = `${listingId}/${roomId}/${designId}.${extension}`;
+
+  const { error } = await supabaseAdmin.storage
+    .from(BUCKET_NAME)
+    .upload(fileName, imageBuffer, {
+      contentType: `image/${extension}`,
+      cacheControl: '31536000',
+      upsert: true
+    });
+
+  if (error) {
+    throw new Error(`Failed to upload image: ${error.message}`);
+  }
+
+  const { data: { publicUrl } } = supabaseAdmin.storage
+    .from(BUCKET_NAME)
+    .getPublicUrl(fileName);
+
+  return publicUrl;
+}
+
+async function uploadThumbnail(
+  listingId: string,
+  roomId: string,
+  designId: string,
+  imageBase64: string
+): Promise<string> {
+  await ensureBucket();
+
+  const imageBuffer = Buffer.from(imageBase64, 'base64');
+
+  let extension = 'jpg';
+  if (imageBase64.startsWith('iVBORw0KGgo')) {
+    extension = 'png';
+  } else if (imageBase64.startsWith('UklGR')) {
+    extension = 'webp';
+  }
+
+  const fileName = `${listingId}/${roomId}/${designId}_thumb.${extension}`;
+
+  const { error } = await supabaseAdmin.storage
+    .from(BUCKET_NAME)
+    .upload(fileName, imageBuffer, {
+      contentType: `image/${extension}`,
+      cacheControl: '31536000',
+      upsert: true
+    });
+
+  if (error) {
+    throw new Error(`Failed to upload thumbnail: ${error.message}`);
+  }
+
+  const { data: { publicUrl } } = supabaseAdmin.storage
+    .from(BUCKET_NAME)
+    .getPublicUrl(fileName);
+
+  return publicUrl;
+}
+
+// ============================================================================
+// MAIN HANDLER
+// ============================================================================
 export default async function handler(req: any, res: any) {
   // CORS
   const allowedOrigins = ['https://zenspace.design', 'https://zenspace-two.vercel.app', 'http://localhost:3000'];
