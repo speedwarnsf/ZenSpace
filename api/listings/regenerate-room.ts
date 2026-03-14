@@ -151,7 +151,7 @@ Format as JSON:
             contents: [{
               parts: [
                 {
-                  text: `Interior design visualization: ${visualizationPrompt}. Professional photo, realistic rendering.`
+                  text: `Redesign this ${roomType} photo using this design direction: ${visualizationPrompt}. Keep the room structure and layout identical. Apply the new color palette, furniture, and decor as described. Photorealistic interior design visualization. Output the redesigned image.`
                 },
                 {
                   inlineData: {
@@ -164,19 +164,25 @@ Format as JSON:
             generationConfig: {
               temperature: 1.0,
               topP: 0.95,
-              topK: 40
+              topK: 40,
+              responseModalities: ['TEXT', 'IMAGE']
             }
           })
         }
       );
 
       if (!imageResponse.ok) {
-        console.error(`Image generation failed: ${imageResponse.status}`);
+        const errText = await imageResponse.text();
+        console.error(`Image generation failed: ${imageResponse.status}`, errText);
         continue;
       }
 
       const imageData = await imageResponse.json();
-      const imageBase64 = imageData.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+      // Find the image part in the response (could be text + image)
+      const imagePart = imageData.candidates?.[0]?.content?.parts?.find(
+        (p: { inlineData?: { data: string } }) => p.inlineData?.data
+      );
+      const imageBase64 = imagePart?.inlineData?.data;
 
       if (!imageBase64) {
         console.error('No image generated');
