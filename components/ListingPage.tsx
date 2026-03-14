@@ -1,8 +1,8 @@
 import { useParams, Link } from 'react-router-dom';
 import { getListingById } from '../services/listingService';
 import { Camera } from 'lucide-react';
-import { useEffect, useRef } from 'react';
-// typeset engine removed — causing layout issues at narrow mobile measures
+import { useEffect } from 'react';
+import GlobalTypeset from './GlobalTypeset';
 
 export function ListingPage() {
   const { listingId } = useParams<{ listingId: string }>();
@@ -32,6 +32,7 @@ export function ListingPage() {
 
   return (
     <div className="min-h-screen bg-stone-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+      <GlobalTypeset />
       {/* Hero Section */}
       <div className="relative h-[60vh] md:h-[70vh]">
         <img
