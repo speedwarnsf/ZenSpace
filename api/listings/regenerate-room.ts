@@ -4,9 +4,9 @@
  * Deletes old designs, generates 5 new ones, stores them
  */
 
-import { supabaseAdmin } from '../../services/supabaseAdmin';
-import { generateDesignsForRoom } from '../../services/designGenerator';
-import { uploadDesignImage, uploadThumbnail } from '../../services/imageStorage';
+import { supabaseAdmin } from '../services/supabaseAdmin';
+import { generateDesignsForRoom } from '../services/designGenerator';
+import { uploadDesignImage, uploadThumbnail } from '../services/imageStorage';
 import crypto from 'crypto';
 
 export const maxDuration = 300;

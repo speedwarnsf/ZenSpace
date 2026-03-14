@@ -7,11 +7,11 @@
  * 4. Stores everything in Supabase
  */
 
-import { supabaseAdmin } from '../../services/supabaseAdmin';
-import { scrapeCompassListing } from '../../services/compassScraper';
-import { labelPhotos, getPrimaryPhotosPerRoom } from '../../services/roomLabeler';
-import { generateDesignsForRoom } from '../../services/designGenerator';
-import { uploadDesignImage, uploadThumbnail } from '../../services/imageStorage';
+import { supabaseAdmin } from '../services/supabaseAdmin';
+import { scrapeCompassListing } from '../services/compassScraper';
+import { labelPhotos, getPrimaryPhotosPerRoom } from '../services/roomLabeler';
+import { generateDesignsForRoom } from '../services/designGenerator';
+import { uploadDesignImage, uploadThumbnail } from '../services/imageStorage';
 import crypto from 'crypto';
 
 export const maxDuration = 300;

@@ -8,8 +8,8 @@
  * 5. Updates hero image
  */
 
-import { supabaseAdmin } from '../../services/supabaseAdmin';
-import { generateQRCodesForListing } from '../../services/qrGenerator';
+import { supabaseAdmin } from '../services/supabaseAdmin';
+import { generateQRCodesForListing } from '../services/qrGenerator';
 
 export const maxDuration = 60;
 
