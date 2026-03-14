@@ -3,6 +3,18 @@
     "api/gemini.ts": {
       "maxDuration": 90,
       "memory": 1024
+    },
+    "api/listings/intake.ts": {
+      "maxDuration": 300,
+      "memory": 1024
+    },
+    "api/listings/regenerate-room.ts": {
+      "maxDuration": 300,
+      "memory": 1024
+    },
+    "api/listings/publish.ts": {
+      "maxDuration": 60,
+      "memory": 1024
     }
   },
   "headers": [

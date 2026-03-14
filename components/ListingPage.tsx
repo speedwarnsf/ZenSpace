@@ -1,12 +1,30 @@
 import { useParams, Link } from 'react-router-dom';
 import { getListingById } from '../services/listingService';
 import { Camera } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import GlobalTypeset from './GlobalTypeset';
+import { Listing as ListingType } from '../types';
+
+interface Listing extends ListingType {
+  status: string;
+}
 
 export function ListingPage() {
   const { listingId } = useParams<{ listingId: string }>();
-  const listing = listingId ? getListingById(listingId) : null;
+  const [listing, setListing] = useState<Listing | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!listingId) {
+      setLoading(false);
+      return;
+    }
+
+    getListingById(listingId).then(data => {
+      setListing(data);
+      setLoading(false);
+    });
+  }, [listingId]);
 
   useEffect(() => {
     // Load Google Fonts for this page
@@ -19,12 +37,45 @@ export function ListingPage() {
     };
   }, []);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-stone-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block w-8 h-8 border-2 border-amber-600 border-t-transparent rounded-full animate-spin mb-4" />
+          <p className="text-stone-400">Loading listing...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!listing) {
     return (
       <div className="min-h-screen bg-stone-900 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-serif text-stone-200 mb-4">Listing Not Found</h1>
           <p className="text-stone-400">This property could not be located.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Draft gate - only show if status is 'ready'
+  if (listing.status !== 'ready') {
+    return (
+      <div className="min-h-screen bg-stone-900 flex items-center justify-center">
+        <div className="text-center max-w-md px-6">
+          <h1 className="text-2xl font-serif text-stone-200 mb-4">Listing Not Yet Published</h1>
+          <p className="text-stone-400 mb-6">
+            This listing is still being prepared and is not yet available for public viewing.
+          </p>
+          {listingId && (
+            <a
+              href={`/listing/${listingId}/manage`}
+              className="inline-block px-6 py-3 bg-amber-600 text-stone-900 font-semibold hover:bg-amber-500 transition-colors"
+            >
+              Go to Management Page
+            </a>
+          )}
         </div>
       </div>
     );
