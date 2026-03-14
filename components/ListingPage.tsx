@@ -2,7 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { getListingById } from '../services/listingService';
 import { Camera } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import { typeset, smoothRag } from '../lib/typeset';
+import { typeset, smoothRag, typesetHeading } from '../lib/typeset';
 
 export function ListingPage() {
   const { listingId } = useParams<{ listingId: string }>();
@@ -13,9 +13,12 @@ export function ListingPage() {
   useEffect(() => {
     // Run typeset engine after render
     if (containerRef.current) {
-      containerRef.current.querySelectorAll<HTMLElement>('p, h1, h2, h3').forEach(el => {
+      containerRef.current.querySelectorAll<HTMLElement>('p').forEach(el => {
         typeset(el);
         smoothRag(el);
+      });
+      containerRef.current.querySelectorAll<HTMLElement>('h1, h2, h3').forEach(el => {
+        el.innerHTML = typesetHeading(el.textContent || '');
       });
     }
   });
