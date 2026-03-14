@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload } from 'lucide-react';
+import GlobalTypeset from './GlobalTypeset';
 
 export function ListingIntake() {
   const navigate = useNavigate();
@@ -220,10 +221,12 @@ export function ListingIntake() {
 
       {/* Footer */}
       <footer className="border-t border-stone-800 py-8 mt-12">
-        <p className="max-w-4xl mx-auto px-6 text-center text-stone-500 text-sm">
+        <p data-no-smooth className="max-w-4xl mx-auto px-6 text-center text-stone-500 text-sm">
           Powered by ZenSpace — AI-assisted design visualization
         </p>
       </footer>
+
+      <GlobalTypeset />
     </div>
   );
 }
