@@ -111,6 +111,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 ],
               }],
               generationConfig: {
+                responseModalities: ['TEXT', 'IMAGE'],
                 temperature: 0.4,
                 topP: 0.95,
                 topK: 40,
