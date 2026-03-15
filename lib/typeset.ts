@@ -126,9 +126,9 @@ function typesetBodyText(text: string, measure?: number): string {
   const m = measure ?? 65;
   const doOrphans = m >= 25;                     // almost always — single-word last lines look bad at any width
   const doNumberBinding = m >= 25;               // "30 years" — always safe, very short atom
-  const doTinyWordBinding = m >= 45;             // 1-2 char words: safe at medium+ widths, harmful at mobile
-  const doSentenceProtection = m >= 50;          // sentence start/end: needs room to work
-  const doMediumWordBinding = m >= 55;           // 3-char words (the, and, but, for)
+  const doTinyWordBinding = m >= 55;             // 1-2 char words: was 45, raised — at 45-54ch binding "of X" creates awkward breaks
+  const doSentenceProtection = m >= 55;          // sentence start/end: needs room to work (was 50, aligned with tiny)
+  const doMediumWordBinding = m >= 60;           // 3-char words (the, and, but, for) — was 55
   const doFullShortWordBinding = m >= 65;        // full list: wide measures only
 
   // Build word lists by size tier
