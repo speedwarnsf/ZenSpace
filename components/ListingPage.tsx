@@ -143,7 +143,7 @@ export function ListingPage() {
 
       {/* Description */}
       <div className="max-w-6xl mx-auto px-6 py-8">
-        <p className="text-stone-300 text-sm leading-relaxed">
+        <p className="text-stone-300 leading-relaxed" style={{ fontSize: '13px' }}>
           {descriptionExpanded
             ? listing.description
             : `${listing.description.substring(0, 150)}${listing.description.length > 150 ? '...' : ''}`}

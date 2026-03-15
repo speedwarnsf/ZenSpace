@@ -158,7 +158,7 @@ export function RoomPage() {
                   >
                     {design.name}
                   </h3>
-                  <p className="text-stone-300 text-base leading-relaxed mb-4">
+                  <p className="text-stone-300 leading-relaxed mb-4" style={{ fontSize: '13px' }}>
                     {design.description}
                   </p>
 
