@@ -431,10 +431,10 @@ export default function AgentOnboarding() {
                 className="text-center space-y-3 group"
               >
                 <div
-                  className={`mx-auto overflow-hidden border-2 transition-colors ${
+                  className={`lens-circle mx-auto overflow-hidden border-2 transition-colors ${
                     selectedIndex === -1 ? 'border-amber-600' : 'border-stone-700 group-hover:border-stone-500'
                   }`}
-                  style={{ width: 140, height: 140, borderRadius: '50%' }}
+                  style={{ width: 140, height: 140 }}
                 >
                   <img
                     src={originalUrl}
@@ -453,10 +453,10 @@ export default function AgentOnboarding() {
                   className="text-center space-y-3 group"
                 >
                   <div
-                    className={`mx-auto overflow-hidden border-2 transition-colors ${
+                    className={`lens-circle mx-auto overflow-hidden border-2 transition-colors ${
                       selectedIndex === i ? 'border-amber-600' : 'border-stone-700 group-hover:border-stone-500'
                     }`}
-                    style={{ width: 140, height: 140, borderRadius: '50%' }}
+                    style={{ width: 140, height: 140 }}
                   >
                     <img
                       src={p.url}
@@ -476,8 +476,8 @@ export default function AgentOnboarding() {
               <div className="border border-stone-800 bg-stone-950 p-6">
                 <div className="flex items-center gap-4">
                   <div
-                    className="overflow-hidden border border-stone-700 flex-shrink-0"
-                    style={{ width: 64, height: 64, borderRadius: '50%' }}
+                    className="lens-circle overflow-hidden border border-stone-700 flex-shrink-0"
+                    style={{ width: 64, height: 64 }}
                   >
                     <img
                       src={selectedIndex === -1 ? originalUrl : portraits[selectedIndex]?.url}
