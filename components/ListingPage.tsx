@@ -13,6 +13,7 @@ export function ListingPage() {
   const { listingId } = useParams<{ listingId: string }>();
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
 
   useEffect(() => {
     if (!listingId) {
@@ -29,7 +30,7 @@ export function ListingPage() {
   useEffect(() => {
     // Load Google Fonts for this page
     const link = document.createElement('link');
-    link.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap';
+    link.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Nunito:wght@300;400;600;700&display=swap';
     link.rel = 'stylesheet';
     document.head.appendChild(link);
     return () => {
@@ -82,7 +83,7 @@ export function ListingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="min-h-screen bg-stone-900" style={{ fontFamily: 'Nunito, sans-serif', fontSize: '14px', lineHeight: '1.5' }}>
       <GlobalTypeset />
       {/* Hero Section */}
       <div className="relative h-[60vh] md:h-[70vh]">
@@ -100,16 +101,16 @@ export function ListingPage() {
             >
               {listing.address}
             </h1>
-            <p className="text-stone-300 text-lg md:text-xl mb-6">
+            <p className="text-stone-300 text-base md:text-lg mb-4">
               {listing.city}, {listing.state} {listing.zip}
             </p>
-            <div className="flex items-center gap-6 text-stone-200 text-base md:text-lg">
+            <div className="flex flex-wrap items-center gap-4 text-stone-200 text-sm md:text-base">
               <div>
-                <span className="font-bold text-2xl md:text-3xl" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+                <span className="font-bold text-xl md:text-2xl" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
                   ${listing.price.toLocaleString()}
                 </span>
               </div>
-              <div className="h-6 w-px bg-stone-600" />
+              <div className="h-5 w-px bg-stone-600" />
               <div>{listing.beds} bed</div>
               <div>{listing.baths} bath</div>
               <div>{listing.sqft.toLocaleString()} sqft</div>
@@ -141,28 +142,38 @@ export function ListingPage() {
       </div>
 
       {/* Description */}
-      <div className="max-w-6xl mx-auto px-6 py-12">
-        <p className="text-stone-300 text-lg leading-relaxed" style={{ textWrap: 'pretty' }}>
-          {listing.description}
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        <p className="text-stone-300 leading-relaxed" style={{ textWrap: 'pretty' }}>
+          {descriptionExpanded
+            ? listing.description
+            : `${listing.description.substring(0, 150)}${listing.description.length > 150 ? '...' : ''}`}
         </p>
+        {listing.description.length > 150 && (
+          <button
+            onClick={() => setDescriptionExpanded(!descriptionExpanded)}
+            className="mt-3 text-amber-600 hover:text-amber-500 transition-colors font-medium"
+          >
+            {descriptionExpanded ? 'Show less' : 'Read more'}
+          </button>
+        )}
       </div>
 
       {/* Room Grid */}
       <div className="max-w-6xl mx-auto px-6 pb-16">
         <h2
-          className="text-3xl md:text-4xl font-bold text-stone-100 mb-8"
+          className="text-2xl md:text-3xl font-bold text-stone-100 mb-6"
           style={{ fontFamily: 'Cormorant Garamond, serif' }}
         >
           Explore Design Possibilities
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           {listing.rooms.map(room => (
             <Link
               key={room.id}
               to={`/listing/${listing.id}/room/${room.id}`}
               className="group block bg-stone-950 border border-stone-800 overflow-hidden hover:border-amber-600 transition-colors"
             >
-              <div className="aspect-[4/3] overflow-hidden">
+              <div className="aspect-[16/10] overflow-hidden">
                 <img
                   src={room.thumbnail}
                   alt={room.label}
@@ -170,8 +181,8 @@ export function ListingPage() {
                 />
               </div>
               <div className="p-4">
-                <div className="text-stone-200 font-medium mb-1">{room.label}</div>
-                <div className="text-amber-600 text-sm">
+                <div className="text-stone-200 font-semibold mb-1">{room.label}</div>
+                <div className="text-amber-600 text-xs">
                   {room.designs.length} design {room.designs.length === 1 ? 'direction' : 'directions'}
                 </div>
               </div>

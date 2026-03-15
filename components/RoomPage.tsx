@@ -31,7 +31,7 @@ export function RoomPage() {
   useEffect(() => {
     // Load Google Fonts for this page
     const link = document.createElement('link');
-    link.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap';
+    link.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Nunito:wght@300;400;600;700&display=swap';
     link.rel = 'stylesheet';
     document.head.appendChild(link);
     return () => {
@@ -84,7 +84,7 @@ export function RoomPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="min-h-screen bg-stone-900" style={{ fontFamily: 'Nunito, sans-serif', fontSize: '14px', lineHeight: '1.5' }}>
       <GlobalTypeset />
       {/* Header */}
       <header className="border-b border-stone-800 bg-stone-950 sticky top-0 z-50">
@@ -163,26 +163,18 @@ export function RoomPage() {
                   </p>
 
                   {/* Framework Tags */}
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {design.frameworks.map(framework => (
-                      <span
-                        key={framework}
-                        className="px-3 py-1 bg-stone-800 text-amber-600 text-xs font-medium tracking-wide uppercase"
-                      >
-                        {framework}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Go Deeper Button */}
-                  <button
-                    className="w-full md:w-auto px-6 py-3 bg-stone-800 text-stone-200 font-medium hover:bg-stone-700 transition-colors"
-                    onClick={() => {
-                      // Placeholder - no-op for now
-                    }}
-                  >
-                    Go Deeper
-                  </button>
+                  {design.frameworks && design.frameworks.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {design.frameworks.map(framework => (
+                        <span
+                          key={framework}
+                          className="px-3 py-1 bg-stone-800 text-amber-600 text-xs font-medium tracking-wide uppercase"
+                        >
+                          {framework}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

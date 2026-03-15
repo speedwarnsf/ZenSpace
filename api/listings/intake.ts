@@ -411,7 +411,12 @@ async function labelPhotos(photoUrls: string[]): Promise<LabeledPhoto[]> {
 }
 
 function getPrimaryPhotosPerRoom(labeledPhotos: LabeledPhoto[]): LabeledPhoto[] {
-  return labeledPhotos.filter(photo => photo.isPrimary);
+  // Exclude exterior/non-interior photos and unknown labels
+  const excludedTypes = ['Unknown', 'Exterior', 'View', 'Hallway', 'Other', 'Garage'];
+
+  return labeledPhotos.filter(photo =>
+    photo.isPrimary && !excludedTypes.includes(photo.roomType)
+  );
 }
 
 // ============================================================================
