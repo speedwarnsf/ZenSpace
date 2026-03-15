@@ -151,8 +151,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const combos = generateCombinations(gender || 'male');
     const portraits: Array<{ combo: Record<string, string>; imageBase64: string }> = [];
 
-    // imagen-3.0-generate-002 for photorealistic portrait generation
-    const genModel = 'imagen-3.0-generate-002';
+    // Imagen 4 for photorealistic portrait generation
+    const genModel = 'imagen-4.0-generate-001';
     const errors: string[] = [];
 
     for (const combo of combos) {
