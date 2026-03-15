@@ -525,8 +525,8 @@ export default function AgentOnboarding() {
               Welcome, {name}
             </div>
 
-            <div className="mx-auto overflow-hidden border-2 border-amber-600"
-              style={{ width: 120, height: 120, borderRadius: '50%' }}>
+            <div className="lens-circle mx-auto overflow-hidden border-2 border-amber-600"
+              style={{ width: 120, height: 120 }}>
               <img
                 src={selectedIndex === -1 ? originalUrl : portraits[selectedIndex!]?.url}
                 alt={name}
@@ -539,13 +539,20 @@ export default function AgentOnboarding() {
               with your professional portrait.
             </p>
 
-            <div className="flex gap-4 justify-center">
+            <div className="flex gap-4 justify-center flex-wrap">
               <Link
                 to={`/listing/new?agent=${agentId}`}
                 className="bg-amber-600 hover:bg-amber-500 text-stone-950 font-bold py-3 px-8 tracking-wide uppercase transition-colors inline-block"
                 style={{ borderRadius: 0 }}
               >
                 Create First Listing
+              </Link>
+              <Link
+                to="/agent/dashboard"
+                className="bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold py-3 px-8 tracking-wide uppercase transition-colors inline-block"
+                style={{ borderRadius: 0 }}
+              >
+                Go to Dashboard
               </Link>
             </div>
 

@@ -203,27 +203,31 @@ export function RoomPage() {
 
         {/* Design Partner Block */}
         <div className="border border-stone-800 bg-stone-950 p-8 md:p-12">
-          <div className="text-amber-600 text-sm font-medium tracking-wide mb-3 uppercase" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+          <div className="text-amber-600 text-sm font-medium tracking-wide mb-3 uppercase" style={{ fontFamily: 'Nunito, sans-serif' }}>
             Ready for the real thing?
           </div>
           <h3
             className="text-2xl md:text-3xl font-bold text-stone-100 mb-4"
             style={{ fontFamily: 'Cormorant Garamond, serif' }}
           >
-            Partner with a design professional
+            MODTAGE Design
           </h3>
-          <p className="text-stone-400 leading-relaxed" data-no-smooth>
-            Connect with premium interior design firms in {listing.city} to bring these concepts to life.
+          <p className="text-stone-400 leading-relaxed text-[13px]" data-no-smooth style={{ fontFamily: 'Nunito, sans-serif' }}>
+            High-end residential interior design in San Francisco. Modern meets vintage, curated by Gretchen Murdock. As seen in Architectural Digest, Dwell, and the SF Decorator Showcase.
           </p>
-          <div className="mt-6">
-            <button
-              className="px-6 py-3 bg-stone-800 text-stone-200 font-medium hover:bg-stone-700 transition-colors"
-              onClick={() => {
-                // Placeholder - no-op for now
-              }}
+          <p className="text-stone-500 text-[13px] mt-3 leading-relaxed" data-no-smooth style={{ fontFamily: 'Nunito, sans-serif' }}>
+            Love one of these design directions? MODTAGE can bring it to life in your new home.
+          </p>
+          <div className="mt-6 flex gap-3">
+            <a
+              href="https://www.modtagedesign.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3 bg-amber-600 text-stone-900 font-bold hover:bg-amber-500 transition-colors"
+              style={{ fontFamily: 'Nunito, sans-serif' }}
             >
-              Find a Designer
-            </button>
+              Visit MODTAGE Design
+            </a>
           </div>
         </div>
       </div>

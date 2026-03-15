@@ -10,6 +10,7 @@ import { RoomPage } from './components/RoomPage';
 import AgentOnboarding from './components/AgentOnboarding';
 import { ListingIntake } from './components/ListingIntake';
 import { ListingManage } from './components/ListingManage';
+import { AgentDashboard } from './components/AgentDashboard';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -24,6 +25,7 @@ root.render(
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/agent/onboard" element={<AgentOnboarding />} />
+          <Route path="/agent/dashboard" element={<AgentDashboard />} />
           <Route path="/listing/new" element={<ListingIntake />} />
           <Route path="/listing/:listingId" element={<ListingPage />} />
           <Route path="/listing/:listingId/manage" element={<ListingManage />} />

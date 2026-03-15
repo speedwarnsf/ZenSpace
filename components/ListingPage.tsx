@@ -25,6 +25,13 @@ export function ListingPage() {
       setListing(data);
       setLoading(false);
     });
+
+    // Track scan/pageview
+    fetch('/api/listings/scan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ listingId, source: 'listing-page' }),
+    }).catch(() => {});
   }, [listingId]);
 
   useEffect(() => {
@@ -210,6 +217,35 @@ export function ListingPage() {
             <Camera className="w-5 h-5" />
             Open ZenSpace Camera
           </a>
+        </div>
+      </div>
+
+      {/* Design Partner */}
+      <div className="border-t border-stone-800 bg-stone-950">
+        <div className="max-w-3xl mx-auto px-6 py-12">
+          <div className="border border-stone-800 p-8 md:p-10">
+            <div className="text-amber-600 text-sm font-medium tracking-wide mb-3 uppercase" style={{ fontFamily: 'Nunito, sans-serif' }}>
+              Brought to you by
+            </div>
+            <h3
+              className="text-2xl md:text-3xl font-bold text-stone-100 mb-3"
+              style={{ fontFamily: 'Cormorant Garamond, serif' }}
+            >
+              MODTAGE Design
+            </h3>
+            <p className="text-stone-400 text-[13px] leading-relaxed mb-6" data-no-smooth style={{ fontFamily: 'Nunito, sans-serif' }}>
+              High-end residential interior design. Modern meets vintage, curated for San Francisco living. Love a design direction? MODTAGE can turn inspiration into reality.
+            </p>
+            <a
+              href="https://www.modtagedesign.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block px-6 py-3 bg-amber-600 text-stone-900 font-bold hover:bg-amber-500 transition-colors text-sm"
+              style={{ fontFamily: 'Nunito, sans-serif' }}
+            >
+              Visit MODTAGE Design
+            </a>
+          </div>
         </div>
       </div>
 
