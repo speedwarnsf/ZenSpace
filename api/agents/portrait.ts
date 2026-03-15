@@ -1,6 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
-import { GoogleGenAI, PersonGeneration } from '@google/genai';
 
 const SUPABASE_URL = 'https://vqkoxfenyjomillmxawh.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || '';
@@ -10,103 +9,65 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
   auth: { persistSession: false },
 });
 
-const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-
 // ─── Nudio-Style Portrait Parameters ───
+// Each pool has exactly 3 options. For 3 portraits, each element is used once.
 
-const LENS_TYPES = [
-  'Portrait 85mm f/1.4 — shallow depth of field, creamy bokeh',
-  'Standard 50mm f/1.8 — natural perspective, slight bokeh',
-  'Wide 35mm f/2.0 — environmental portrait, context visible',
+const BACKDROP_VARIANTS = [
+  { id: 'city-fog', description: 'a warm charcoal grey' },
+  { id: 'amber', description: 'a rich amber yellow' },
+  { id: 'powder-blue', description: 'a cool powder blue' },
 ];
 
-const RETOUCH_STYLES = [
-  'Natural polish — subtle skin smoothing, even tone, no heavy retouching',
-  'Magazine finish — flawless skin, catch lights enhanced, refined details',
-  'Film grain — organic texture, slightly desaturated, analog warmth',
+const WARDROBE_MALE = [
+  'a sharp tailored blazer with crisp shirt — clean professional lines',
+  'smart casual with open collar — elevated everyday, understated luxury',
+  'modern minimal monochrome — architectural silhouette, no distractions',
 ];
 
-const WARDROBE_VIBES_MALE = [
-  'Sharp professional — tailored blazer, crisp shirt, clean lines',
-  'Smart casual — elevated everyday, open collar, understated luxury',
-  'Modern minimal — monochrome, architectural silhouette, no distractions',
+const WARDROBE_FEMALE = [
+  'a structured editorial blazer with elegant draping',
+  'smart professional — tailored blouse, refined and polished',
+  'modern minimal — clean monochrome silhouette, understated luxury',
 ];
 
-const WARDROBE_VIBES_FEMALE = [
-  'Editorial womenswear — structured blazer, elegant draping, editorial styling',
-  'Smart professional — tailored top or blouse, refined and polished',
-  'Modern minimal — monochrome, clean silhouette, understated luxury',
+const LIGHTING_SETUPS = [
+  'a clean Broncolor ParaLight three-point setup — soft front key, subtle fill, even illumination',
+  'dramatic rim-edge lighting — strong backlight defining silhouette with moody shadows',
+  'graphic studio lighting — high contrast, sharp directional, editorial feel',
 ];
 
-const BACKGROUNDS = [
-  'City fog — soft urban atmosphere, muted buildings dissolving into haze',
-  'Amber yellow — warm golden gradient, studio feel',
-  'Powder blue — cool, clean, airy backdrop with soft gradient',
-];
-
-const LIGHTING = [
-  'Clean corporate — soft front key light, subtle fill, even illumination',
-  'Dramatic rim edge — strong backlight defining silhouette, moody shadows',
-  'Graphic studio — high contrast, sharp directional light, editorial feel',
-];
-
-const POOL_NAMES = ['Lens', 'Retouch', 'Wardrobe', 'Background', 'Lighting'];
-
-function getAllPools(gender: string): string[][] {
-  const wardrobe = gender === 'female' ? WARDROBE_VIBES_FEMALE : WARDROBE_VIBES_MALE;
-  return [LENS_TYPES, RETOUCH_STYLES, wardrobe, BACKGROUNDS, LIGHTING];
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i]!, a[j]!] = [a[j]!, a[i]!];
+  }
+  return a;
 }
 
 /**
- * Generate 3 unique non-repeating combinations.
- * Each element is used at most once across the 3 portraits.
+ * Build 3 unique portrait prompts — Nudio engine style.
+ * Uses gemini-2.5-flash-image with the source photo as input (image-to-image).
+ * Each prompt gets a unique backdrop, wardrobe, and lighting combo.
  */
-function generateCombinations(gender: string): Array<Record<string, string>> {
-  const combos: Array<Record<string, string>> = [];
-  const pools = getAllPools(gender);
+function buildPortraitPrompts(gender: string): string[] {
+  const backdrops = shuffle(BACKDROP_VARIANTS);
+  const wardrobes = shuffle(gender === 'female' ? WARDROBE_FEMALE : WARDROBE_MALE);
+  const lightings = shuffle(LIGHTING_SETUPS);
 
-  // Shuffle each pool independently
-  const shuffled: string[][] = pools.map(pool => {
-    const arr = [...pool];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i]!, arr[j]!] = [arr[j]!, arr[i]!];
-    }
-    return arr;
+  return [0, 1, 2].map(i => {
+    const backdrop = backdrops[i]!;
+    const wardrobe = wardrobes[i]!;
+    const lighting = lightings[i]!;
+
+    return `Take this picture of a person and examine every pore of their skin, every scar, mark, mole, and freckle. Look carefully at the shape of their face and their body. You are going to represent every detail in the most realistic way, but imagine they have been taken to a world-leading NYC portrait studio with stylists, hair, and makeup specialists. The set uses ${lighting} with a cyc wall backdrop painted to match ${backdrop.description}.
+
+Ground rules: the subject must be 16ft from the backdrop. They are now wearing ${wardrobe}. Makeup must be virtually unnoticeable. Hair should remain similar but look clean, styled, and magazine-quality cool. The photographer is incredibly skilled at directing the best pose and expression.
+
+Only show the subject from head and shoulders, centered in frame. Never reveal lighting equipment, stands, rolled paper, flooring seams, or any other set pieces — just the person against that perfectly smooth ${backdrop.description} backdrop edge to edge.
+
+The shoot is captured on a Phase One camera using a Schneider Kreuznach 110mm LS f/2.8 lens. Deliver the final Vogue magazine-style candid editorial portrait — hyper-real, flattering, and true to the subject. Square aspect ratio.`;
   });
-
-  for (let i = 0; i < 3; i++) {
-    const combo: Record<string, string> = {};
-    shuffled.forEach((pool: string[], poolIdx: number) => {
-      combo[POOL_NAMES[poolIdx] as string] = pool[i] as string;
-    });
-    combos.push(combo);
-  }
-
-  return combos;
-}
-
-function buildPortraitPrompt(combo: Record<string, string>, description: string): string {
-  return `Create a professional real estate agent headshot portrait.
-
-SOURCE PHOTO DESCRIPTION: ${description}
-
-IMPORTANT: This must look like the SAME PERSON from the source photo. Preserve their face, features, skin tone, hair, and identity exactly.
-
-PHOTOGRAPHY SETTINGS:
-- ${combo.Lens}
-- ${combo.Retouch}
-- ${combo.Wardrobe}
-- ${combo.Background}
-- ${combo.Lighting}
-
-REQUIREMENTS:
-- Head and shoulders framing, centered composition
-- Professional, approachable expression — slight confident smile
-- Eyes sharp and in focus, looking at camera
-- The portrait should feel like a premium headshot from a professional photographer
-- Square aspect ratio (1:1)
-- High quality, photorealistic result`;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -125,86 +86,95 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ error: 'GEMINI_API_KEY not configured' });
     }
 
-    // Step 1: Analyze the source photo to get a face description
-    const analysisModel = 'gemini-2.0-flash';
-    const analysisResponse = await ai.models.generateContent({
-      model: analysisModel,
-      contents: [{
-        role: 'user',
-        parts: [
-          {
-            inlineData: {
-              mimeType,
-              data: imageBase64,
-            },
-          },
-          {
-            text: `Describe this person's appearance for portrait recreation. Include: approximate age, gender, ethnicity/skin tone, hair color/style/length, facial hair, face shape, distinctive features. Be specific and detailed. Output only the description, no preamble.`,
-          },
-        ],
-      }],
-    });
-
-    const faceDescription = analysisResponse.text || 'Professional adult';
-
-    // Step 2: Generate 3 portraits with unique combos
-    const combos = generateCombinations(gender || 'male');
-    const portraits: Array<{ combo: Record<string, string>; imageBase64: string }> = [];
-
-    // Imagen 4 for photorealistic portrait generation
-    const genModel = 'imagen-4.0-generate-001';
+    // Build 3 unique prompts with non-repeating combos
+    const prompts = buildPortraitPrompts(gender || 'male');
+    const portraits: Array<{ index: number; imageBase64: string }> = [];
     const errors: string[] = [];
 
-    for (const combo of combos) {
-      const prompt = buildPortraitPrompt(combo, faceDescription);
+    // Use gemini-2.5-flash-image via generateContent — the actual Nudio engine
+    // This is image-to-image: source photo goes IN, transformed portrait comes OUT
+    const imageModel = 'gemini-2.5-flash-image';
 
+    for (let i = 0; i < prompts.length; i++) {
       try {
-        const response = await ai.models.generateImages({
-          model: genModel,
-          prompt,
-          config: {
-            numberOfImages: 1,
-            aspectRatio: '1:1',
-            personGeneration: PersonGeneration.ALLOW_ALL,
-          },
-        });
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${imageModel}:generateContent?key=${GEMINI_API_KEY}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                role: 'user',
+                parts: [
+                  { inlineData: { mime_type: mimeType, data: imageBase64 } },
+                  { text: prompts[i] },
+                ],
+              }],
+              generationConfig: {
+                temperature: 0.4,
+                topP: 0.95,
+                topK: 40,
+              },
+            }),
+          }
+        );
 
-        const image = response.generatedImages?.[0];
-        if (image?.image?.imageBytes) {
-          portraits.push({
-            combo,
-            imageBase64: image.image.imageBytes,
-          });
-        } else {
-          errors.push(`No image returned for combo ${portraits.length + 1}`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`Portrait ${i + 1} API error:`, errorText);
+          errors.push(`Portrait ${i + 1}: API ${response.status}`);
+          continue;
+        }
+
+        const data = await response.json();
+
+        // Extract generated image from response (camelCase inlineData)
+        let foundImage = false;
+        if (data.candidates?.[0]?.content?.parts) {
+          for (const part of data.candidates[0].content.parts) {
+            if (part.inlineData?.data) {
+              portraits.push({
+                index: i,
+                imageBase64: part.inlineData.data,
+              });
+              foundImage = true;
+              break;
+            }
+          }
+        }
+
+        if (!foundImage) {
+          // Check for text-only response (model refused or couldn't generate)
+          const textParts = data.candidates?.[0]?.content?.parts
+            ?.filter((p: any) => p.text)
+            ?.map((p: any) => p.text)
+            ?.join(' ');
+          errors.push(`Portrait ${i + 1}: No image returned${textParts ? ` — ${textParts.slice(0, 200)}` : ''}`);
         }
       } catch (genErr: any) {
         const msg = genErr.message || String(genErr);
-        console.error(`Portrait generation failed:`, msg);
-        errors.push(msg);
-        // Continue with remaining combos
+        console.error(`Portrait ${i + 1} generation failed:`, msg);
+        errors.push(`Portrait ${i + 1}: ${msg}`);
       }
     }
 
     if (portraits.length === 0) {
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: 'All portrait generations failed',
         details: errors,
-        faceDescription,
       });
     }
 
-    // Step 3: Upload portraits to Supabase storage
+    // Upload portraits to Supabase storage
     const results = [];
-    for (let i = 0; i < portraits.length; i++) {
-      const portrait = portraits[i]!;
+    for (const portrait of portraits) {
       const buffer = Buffer.from(portrait.imageBase64, 'base64');
-      const fileName = `portraits/${agentId || 'temp'}/${Date.now()}-${i}.jpg`;
+      const fileName = `portraits/${agentId || 'temp'}/${Date.now()}-${portrait.index}.png`;
 
       const { error: uploadErr } = await supabase.storage
         .from('listing-designs')
         .upload(fileName, buffer, {
-          contentType: 'image/jpeg',
+          contentType: 'image/png',
           upsert: true,
         });
 
@@ -219,11 +189,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       results.push({
         url: urlData.publicUrl,
-        combo: portrait.combo,
+        index: portrait.index,
       });
     }
 
-    // Also upload the original
+    // Upload the original photo
     const origBuffer = Buffer.from(imageBase64, 'base64');
     const origFileName = `portraits/${agentId || 'temp'}/${Date.now()}-original.jpg`;
     await supabase.storage
@@ -239,7 +209,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({
       portraits: results,
       original: origUrlData.publicUrl,
-      faceDescription,
+      errors: errors.length > 0 ? errors : undefined,
     });
 
   } catch (err: any) {
