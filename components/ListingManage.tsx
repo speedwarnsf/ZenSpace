@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import {
   Check, X, Star, GripVertical, Trash2, RefreshCw, Eye,
-  ArrowLeft, Loader2
+  ArrowLeft, Loader2, QrCode, Download
 } from 'lucide-react';
 import GlobalTypeset from './GlobalTypeset';
 import { createClient } from '@supabase/supabase-js';
@@ -70,6 +70,13 @@ export function ListingManage() {
   const [publishing, setPublishing] = useState(false);
   const [regeneratingRoomId, setRegeneratingRoomId] = useState<string | null>(null);
   const [generatingCount, setGeneratingCount] = useState(0);
+
+  // QR code state
+  const [generatingQR, setGeneratingQR] = useState(false);
+  const [qrCodes, setQRCodes] = useState<{
+    houseQR?: { url: string; qrUrl: string };
+    roomQRs?: Array<{ roomId: string; roomType: string; url: string; qrUrl: string }>;
+  } | null>(null);
 
   useEffect(() => {
     if (!listingId) {
@@ -295,6 +302,29 @@ export function ListingManage() {
     } catch (error) {
       console.error('Failed to save room label:', error);
       alert('Failed to save label');
+    }
+  }
+
+  async function generateQRCodes() {
+    if (!listingId) return;
+    setGeneratingQR(true);
+    try {
+      const response = await fetch('/api/listings/qrcodes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ listingId }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      setQRCodes({
+        houseQR: data.houseQR,
+        roomQRs: data.roomQRs,
+      });
+    } catch (err: any) {
+      console.error('QR generation failed:', err);
+      alert('Failed to generate QR codes: ' + err.message);
+    } finally {
+      setGeneratingQR(false);
     }
   }
 
@@ -625,8 +655,26 @@ export function ListingManage() {
           })}
         </div>
 
-        {/* Publish Button */}
-        <div className="mt-12 flex justify-end">
+        {/* Actions */}
+        <div className="mt-12 flex flex-wrap gap-4 justify-end">
+          <button
+            onClick={generateQRCodes}
+            disabled={generatingQR}
+            className="px-6 py-4 border border-stone-600 text-stone-200 font-bold hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
+          >
+            {generatingQR ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Generating QR Codes...
+              </>
+            ) : (
+              <>
+                <QrCode className="w-5 h-5" />
+                Generate QR Codes
+              </>
+            )}
+          </button>
+
           <button
             onClick={publishListing}
             disabled={!allRoomsHaveApprovedDesigns || publishing}
@@ -642,6 +690,70 @@ export function ListingManage() {
             )}
           </button>
         </div>
+
+        {/* QR Codes Display */}
+        {qrCodes && (
+          <div className="mt-8 border border-stone-700 bg-stone-900 p-6">
+            <h3 className="font-semibold text-stone-200 text-lg mb-4 flex items-center gap-2" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+              <QrCode className="w-5 h-5" />
+              QR Codes Ready
+            </h3>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+              {/* House QR */}
+              {qrCodes.houseQR && (
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-full aspect-square bg-white p-3 flex items-center justify-center">
+                    <img
+                      src={qrCodes.houseQR.qrUrl}
+                      alt="House QR Code"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <span className="text-xs text-stone-400 text-center" style={{ fontFamily: 'Nunito, sans-serif' }}>
+                    Full Listing
+                  </span>
+                  <a
+                    href={qrCodes.houseQR.qrUrl}
+                    download="house-qr.svg"
+                    className="text-xs text-amber-600 hover:text-amber-500 flex items-center gap-1"
+                  >
+                    <Download className="w-3 h-3" />
+                    Download SVG
+                  </a>
+                </div>
+              )}
+
+              {/* Room QRs */}
+              {qrCodes.roomQRs?.map((room) => (
+                <div key={room.roomId} className="flex flex-col items-center gap-2">
+                  <div className="w-full aspect-square bg-white p-3 flex items-center justify-center">
+                    <img
+                      src={room.qrUrl}
+                      alt={`${room.roomType} QR Code`}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <span className="text-xs text-stone-400 text-center" style={{ fontFamily: 'Nunito, sans-serif' }}>
+                    {room.roomType}
+                  </span>
+                  <a
+                    href={room.qrUrl}
+                    download={`${room.roomType.toLowerCase().replace(/\s+/g, '-')}-qr.svg`}
+                    className="text-xs text-amber-600 hover:text-amber-500 flex items-center gap-1"
+                  >
+                    <Download className="w-3 h-3" />
+                    Download SVG
+                  </a>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-4 text-xs text-stone-500" style={{ fontFamily: 'Nunito, sans-serif' }}>
+              Print these QR codes for open house signage. Each room code links directly to its design gallery.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
