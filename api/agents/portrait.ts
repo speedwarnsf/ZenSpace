@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, PersonGeneration } from '@google/genai';
 
 const SUPABASE_URL = 'https://vqkoxfenyjomillmxawh.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || '';
@@ -165,7 +165,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           config: {
             numberOfImages: 1,
             aspectRatio: '1:1',
-            personGeneration: 'ALLOW_ALL',
+            personGeneration: PersonGeneration.ALLOW_ALL,
           },
         });
 
