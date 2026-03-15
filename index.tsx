@@ -7,7 +7,7 @@ import { NotFound } from './components/NotFound';
 import { ThemeProvider } from './components/ThemeContext';
 import { ListingPage } from './components/ListingPage';
 import { RoomPage } from './components/RoomPage';
-import { AgentOnboarding } from './components/AgentOnboarding';
+import AgentOnboarding from './components/AgentOnboarding';
 import { ListingIntake } from './components/ListingIntake';
 import { ListingManage } from './components/ListingManage';
 
