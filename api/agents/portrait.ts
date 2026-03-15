@@ -26,10 +26,16 @@ const RETOUCH_STYLES = [
   'Film grain — organic texture, slightly desaturated, analog warmth',
 ];
 
-const WARDROBE_VIBES = [
-  'Sharp professional — tailored blazer or structured top, clean lines',
+const WARDROBE_VIBES_MALE = [
+  'Sharp professional — tailored blazer, crisp shirt, clean lines',
   'Smart casual — elevated everyday, open collar, understated luxury',
   'Modern minimal — monochrome, architectural silhouette, no distractions',
+];
+
+const WARDROBE_VIBES_FEMALE = [
+  'Editorial womenswear — structured blazer, elegant draping, editorial styling',
+  'Smart professional — tailored top or blouse, refined and polished',
+  'Modern minimal — monochrome, clean silhouette, understated luxury',
 ];
 
 const BACKGROUNDS = [
@@ -44,18 +50,23 @@ const LIGHTING = [
   'Graphic studio — high contrast, sharp directional light, editorial feel',
 ];
 
-const ALL_POOLS = [LENS_TYPES, RETOUCH_STYLES, WARDROBE_VIBES, BACKGROUNDS, LIGHTING];
 const POOL_NAMES = ['Lens', 'Retouch', 'Wardrobe', 'Background', 'Lighting'];
+
+function getAllPools(gender: string): string[][] {
+  const wardrobe = gender === 'female' ? WARDROBE_VIBES_FEMALE : WARDROBE_VIBES_MALE;
+  return [LENS_TYPES, RETOUCH_STYLES, wardrobe, BACKGROUNDS, LIGHTING];
+}
 
 /**
  * Generate 3 unique non-repeating combinations.
  * Each element is used at most once across the 3 portraits.
  */
-function generateCombinations(): Array<Record<string, string>> {
+function generateCombinations(gender: string): Array<Record<string, string>> {
   const combos: Array<Record<string, string>> = [];
+  const pools = getAllPools(gender);
 
   // Shuffle each pool independently
-  const shuffled: string[][] = ALL_POOLS.map(pool => {
+  const shuffled: string[][] = pools.map(pool => {
     const arr = [...pool];
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -104,7 +115,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { imageBase64, mimeType, agentId } = req.body;
+    const { imageBase64, mimeType, agentId, gender } = req.body;
 
     if (!imageBase64 || !mimeType) {
       return res.status(400).json({ error: 'imageBase64 and mimeType required' });
@@ -137,7 +148,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const faceDescription = analysisResponse.text || 'Professional adult';
 
     // Step 2: Generate 3 portraits with unique combos
-    const combos = generateCombinations();
+    const combos = generateCombinations(gender || 'male');
     const portraits: Array<{ combo: Record<string, string>; imageBase64: string }> = [];
 
     const genModel = 'gemini-2.5-flash-preview-05-20';

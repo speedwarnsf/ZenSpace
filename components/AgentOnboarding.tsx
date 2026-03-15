@@ -19,6 +19,7 @@ export default function AgentOnboarding() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [license, setLicense] = useState('');
+  const [gender, setGender] = useState<'male' | 'female'>('male');
 
   const [originalUrl, setOriginalUrl] = useState('');
   const [portraits, setPortraits] = useState<Portrait[]>([]);
@@ -62,7 +63,7 @@ export default function AgentOnboarding() {
       const response = await fetch('/api/agents/portrait', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64, mimeType, agentId }),
+        body: JSON.stringify({ imageBase64, mimeType, agentId, gender }),
       });
 
       if (!response.ok) {
@@ -266,6 +267,27 @@ export default function AgentOnboarding() {
                 className="w-full bg-stone-950 border border-stone-700 text-stone-100 px-4 py-3 focus:border-amber-600 focus:outline-none"
                 style={{ borderRadius: 0 }}
               />
+            </div>
+
+            <div>
+              <label className="block text-stone-300 text-sm mb-2">Portrait Style</label>
+              <div className="flex gap-4">
+                {(['male', 'female'] as const).map(g => (
+                  <button
+                    key={g}
+                    type="button"
+                    onClick={() => setGender(g)}
+                    className={`flex-1 py-3 px-4 border font-medium tracking-wide uppercase text-sm transition-colors ${
+                      gender === g
+                        ? 'border-amber-600 text-amber-600 bg-amber-600/10'
+                        : 'border-stone-700 text-stone-400 hover:border-stone-500'
+                    }`}
+                    style={{ borderRadius: 0 }}
+                  >
+                    {g === 'male' ? 'Menswear' : 'Womenswear'}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <button
