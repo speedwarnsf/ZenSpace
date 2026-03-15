@@ -221,7 +221,7 @@ export function ListingIntake() {
 
       {/* Footer */}
       <footer className="border-t border-stone-800 py-8 mt-12">
-        <p data-no-smooth className="max-w-4xl mx-auto px-6 text-center text-stone-500 text-sm">
+        <p className="max-w-4xl mx-auto px-6 text-center text-stone-500 text-sm">
           Powered by ZenSpace — AI-assisted design visualization
         </p>
       </footer>

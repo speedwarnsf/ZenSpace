@@ -158,7 +158,7 @@ export function RoomPage() {
                   >
                     {design.name}
                   </h3>
-                  <p className="text-stone-300 text-lg leading-relaxed mb-4" style={{ textWrap: 'pretty' }}>
+                  <p className="text-stone-300 text-lg leading-relaxed mb-4">
                     {design.description}
                   </p>
 
@@ -189,7 +189,7 @@ export function RoomPage() {
           >
             Capture your own angle
           </h3>
-          <p className="text-stone-400 mb-6 max-w-2xl mx-auto" data-no-smooth>
+          <p className="text-stone-400 mb-6 max-w-2xl mx-auto">
             Use the ZenSpace camera to photograph this room from any perspective and generate your own personalized design directions
           </p>
           <a
@@ -212,7 +212,7 @@ export function RoomPage() {
           >
             Partner with a design professional
           </h3>
-          <p className="text-stone-400 leading-relaxed" data-no-smooth>
+          <p className="text-stone-400 leading-relaxed">
             Connect with premium interior design firms in {listing.city} to bring these concepts to life.
           </p>
           <div className="mt-6">
@@ -230,7 +230,7 @@ export function RoomPage() {
 
       {/* Footer */}
       <footer className="border-t border-stone-800 py-8 mt-12">
-        <p className="max-w-6xl mx-auto px-6 text-center text-stone-500 text-sm" data-no-smooth>
+        <p className="max-w-6xl mx-auto px-6 text-center text-stone-500 text-sm">
           Powered by ZenSpace — AI-assisted design visualization
         </p>
       </footer>

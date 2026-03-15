@@ -17,6 +17,37 @@ export default function GlobalTypeset() {
     let mutationPaused = false;
     const ragCleanups: Array<() => void> = [];
 
+    /**
+     * Auto-detect and neutralize competing CSS text-wrap on elements
+     * we process. Also auto-detect centered text and mark it data-no-smooth
+     * so rag smoothing (designed for left-aligned body text) doesn't run.
+     *
+     * This is the zero-config principle: drop in GlobalTypeset and it
+     * handles conflicts automatically. No attributes, no caveats.
+     */
+    const prepareElements = () => {
+      const targets = document.querySelectorAll<HTMLElement>(
+        'p:not([data-no-typeset]), li:not([data-no-typeset]), blockquote:not([data-no-typeset]), figcaption:not([data-no-typeset]), h1:not([data-no-typeset]), h2:not([data-no-typeset]), h3:not([data-no-typeset]), h4:not([data-no-typeset])'
+      );
+      targets.forEach((el) => {
+        const computed = window.getComputedStyle(el);
+
+        // 1. Override competing text-wrap — typeset.us owns line breaking
+        const textWrap = computed.getPropertyValue('text-wrap');
+        if (textWrap === 'balance' || textWrap === 'pretty' || textWrap === 'stable') {
+          el.style.textWrap = 'auto';
+        }
+
+        // 2. Auto-detect centered text — skip rag smoothing (it's for left-aligned body)
+        if (!el.hasAttribute('data-no-smooth')) {
+          const align = computed.textAlign;
+          if (align === 'center' || align === '-webkit-center') {
+            el.setAttribute('data-no-smooth', '');
+          }
+        }
+      });
+    };
+
     const runBody = () => typesetAll('p:not([data-no-typeset]), li:not([data-no-typeset]), blockquote:not([data-no-typeset]), figcaption:not([data-no-typeset])');
 
     const runHeadings = () => {
@@ -69,6 +100,7 @@ export default function GlobalTypeset() {
     };
 
     const runTypeset = () => {
+      prepareElements();  // neutralize conflicts BEFORE processing
       runBody();
       runHeadings();
     };

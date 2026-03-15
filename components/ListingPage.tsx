@@ -143,7 +143,7 @@ export function ListingPage() {
 
       {/* Description */}
       <div className="max-w-6xl mx-auto px-6 py-8">
-        <p className="text-stone-300 leading-relaxed" style={{ textWrap: 'pretty' }}>
+        <p className="text-stone-300 leading-relaxed">
           {descriptionExpanded
             ? listing.description
             : `${listing.description.substring(0, 150)}${listing.description.length > 150 ? '...' : ''}`}
@@ -200,7 +200,7 @@ export function ListingPage() {
           >
             See it your way
           </h3>
-          <p className="text-stone-400 mb-6 max-w-2xl mx-auto" data-no-smooth>
+          <p className="text-stone-400 mb-6 max-w-2xl mx-auto">
             Photograph any room from your own angle and generate personalized design directions
           </p>
           <a
@@ -215,7 +215,7 @@ export function ListingPage() {
 
       {/* Footer */}
       <footer className="border-t border-stone-800 py-8">
-        <p className="max-w-6xl mx-auto px-6 text-center text-stone-500 text-sm" data-no-smooth>
+        <p className="max-w-6xl mx-auto px-6 text-center text-stone-500 text-sm">
           Powered by ZenSpace — AI-assisted design visualization
         </p>
       </footer>
