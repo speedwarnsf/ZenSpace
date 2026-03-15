@@ -55,19 +55,19 @@ function generateCombinations(): Array<Record<string, string>> {
   const combos: Array<Record<string, string>> = [];
 
   // Shuffle each pool independently
-  const shuffled = ALL_POOLS.map(pool => {
+  const shuffled: string[][] = ALL_POOLS.map(pool => {
     const arr = [...pool];
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+      [arr[i]!, arr[j]!] = [arr[j]!, arr[i]!];
     }
     return arr;
   });
 
   for (let i = 0; i < 3; i++) {
     const combo: Record<string, string> = {};
-    shuffled.forEach((pool, poolIdx) => {
-      combo[POOL_NAMES[poolIdx]] = pool[i];
+    shuffled.forEach((pool: string[], poolIdx: number) => {
+      combo[POOL_NAMES[poolIdx] as string] = pool[i] as string;
     });
     combos.push(combo);
   }
@@ -188,7 +188,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Step 3: Upload portraits to Supabase storage
     const results = [];
     for (let i = 0; i < portraits.length; i++) {
-      const portrait = portraits[i];
+      const portrait = portraits[i]!;
       const buffer = Buffer.from(portrait.imageBase64, 'base64');
       const fileName = `portraits/${agentId || 'temp'}/${Date.now()}-${i}.jpg`;
 
