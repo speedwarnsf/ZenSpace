@@ -64,9 +64,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const { data: rooms, error: roomsErr } = await supabase
       .from('listing_rooms')
-      .select('id, room_type')
+      .select('id, label')
       .eq('listing_id', listingId)
-      .order('room_type');
+      .neq('status', 'hidden')
+      .order('label');
 
     if (roomsErr) {
       return res.status(500).json({ error: 'Failed to fetch rooms' });
@@ -115,7 +116,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
 
       if (roomUpErr) {
-        console.error(`Room QR upload error for ${room.room_type}:`, roomUpErr);
+        console.error(`Room QR upload error for ${room.label}:`, roomUpErr);
       }
 
       const { data: roomUrlData } = supabase.storage
@@ -124,7 +125,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       roomQRs.push({
         roomId: room.id,
-        roomType: room.room_type,
+        roomType: room.label,
         url: roomUrl,
         qrUrl: roomUrlData.publicUrl,
       });
