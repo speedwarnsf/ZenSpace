@@ -158,7 +158,7 @@ export function RoomPage() {
                   >
                     {design.name}
                   </h3>
-                  <p className="text-stone-300 text-lg leading-relaxed mb-4" style={{ textWrap: 'pretty' }}>
+                  <p className="text-stone-300 text-base leading-relaxed mb-4">
                     {design.description}
                   </p>
 
