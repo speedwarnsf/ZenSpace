@@ -36,7 +36,8 @@ export async function getListingById(id: string): Promise<Listing | null> {
     const { data: designsData, error: designsError } = await supabase
       .from('listing_designs')
       .select('*')
-      .in('room_id', roomIds);
+      .in('room_id', roomIds)
+      .order('created_at', { ascending: true });
 
     if (designsError) {
       // Continue without designs
