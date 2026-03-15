@@ -45,6 +45,16 @@ export default function GlobalTypeset() {
             el.setAttribute('data-no-smooth', '');
           }
         }
+
+        // 3. Auto-detect narrow containers — rag smoothing creates visible
+        // word-spacing gaps at mobile widths. Only smooth at wide measures
+        // where the adjustments are subtle enough to be invisible.
+        if (!el.hasAttribute('data-no-smooth')) {
+          const width = el.clientWidth;
+          if (width > 0 && width < 500) {
+            el.setAttribute('data-no-smooth', '');
+          }
+        }
       });
     };
 
