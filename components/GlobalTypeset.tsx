@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { typesetAll, typesetHeading, smoothRag, fixRealOrphans, optimizeBreaks, shapeRag } from '../lib/typeset';
+import { typesetAll, typesetHeading, smoothRag, fixRealOrphans, optimizeBreaks, shapeRag, measureCh } from '../lib/typeset';
 
 /**
  * GlobalTypeset — applies typographic rules to all text on the page.
@@ -69,12 +69,13 @@ export default function GlobalTypeset() {
         while ((node = walker.nextNode())) {
           textNodes.push(node as Text);
         }
+        const measure = measureCh(el);
         for (const textNode of textNodes) {
           const original = textNode.textContent;
           if (!original || original.trim().length < 5) continue;
           const leadingSpace = original.match(/^\s*/)?.[0] || '';
           const trailingSpace = original.match(/\s*$/)?.[0] || '';
-          textNode.textContent = leadingSpace + typesetHeading(original.trim()) + trailingSpace;
+          textNode.textContent = leadingSpace + typesetHeading(original.trim(), measure) + trailingSpace;
         }
       });
     };

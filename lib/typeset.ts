@@ -43,28 +43,42 @@ const isSentenceEnd = (word: string) =>
  * Prioritizes meaning over orphan prevention.
  * Binds at punctuation boundaries, keeps phrases together.
  */
-function typesetHeadingText(text: string): string {
+function typesetHeadingText(text: string, measure?: number): string {
   if (!text || text.length < 5) return text;
   const words = text.split(/\s+/).filter(Boolean);
   if (words.length < 3) return text;
 
+  const m = measure ?? 65;
   const ARTICLES = new Set(['a', 'an', 'the']);
   const PREPS = new Set(['to', 'in', 'on', 'of', 'at', 'by', 'for', 'with', 'from']);
+
+  // At narrow widths, only do orphan prevention on headings too.
+  // Binding "a" to "design" in "Partner with a design professional"
+  // forces "professional" alone on the next line at mobile.
+  const doArticleBinding = m >= 50;
+  const doPrepBinding = m >= 50;
 
   const result: string[] = [];
   for (let i = 0; i < words.length; i++) {
     const word = words[i];
     const nextWord = i < words.length - 1 ? words[i + 1] : null;
 
-    // Never let an article sit alone at end of line — bind to next word
-    if (ARTICLES.has(word.toLowerCase()) && nextWord) {
+    // Orphan prevention — always bind last two words
+    if (i === words.length - 2 && nextWord) {
       result.push(word + NBSP + words[i + 1]);
       i++;
       continue;
     }
 
-    // Never let a short preposition sit alone at end of line
-    if (PREPS.has(word.toLowerCase()) && nextWord) {
+    // Article binding — only at sufficient width
+    if (doArticleBinding && ARTICLES.has(word.toLowerCase()) && nextWord) {
+      result.push(word + NBSP + words[i + 1]);
+      i++;
+      continue;
+    }
+
+    // Preposition binding — only at sufficient width
+    if (doPrepBinding && PREPS.has(word.toLowerCase()) && nextWord) {
       result.push(word + NBSP + words[i + 1]);
       i++;
       continue;
@@ -86,7 +100,7 @@ function typesetHeadingText(text: string): string {
 export function typesetText(text: string, options?: TypesetOptions): string {
   const mode = options?.mode ?? 'body';
   if (mode === 'heading') {
-    return typesetHeadingText(text);
+    return typesetHeadingText(text, options?.measure);
   }
   return typesetBodyText(text, options?.measure);
 }
@@ -94,8 +108,8 @@ export function typesetText(text: string, options?: TypesetOptions): string {
 /**
  * Convenience export for heading mode.
  */
-export function typesetHeading(text: string): string {
-  return typesetText(text, { mode: 'heading' });
+export function typesetHeading(text: string, measure?: number): string {
+  return typesetText(text, { mode: 'heading', measure });
 }
 
 /**
@@ -124,12 +138,16 @@ function typesetBodyText(text: string, measure?: number): string {
   // The thresholds below were tuned by testing at 375px (iPhone SE)
   // through 1200px+ desktop. DO NOT lower them without testing mobile.
   const m = measure ?? 65;
+  // MOBILE-FIRST: at narrow widths, ONLY prevent orphans.
+  // Every binding creates an unbreakable pair that constrains the browser.
+  // At 6-7 words per line, even one binding can force a bad layout.
+  // Let the browser handle line breaking — it's better at narrow widths.
   const doOrphans = m >= 25;                     // almost always — single-word last lines look bad at any width
-  const doNumberBinding = m >= 25;               // "30 years" — always safe, very short atom
-  const doTinyWordBinding = m >= 55;             // 1-2 char words: was 45, raised — at 45-54ch binding "of X" creates awkward breaks
-  const doSentenceProtection = m >= 55;          // sentence start/end: needs room to work (was 50, aligned with tiny)
-  const doMediumWordBinding = m >= 60;           // 3-char words (the, and, but, for) — was 55
-  const doFullShortWordBinding = m >= 65;        // full list: wide measures only
+  const doNumberBinding = m >= 40;               // "30 years" — safe, short atom, but skip at very narrow
+  const doTinyWordBinding = m >= 65;             // 1-2 char words: only at wide measures
+  const doSentenceProtection = m >= 65;          // sentence start/end: only at wide measures
+  const doMediumWordBinding = m >= 65;           // 3-char words (the, and, but, for): only at wide measures
+  const doFullShortWordBinding = m >= 75;        // full list: very wide measures only
 
   // Build word lists by size tier
   const tinyWords = new Set(['a', 'i', 'an', 'as', 'at', 'be', 'by', 'do', 'go', 'if', 'in', 'is', 'it', 'my', 'no', 'of', 'on', 'or', 'so', 'to', 'up', 'we']);
