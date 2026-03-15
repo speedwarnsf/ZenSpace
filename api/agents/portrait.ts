@@ -151,49 +151,47 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const combos = generateCombinations(gender || 'male');
     const portraits: Array<{ combo: Record<string, string>; imageBase64: string }> = [];
 
-    const genModel = 'gemini-2.5-flash-preview-05-20';
+    // imagen-3.0-generate-002 for photorealistic portrait generation
+    const genModel = 'imagen-3.0-generate-002';
+    const errors: string[] = [];
 
     for (const combo of combos) {
       const prompt = buildPortraitPrompt(combo, faceDescription);
 
       try {
-        const response = await ai.models.generateContent({
+        const response = await ai.models.generateImages({
           model: genModel,
-          contents: [{
-            role: 'user',
-            parts: [
-              {
-                inlineData: {
-                  mimeType,
-                  data: imageBase64,
-                },
-              },
-              { text: prompt },
-            ],
-          }],
+          prompt,
           config: {
-            responseModalities: ['TEXT', 'IMAGE'],
+            numberOfImages: 1,
+            aspectRatio: '1:1',
+            personGeneration: 'ALLOW_ALL',
           },
         });
 
-        // Extract image from response
-        const parts = response.candidates?.[0]?.content?.parts || [];
-        const imagePart = parts.find((p: any) => p.inlineData?.mimeType?.startsWith('image/'));
-
-        if (imagePart?.inlineData?.data) {
+        const image = response.generatedImages?.[0];
+        if (image?.image?.imageBytes) {
           portraits.push({
             combo,
-            imageBase64: imagePart.inlineData.data,
+            imageBase64: image.image.imageBytes,
           });
+        } else {
+          errors.push(`No image returned for combo ${portraits.length + 1}`);
         }
       } catch (genErr: any) {
-        console.error(`Portrait generation failed for combo:`, genErr.message);
+        const msg = genErr.message || String(genErr);
+        console.error(`Portrait generation failed:`, msg);
+        errors.push(msg);
         // Continue with remaining combos
       }
     }
 
     if (portraits.length === 0) {
-      return res.status(500).json({ error: 'All portrait generations failed' });
+      return res.status(500).json({ 
+        error: 'All portrait generations failed',
+        details: errors,
+        faceDescription,
+      });
     }
 
     // Step 3: Upload portraits to Supabase storage
